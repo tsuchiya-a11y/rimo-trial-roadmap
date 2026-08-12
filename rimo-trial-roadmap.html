@@ -128,6 +128,32 @@
   }
   .segmented button:last-child { border-right: none; }
   .segmented button.selected { background: var(--primary); color: #fff; font-weight: 700; }
+  .segmented.small button { padding: 6px 12px; font-size: 12.5px; }
+
+  /* ===== Competing tool rating rows ===== */
+  .rating-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--bg); border-radius: 8px; padding: 8px 12px; margin-top: 8px;
+  }
+  .rating-tool { font-size: 13px; font-weight: 700; }
+  .rating-opts { display: inline-flex; gap: 6px; }
+  .rating-opts button {
+    padding: 5px 12px; border-radius: 99px; border: 1.5px solid var(--border); background: #fff;
+    font-size: 12px; cursor: pointer; color: var(--text-sub); font-weight: 600;
+  }
+  .rating-opts button.sel-good { background: var(--success); border-color: var(--success); color: #fff; }
+  .rating-opts button.sel-mid { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .rating-opts button.sel-bad { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+  /* ===== Per-meeting-type detail rows ===== */
+  .detail-row {
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .detail-row:last-child { margin-bottom: 0; }
+  .dr-head { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+  .dr-sliders { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .dr-sliders .field-label { font-size: 12.5px; margin-bottom: 6px; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
@@ -203,15 +229,6 @@
   .btn-next:hover { background: var(--primary-dark); }
   .btn-back { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
   .btn-back:hover { background: var(--bg); }
-
-  /* ===== Decision-maker banner ===== */
-  .dm-banner {
-    display: flex; gap: 12px; align-items: flex-start;
-    background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius);
-    padding: 14px 18px; margin-bottom: 18px; font-size: 13px;
-  }
-  .dm-banner .icon { font-size: 18px; }
-  .dm-banner b { color: #9a3412; }
 
   /* ============================================================
      SHEET (print view)
@@ -318,7 +335,6 @@
     <button class="nav-step" data-step="1"><span class="num">2</span>現状確認</button>
     <button class="nav-step" data-step="2"><span class="num">3</span>トライアル前提確認</button>
     <button class="nav-step" data-step="3"><span class="num">4</span>検証項目・クリア基準</button>
-    <button class="nav-step" data-step="4"><span class="num">5</span>課題（振り返り時）</button>
     <div class="sidebar-footer">
       <button class="btn-print-side" onclick="openSheet()">📄 トライアルシート</button>
     </div>
@@ -335,57 +351,20 @@
       </div>
 
       <div class="card">
-        <h2>お客様情報</h2>
-        <div class="field-row">
-          <div class="field">
-            <div class="field-label">会社名</div>
-            <input type="text" id="companyName" placeholder="例）株式会社〇〇" oninput="S.companyName=this.value">
-          </div>
-          <div class="field">
-            <div class="field-label">部署名</div>
-            <input type="text" id="deptName" placeholder="例）営業企画部" oninput="S.deptName=this.value">
-          </div>
-        </div>
-        <div class="field-row">
-          <div class="field">
-            <div class="field-label">ご担当者名</div>
-            <input type="text" id="contactName" placeholder="例）山田 様" oninput="S.contactName=this.value">
-          </div>
-          <div class="field">
-            <div class="field-label">決裁者名 <span class="hint">わかる範囲で</span></div>
-            <input type="text" id="dmName" placeholder="例）佐藤部長 様" oninput="S.dmName=this.value">
-          </div>
-          <div class="field">
-            <div class="field-label">Rimo担当</div>
-            <input type="text" id="salesName" placeholder="例）土屋" oninput="S.salesName=this.value">
-          </div>
-        </div>
-      </div>
-
-      <div class="dm-banner">
-        <span class="icon">💡</span>
-        <div><b>受注案件の共通点：</b>決裁者の方がハーフMTG・振り返りMTGに早期から参加されている案件ほど、スムーズに導入判断まで進んでいます。可能であればこの場でご予定を仮押さえください。</div>
-      </div>
-
-      <div class="card">
         <h2>トライアルスケジュール</h2>
         <div class="field-row">
           <div class="field">
             <div class="field-label">トライアル開始日</div>
-            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates()">
+            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates(); updateAnnounceGap()">
           </div>
           <div class="field">
-            <div class="field-label">ハーフMTG <span class="hint">中間確認・任意</span></div>
-            <input type="date" id="dateHalf" onchange="S.dateHalf=this.value">
+            <div class="field-label">トライアル終了日</div>
+            <input type="date" id="dateEnd" onchange="S.dateEnd=this.value">
           </div>
           <div class="field">
-            <div class="field-label">振り返りMTG <span class="hint">効果確認</span></div>
+            <div class="field-label">振り返りMTG</div>
             <input type="date" id="dateReview" onchange="S.dateReview=this.value">
           </div>
-        </div>
-        <div class="field">
-          <div class="field-label">決裁者のご参加予定 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="dmJoin"></div>
         </div>
       </div>
 
@@ -413,6 +392,11 @@
           <div class="field-label">現在の議事録作成方法</div>
           <div class="chips" id="minutesMethod"></div>
         </div>
+        <div class="field" id="competingToolsWrap" style="display:none;">
+          <div class="field-label">現在お使いのツール <span class="hint">複数選択可</span></div>
+          <div class="chips" id="competingTools"></div>
+          <div id="competingToolsRatings"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -426,43 +410,24 @@
           <div class="segmented" data-seg="meetingScope"></div>
         </div>
         <div class="field">
-          <div class="field-label">議事録の作成対象</div>
-          <div class="segmented" data-seg="minutesTarget"></div>
+          <div class="field-label">打ち合わせの実施目的 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="meetingPurposes"></div>
         </div>
       </div>
 
       <div class="card">
-        <h2>議事録作成にかかる時間</h2>
-        <div class="field">
-          <div class="field-label">1件あたりの作成時間</div>
-          <div class="slider-wrap">
-            <input type="range" min="0" max="120" step="5" value="30" id="minutesPerDoc"
-              oninput="S.minutesPerDoc=+this.value; updateCalc()">
-            <div class="slider-value" id="minutesPerDocVal">30 分</div>
-          </div>
-        </div>
-        <div class="field">
-          <div class="field-label">議事録を作成する会議の件数（週あたり・チーム全体）</div>
-          <div class="slider-wrap">
-            <input type="range" min="0" max="50" step="1" value="5" id="docsPerWeek"
-              oninput="S.docsPerWeek=+this.value; updateCalc()">
-            <div class="slider-value" id="docsPerWeekVal">5 件/週</div>
-          </div>
-        </div>
-        <div class="calc-box">
+        <h2>打ち合わせごとの議事録作成状況</h2>
+        <div id="meetingDetailEmpty" class="checker-note">上の「打ち合わせの実施目的」から種類を選択すると、ここに入力欄が表示されます。</div>
+        <div id="meetingDetailRows"></div>
+        <div class="calc-box" id="workloadCalcBox" style="display:none;">
           <div class="calc-title">📊 議事録作成にかかっている稼働（自動試算）</div>
           <div class="calc-row">
             <div class="calc-item">
-              <span class="v" id="calcMonthlyHours">10</span><span class="u"> 時間/月</span>
+              <span class="v" id="calcMonthlyHours">0</span><span class="u"> 時間/月</span>
               <span class="l">現在の議事録作成稼働</span>
             </div>
-            <div class="calc-arrow" id="calcArrow" style="display:none;">→</div>
-            <div class="calc-item" id="calcTargetWrap" style="display:none;">
-              <span class="v" id="calcTargetHours">-</span><span class="u"> 時間/月</span>
-              <span class="l">目標（検証項目で設定した削減率を適用）</span>
-            </div>
           </div>
-          <div class="checker-note">※ 週あたり件数 × 1件あたり時間 × 4週で試算しています。</div>
+          <div class="checker-note">※ 打ち合わせ種類ごとの「頻度 × 1件あたり時間」を合算して試算しています。</div>
         </div>
       </div>
 
@@ -485,7 +450,7 @@
       <div class="step-header">
         <span class="step-tag">STEP 3</span>
         <h1>トライアル前提確認</h1>
-        <p>トライアルを有意義にするための体制を確認します。<b>実際に触れる人数が多いほど検証の精度が上がります。</b></p>
+        <p>トライアルを有意義にするための体制を確認します。</p>
       </div>
 
       <div class="card">
@@ -496,7 +461,8 @@
         </div>
         <div class="field" id="announceDateWrap" style="display:none;">
           <div class="field-label">周知予定日</div>
-          <input type="date" id="announceDate" style="max-width:220px;" onchange="S.announceDate=this.value">
+          <input type="date" id="announceDate" style="max-width:220px;" onchange="S.announceDate=this.value; updateAnnounceGap()">
+          <div class="checker-note" id="announceGapNote"></div>
         </div>
       </div>
 
@@ -509,7 +475,6 @@
               oninput="S.memberCount=+this.value; updateCalc()">
             <div class="slider-value" id="memberCountVal">5 名</div>
           </div>
-          <div class="checker-note" id="memberNote">💡 受注に至った案件では、複数の現場メンバーが実際に利用し高評価を得たことが決め手になっています。</div>
         </div>
       </div>
 
@@ -536,7 +501,7 @@
       <div class="step-header">
         <span class="step-tag">STEP 4</span>
         <h1>検証項目・クリア基準の合意</h1>
-        <p>「何が確認できたら導入価値がある」と言えるか、トライアル前にお客様と合意します。検証する項目をONにしてください。</p>
+        <p>トライアルで「何を確認できれば有用性を実感できたか」を、実施前にお客様と合意します。検証する項目をONにしてください。</p>
       </div>
 
       <!-- 検証1: 稼働軽減 -->
@@ -545,41 +510,20 @@
           <div class="toggle"></div>
           <div>
             <div class="vh-title">① 議事録作成稼働の軽減</div>
-            <div class="vh-sub">議事録作成にかかる時間がどれだけ削減できるか</div>
+            <div class="vh-sub">議事録作成にかかる時間がどれだけ軽減できるか</div>
           </div>
         </div>
         <div class="verify-body">
-          <div class="field">
-            <div class="field-label">クリア基準：作成時間の削減率</div>
-            <div class="slider-wrap">
-              <input type="range" min="10" max="90" step="10" value="50" id="reductionTarget"
-                oninput="S.reductionTarget=+this.value; updateCalc()">
-              <div class="slider-value" id="reductionTargetVal">50 % 以上</div>
-            </div>
-          </div>
           <div class="calc-box">
-            <div class="calc-title">📊 削減効果の試算</div>
+            <div class="calc-title">📊 現状の作成稼働（参考値）</div>
             <div class="calc-row">
               <div class="calc-item">
-                <span class="v" id="v1Current">10</span><span class="u"> 時間/月</span>
-                <span class="l">現状の作成稼働</span>
-              </div>
-              <div class="calc-arrow">→</div>
-              <div class="calc-item">
-                <span class="v" id="v1After">5</span><span class="u"> 時間/月</span>
-                <span class="l">削減後の想定稼働</span>
-              </div>
-              <div class="calc-item">
-                <span class="v" id="v1Saved" style="color:var(--success);">5</span><span class="u" style="color:var(--success);"> 時間/月 削減</span>
-                <span class="l">創出できる時間</span>
+                <span class="v" id="v1Current">0</span><span class="u"> 時間/月</span>
+                <span class="l">現状の議事録作成稼働</span>
               </div>
             </div>
           </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text" id="critWorkload">議事録1件あたりの作成時間を 50% 以上削減できること</span></div>
-          <div class="judge-row">
-            <span class="judge-label">振り返り時の判定：</span>
-            <div class="judge-opts" data-judge="workload"></div>
-          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">議事録作成の稼働が軽減できたと実感できること</span></div>
         </div>
       </div>
 
@@ -598,19 +542,33 @@
             <div class="chips" id="aiFeatures"></div>
           </div>
           <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した機能が実際の会議で業務に活用できると確認できること</span></div>
-          <div class="judge-row">
-            <span class="judge-label">振り返り時の判定：</span>
-            <div class="judge-opts" data-judge="ai"></div>
-          </div>
         </div>
       </div>
 
-      <!-- 検証3: RAG検索 -->
+      <!-- 検証3: 共有・展開 -->
+      <div class="verify-card on" id="vc-sharing">
+        <div class="verify-head" onclick="toggleVerify('sharing')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">③ 議事録の共有・展開</div>
+            <div class="vh-sub">関係者への共有がどれだけスムーズになるか</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <div class="field">
+            <div class="field-label">想定する共有シーン <span class="hint">複数選択可</span></div>
+            <div class="chips" id="sharingScenes"></div>
+          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択したシーンで共有がスムーズになったと確認できること</span></div>
+        </div>
+      </div>
+
+      <!-- 検証4: RAG検索 -->
       <div class="verify-card" id="vc-rag">
         <div class="verify-head" onclick="toggleVerify('rag')">
           <div class="toggle"></div>
           <div>
-            <div class="vh-title">③ RAG検索（過去議事録の横断検索・AIへの質問）</div>
+            <div class="vh-title">④ RAG検索（過去議事録の横断検索・AIへの質問）</div>
             <div class="vh-sub">蓄積した議事録をナレッジとして引き出せるか</div>
           </div>
         </div>
@@ -620,19 +578,15 @@
             <div class="chips" id="ragScenes"></div>
           </div>
           <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">想定シーンで必要な情報が検索・抽出できると確認できること</span></div>
-          <div class="judge-row">
-            <span class="judge-label">振り返り時の判定：</span>
-            <div class="judge-opts" data-judge="rag"></div>
-          </div>
         </div>
       </div>
 
-      <!-- 検証4: 副次効果 -->
+      <!-- 検証5: 副次効果 -->
       <div class="verify-card" id="vc-side">
         <div class="verify-head" onclick="toggleVerify('side')">
           <div class="toggle"></div>
           <div>
-            <div class="vh-title">④ その他の副次効果</div>
+            <div class="vh-title">⑤ その他の副次効果</div>
             <div class="vh-sub">稼働削減以外に期待する効果</div>
           </div>
         </div>
@@ -642,45 +596,11 @@
             <div class="chips" id="sideEffects"></div>
           </div>
           <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した効果が実感できたとメンバーから確認できること</span></div>
-          <div class="judge-row">
-            <span class="judge-label">振り返り時の判定：</span>
-            <div class="judge-opts" data-judge="side"></div>
-          </div>
         </div>
       </div>
 
       <div class="panel-nav">
         <button class="btn btn-back" onclick="goStep(2)">← 戻る</button>
-        <button class="btn btn-next" onclick="goStep(4)">次へ：課題の記録 →</button>
-      </div>
-    </section>
-
-    <!-- ========== STEP 4: 課題 ========== -->
-    <section class="step-panel" data-panel="4">
-      <div class="step-header">
-        <span class="step-tag">STEP 5</span>
-        <h1>課題（振り返りMTG時に記入）</h1>
-        <p>トライアル運用の中で出てきた課題を記録します。初回商談時は空欄のままで構いません。</p>
-      </div>
-
-      <div class="card">
-        <h2>運用上の課題</h2>
-        <div class="field">
-          <div class="field-label">運用する中で課題はありましたか</div>
-          <div class="segmented" data-seg="hasIssue"></div>
-        </div>
-        <div class="field" id="issueDetailWrap" style="display:none;">
-          <div class="field-label">課題のカテゴリ <span class="hint">複数選択可</span></div>
-          <div class="chips" id="issueCategories"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">詳細メモ <span class="hint">任意</span></div>
-          <textarea id="issueNote" placeholder="例）社外MTGでの録音の許諾フローを整理したい 等" oninput="S.issueNote=this.value"></textarea>
-        </div>
-      </div>
-
-      <div class="panel-nav">
-        <button class="btn btn-back" onclick="goStep(3)">← 戻る</button>
         <button class="btn btn-next" onclick="openSheet()">📄 トライアルシートを確認 →</button>
       </div>
     </section>
@@ -705,57 +625,46 @@
    State
 ============================================================ */
 const S = {
-  companyName: "", deptName: "", contactName: "", dmName: "", salesName: "",
-  dateStart: "", dateHalf: "", dateReview: "",
-  dmJoin: [],                 // 決裁者参加予定
+  dateStart: "", dateEnd: "", dateReview: "",
   meetingTools: [], meetingToolsOther: "",
   minutesMethod: [],
-  meetingStyle: "", meetingScope: "", minutesTarget: "",
-  minutesPerDoc: 30, docsPerWeek: 5,
+  competingTools: [], competingToolRatings: {},
+  meetingStyle: "", meetingScope: "",
+  meetingPurposes: [], meetingDetail: {},
   minutesUsage: [],
   announce: "", announceDate: "",
   memberCount: 5,
   targetMeetings: [], targetMeetingsNote: "",
-  verify: { workload: true, ai: true, rag: false, side: false },
-  reductionTarget: 50,
-  aiFeatures: [], ragScenes: [], sideEffects: [],
-  judge: { workload: "", ai: "", rag: "", side: "" },
-  hasIssue: "", issueCategories: [], issueNote: ""
+  verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
+  aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
 
 /* ============================================================
    Option definitions
 ============================================================ */
 const OPTIONS = {
-  dmJoin: ["トライアル開始MTG", "ハーフMTG", "振り返りMTG"],
-  meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面のみ", "その他"],
-  minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "他の文字起こしツール", "作成していない"],
+  meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面", "その他"],
+  minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "文字起こし/議事録ツール活用中", "作成していない"],
+  competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
+  meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
-  aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳", "共有リンクでの展開"],
+  aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳"],
+  sharingScenes: ["共有リンクでの即時展開", "Slack/Teams等への自動連携", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
   ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
-  sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"],
-  issueCategories: ["操作性・使い方", "文字起こし精度", "運用ルールの整備", "セキュリティ・許諾", "権限・アカウント管理", "外部ツール連携"]
+  sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"]
 };
 
 const SEGMENTS = {
   meetingStyle: ["Webが中心", "対面が中心", "半々くらい"],
   meetingScope: ["社内が中心", "社外が中心", "両方"],
-  minutesTarget: ["すべての会議", "重要な会議のみ", "決まっていない"],
-  announce: ["周知済み", "周知予定あり", "未定"],
-  hasIssue: ["特になし", "課題あり", "（未記入）"]
+  announce: ["周知済み", "周知予定あり", "未定"]
 };
-
-const JUDGE_OPTS = [
-  { key: "達成", cls: "sel-ok" },
-  { key: "一部達成", cls: "sel-mid" },
-  { key: "未達", cls: "sel-ng" }
-];
 
 /* ============================================================
    UI builders
 ============================================================ */
-function buildChips(id, options, stateKey) {
+function buildChips(id, options, stateKey, onToggle) {
   const wrap = document.getElementById(id);
   options.forEach(opt => {
     const el = document.createElement("div");
@@ -766,6 +675,7 @@ function buildChips(id, options, stateKey) {
       const i = arr.indexOf(opt);
       if (i >= 0) arr.splice(i, 1); else arr.push(opt);
       el.classList.toggle("selected");
+      if (onToggle) onToggle(opt);
     };
     wrap.appendChild(el);
   });
@@ -775,7 +685,6 @@ function buildSegmented() {
   document.querySelectorAll("[data-seg]").forEach(wrap => {
     const key = wrap.dataset.seg;
     SEGMENTS[key].forEach(opt => {
-      if (key === "hasIssue" && opt === "（未記入）") return;
       const b = document.createElement("button");
       b.textContent = opt;
       b.onclick = () => {
@@ -785,10 +694,7 @@ function buildSegmented() {
         if (key === "announce") {
           document.getElementById("announceDateWrap").style.display =
             (S.announce === "周知予定あり") ? "block" : "none";
-        }
-        if (key === "hasIssue") {
-          document.getElementById("issueDetailWrap").style.display =
-            (S.hasIssue === "課題あり") ? "block" : "none";
+          updateAnnounceGap();
         }
       };
       wrap.appendChild(b);
@@ -796,19 +702,112 @@ function buildSegmented() {
   });
 }
 
-function buildJudges() {
-  document.querySelectorAll("[data-judge]").forEach(wrap => {
-    const key = wrap.dataset.judge;
-    JUDGE_OPTS.forEach(({ key: opt, cls }) => {
+function buildCompetingChips() {
+  const wrap = document.getElementById("competingTools");
+  OPTIONS.competingTools.forEach(opt => {
+    const el = document.createElement("div");
+    el.className = "chip";
+    el.textContent = opt;
+    el.onclick = () => {
+      const arr = S.competingTools;
+      const i = arr.indexOf(opt);
+      if (i >= 0) { arr.splice(i, 1); delete S.competingToolRatings[opt]; }
+      else arr.push(opt);
+      el.classList.toggle("selected");
+      renderCompetingRatings();
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function renderCompetingRatings() {
+  const wrap = document.getElementById("competingToolsRatings");
+  wrap.innerHTML = "";
+  S.competingTools.forEach(tool => {
+    const row = document.createElement("div");
+    row.className = "rating-row";
+    const label = document.createElement("span");
+    label.className = "rating-tool";
+    label.textContent = tool;
+    row.appendChild(label);
+    const opts = document.createElement("div");
+    opts.className = "rating-opts";
+    [["満足", "sel-good"], ["やや不満", "sel-mid"], ["不満", "sel-bad"]].forEach(([r, cls]) => {
+      const b = document.createElement("button");
+      b.textContent = r;
+      if (S.competingToolRatings[tool] === r) b.className = cls;
+      b.onclick = () => {
+        S.competingToolRatings[tool] = (S.competingToolRatings[tool] === r) ? "" : r;
+        renderCompetingRatings();
+      };
+      opts.appendChild(b);
+    });
+    row.appendChild(opts);
+    wrap.appendChild(row);
+  });
+}
+
+function buildDetailSlider(label, value, min, max, step, unit, onChange) {
+  const field = document.createElement("div");
+  const lbl = document.createElement("div");
+  lbl.className = "field-label";
+  lbl.textContent = label;
+  field.appendChild(lbl);
+  const sw = document.createElement("div");
+  sw.className = "slider-wrap";
+  const input = document.createElement("input");
+  input.type = "range"; input.min = min; input.max = max; input.step = step; input.value = value;
+  const valDisplay = document.createElement("div");
+  valDisplay.className = "slider-value";
+  valDisplay.textContent = `${value} ${unit}`;
+  input.oninput = () => {
+    onChange(+input.value);
+    valDisplay.textContent = `${input.value} ${unit}`;
+    updateCalc();
+  };
+  sw.appendChild(input); sw.appendChild(valDisplay);
+  field.appendChild(sw);
+  return field;
+}
+
+function renderMeetingDetailRows() {
+  const wrap = document.getElementById("meetingDetailRows");
+  const empty = document.getElementById("meetingDetailEmpty");
+  wrap.innerHTML = "";
+  empty.style.display = S.meetingPurposes.length ? "none" : "block";
+  S.meetingPurposes.forEach(purpose => {
+    const d = S.meetingDetail[purpose];
+    if (!d) return;
+    const row = document.createElement("div");
+    row.className = "detail-row";
+    const head = document.createElement("div");
+    head.className = "dr-head";
+    head.textContent = purpose;
+    row.appendChild(head);
+
+    const seg = document.createElement("div");
+    seg.className = "segmented small";
+    ["作成する", "作成しない"].forEach(opt => {
       const b = document.createElement("button");
       b.textContent = opt;
+      if (d.makes === opt) b.classList.add("selected");
       b.onclick = () => {
-        S.judge[key] = (S.judge[key] === opt) ? "" : opt;
-        wrap.querySelectorAll("button").forEach(x => x.className = "");
-        if (S.judge[key]) b.className = cls;
+        d.makes = (d.makes === opt) ? "" : opt;
+        renderMeetingDetailRows();
+        updateCalc();
       };
-      wrap.appendChild(b);
+      seg.appendChild(b);
     });
+    row.appendChild(seg);
+
+    if (d.makes === "作成する") {
+      const sliders = document.createElement("div");
+      sliders.className = "dr-sliders";
+      sliders.appendChild(buildDetailSlider("頻度（件/週）", d.perWeek, 0, 20, 1, "件/週", v => { d.perWeek = v; }));
+      sliders.appendChild(buildDetailSlider("1件あたりの作成時間", d.perDoc, 0, 120, 5, "分", v => { d.perDoc = v; }));
+      row.appendChild(sliders);
+    }
+    wrap.appendChild(row);
   });
 }
 
@@ -828,45 +827,56 @@ function toggleVerify(key) {
 }
 
 function autoFillDates() {
-  // 開始日からハーフMTG(+7日)・振り返り(+14日)を自動提案（未入力時のみ）
+  // 開始日から終了日・振り返り(いずれも+7日)を自動提案（未入力時のみ）
   if (!S.dateStart) return;
   const base = new Date(S.dateStart + "T00:00:00");
   const fmt = d => d.toISOString().slice(0, 10);
-  if (!S.dateHalf) {
+  if (!S.dateEnd) {
     const d = new Date(base); d.setDate(d.getDate() + 7);
-    S.dateHalf = fmt(d); document.getElementById("dateHalf").value = S.dateHalf;
+    S.dateEnd = fmt(d); document.getElementById("dateEnd").value = S.dateEnd;
   }
   if (!S.dateReview) {
-    const d = new Date(base); d.setDate(d.getDate() + 14);
+    const d = new Date(base); d.setDate(d.getDate() + 7);
     S.dateReview = fmt(d); document.getElementById("dateReview").value = S.dateReview;
   }
 }
 
+function updateAnnounceGap() {
+  const note = document.getElementById("announceGapNote");
+  if (!note) return;
+  if (!S.announceDate) { note.textContent = ""; return; }
+  if (!S.dateStart) { note.textContent = "※ トライアル開始日が未設定です（先にSTEP1で設定してください）"; return; }
+  const gapDays = Math.round(
+    (new Date(S.dateStart + "T00:00:00") - new Date(S.announceDate + "T00:00:00")) / 86400000
+  );
+  if (gapDays < 0) {
+    note.textContent = `⚠ 周知予定日がトライアル開始日より ${-gapDays}日後になっています。開始日の調整をご検討ください。`;
+  } else if (gapDays === 0) {
+    note.textContent = "周知予定日とトライアル開始日が同日です。";
+  } else {
+    note.textContent = `周知からトライアル開始まで ${gapDays}日あります。`;
+  }
+}
+
 function monthlyHours() {
-  return Math.round(S.minutesPerDoc * S.docsPerWeek * 4 / 60 * 10) / 10;
+  let totalMinutes = 0;
+  for (const p of S.meetingPurposes) {
+    const d = S.meetingDetail[p];
+    if (d && d.makes === "作成する") {
+      totalMinutes += (d.perWeek || 0) * (d.perDoc || 0) * 4;
+    }
+  }
+  return Math.round(totalMinutes / 60 * 10) / 10;
 }
 
 function updateCalc() {
-  document.getElementById("minutesPerDocVal").textContent = S.minutesPerDoc + " 分";
-  document.getElementById("docsPerWeekVal").textContent = S.docsPerWeek + " 件/週";
   document.getElementById("memberCountVal").textContent = S.memberCount + " 名";
-  document.getElementById("reductionTargetVal").textContent = S.reductionTarget + " % 以上";
 
   const cur = monthlyHours();
-  const after = Math.round(cur * (100 - S.reductionTarget) / 100 * 10) / 10;
-  const saved = Math.round((cur - after) * 10) / 10;
-
+  const hasData = S.meetingPurposes.some(p => S.meetingDetail[p] && S.meetingDetail[p].makes === "作成する");
+  document.getElementById("workloadCalcBox").style.display = hasData ? "block" : "none";
   document.getElementById("calcMonthlyHours").textContent = cur;
-  const showTarget = S.verify.workload;
-  document.getElementById("calcArrow").style.display = showTarget ? "" : "none";
-  document.getElementById("calcTargetWrap").style.display = showTarget ? "" : "none";
-  document.getElementById("calcTargetHours").textContent = after;
-
   document.getElementById("v1Current").textContent = cur;
-  document.getElementById("v1After").textContent = after;
-  document.getElementById("v1Saved").textContent = saved;
-  document.getElementById("critWorkload").textContent =
-    `議事録1件あたりの作成時間を ${S.reductionTarget}% 以上削減できること`;
 }
 
 /* ============================================================
@@ -881,74 +891,67 @@ const fmtDate = d => {
   return `${y}/${+m}/${+dd}`;
 };
 
-function judgeMark(key) {
-  const j = S.judge[key];
-  if (!j) return `<span class="sh-check">☐ 達成　☐ 一部達成　☐ 未達</span>`;
-  return JUDGE_OPTS.map(o =>
-    `<span class="sh-check">${o.key === j ? "☑" : "☐"} ${o.key}</span>`
-  ).join("　");
-}
-
 function renderSheet() {
   const cur = monthlyHours();
-  const after = Math.round(cur * (100 - S.reductionTarget) / 100 * 10) / 10;
-  const saved = Math.round((cur - after) * 10) / 10;
   const today = new Date();
   const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
   const verifyRows = [];
   if (S.verify.workload) verifyRows.push({
     name: "① 議事録作成稼働の軽減",
-    crit: `作成時間を ${S.reductionTarget}% 以上削減（${cur}時間/月 → ${after}時間/月、${saved}時間/月の創出）`,
-    judge: judgeMark("workload")
+    crit: "議事録作成の稼働が軽減できたと実感できること"
   });
   if (S.verify.ai) verifyRows.push({
     name: "② AI機能の活用",
-    crit: (S.aiFeatures.length ? "対象機能：" + S.aiFeatures.join("、") + "。" : "") + "実務で活用できると確認できること",
-    judge: judgeMark("ai")
+    crit: (S.aiFeatures.length ? "対象機能：" + S.aiFeatures.join("、") + "。" : "") + "実務で活用できると確認できること"
+  });
+  if (S.verify.sharing) verifyRows.push({
+    name: "③ 議事録の共有・展開",
+    crit: (S.sharingScenes.length ? "共有シーン：" + S.sharingScenes.join("、") + "。" : "") + "共有がスムーズになったと確認できること"
   });
   if (S.verify.rag) verifyRows.push({
-    name: "③ RAG検索",
-    crit: (S.ragScenes.length ? "利用シーン：" + S.ragScenes.join("、") + "。" : "") + "必要な情報が検索・抽出できること",
-    judge: judgeMark("rag")
+    name: "④ RAG検索",
+    crit: (S.ragScenes.length ? "利用シーン：" + S.ragScenes.join("、") + "。" : "") + "必要な情報が検索・抽出できること"
   });
   if (S.verify.side) verifyRows.push({
-    name: "④ その他の副次効果",
-    crit: (S.sideEffects.length ? S.sideEffects.join("、") + " が" : "期待する効果が") + "実感できたと確認できること",
-    judge: judgeMark("side")
+    name: "⑤ その他の副次効果",
+    crit: (S.sideEffects.length ? S.sideEffects.join("、") + " が" : "期待する効果が") + "実感できたと確認できること"
   });
 
-  const issueCell = S.hasIssue === "課題あり"
-    ? `${list(S.issueCategories, "")}${S.issueNote ? "<br>" + esc(S.issueNote) : ""}`
-    : S.hasIssue === "特になし" ? "特になし"
-    : `<span class="sh-empty">振り返りMTGにて記入</span>`;
+  const purposeRows = S.meetingPurposes.map(p => {
+    const d = S.meetingDetail[p] || {};
+    if (d.makes === "作成する") return `${esc(p)}：作成する（${d.perWeek}件/週 × ${d.perDoc}分）`;
+    if (d.makes === "作成しない") return `${esc(p)}：作成しない`;
+    return `${esc(p)}：未設定`;
+  });
+
+  const competingRows = S.competingTools.map(t =>
+    `${esc(t)}${S.competingToolRatings[t] ? "（" + esc(S.competingToolRatings[t]) + "）" : ""}`
+  );
 
   document.getElementById("sheetBody").innerHTML = `
     <div class="sh-header">
       <div>
         <h1>トライアル実証ロードマップ</h1>
-        <div class="sh-sub">作成日：${todayStr}　│　${val(S.companyName, "会社名未入力")} ${esc(S.deptName)} 御中</div>
+        <div class="sh-sub">作成日：${todayStr}</div>
       </div>
-      <div class="sh-brand">Rimo Voice<small>Rimo LLC　担当：${val(S.salesName, "")}</small></div>
+      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
 
     <div class="sh-section">
       <h2>1. トライアルスケジュール</h2>
       <div class="sh-schedule">
         <div class="sh-step">
-          <div class="st-name">STEP 1　トライアル開始</div>
+          <div class="st-name">トライアル開始日</div>
           <div class="st-date">${val(fmtDate(S.dateStart), "未定")}</div>
-          <div class="st-dm">${S.dmJoin.includes("トライアル開始MTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
         </div>
         <div class="sh-step">
-          <div class="st-name">STEP 2　実利用＋ハーフMTG</div>
-          <div class="st-date">${val(fmtDate(S.dateHalf), "未定")}</div>
-          <div class="st-dm">${S.dmJoin.includes("ハーフMTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
+          <div class="st-name">トライアル終了日</div>
+          <div class="st-date">${val(fmtDate(S.dateEnd), "未定")}</div>
         </div>
         <div class="sh-step">
-          <div class="st-name">STEP 3　振り返りMTG</div>
+          <div class="st-name">振り返りMTG</div>
           <div class="st-date">${val(fmtDate(S.dateReview), "未定")}</div>
-          <div class="st-dm">${S.dmJoin.includes("振り返りMTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
         </div>
       </div>
     </div>
@@ -958,9 +961,10 @@ function renderSheet() {
       <table class="sh-table">
         <tr><th>会議ツール</th><td>${list(S.meetingTools)}</td></tr>
         <tr><th>議事録作成方法</th><td>${list(S.minutesMethod)}</td></tr>
+        ${competingRows.length ? `<tr><th>現在お使いのツール</th><td>${competingRows.join("、")}</td></tr>` : ""}
         <tr><th>打ち合わせの実施方法</th><td>${val(S.meetingStyle)}　／　${val(S.meetingScope)}</td></tr>
-        <tr><th>議事録の作成対象</th><td>${val(S.minutesTarget)}</td></tr>
-        <tr><th>議事録作成の稼働</th><td>1件あたり ${S.minutesPerDoc}分 × 週${S.docsPerWeek}件 ＝ <b>約 ${cur} 時間/月</b></td></tr>
+        <tr><th>打ち合わせの実施目的</th><td>${purposeRows.length ? purposeRows.join("<br>") : `<span class="sh-empty">―</span>`}</td></tr>
+        <tr><th>議事録作成の稼働</th><td><b>約 ${cur} 時間/月</b>（上表の目的ごとの合算）</td></tr>
         <tr><th>議事録の活用状況</th><td>${list(S.minutesUsage)}</td></tr>
       </table>
     </div>
@@ -978,35 +982,23 @@ function renderSheet() {
       <h2>4. 検証項目とクリア基準（両社合意事項）</h2>
       ${verifyRows.length ? `
       <table class="sh-table verify">
-        <tr><th>検証項目</th><th>クリア基準</th><th style="width:33%;">振り返りMTGでの判定</th></tr>
-        ${verifyRows.map(r => `<tr><td><b>${r.name}</b></td><td>${esc(r.crit).replace(/&lt;br&gt;/g, "<br>")}</td><td>${r.judge}</td></tr>`).join("")}
+        <tr><th>検証項目</th><th>クリア基準</th></tr>
+        ${verifyRows.map(r => `<tr><td><b>${r.name}</b></td><td>${esc(r.crit)}</td></tr>`).join("")}
       </table>` : `<span class="sh-empty">検証項目が選択されていません</span>`}
       ${S.verify.workload ? `
       <div class="sh-calc">
-        <div class="item"><span class="v">${cur} 時間/月</span><span class="l">現状の議事録作成稼働</span></div>
-        <div class="arr">→</div>
-        <div class="item"><span class="v">${after} 時間/月</span><span class="l">クリア基準達成時</span></div>
-        <div class="item"><span class="v" style="color:var(--success);">＋${saved} 時間/月</span><span class="l">創出される時間（約${S.memberCount}名で活用）</span></div>
+        <div class="item"><span class="v">${cur} 時間/月</span><span class="l">現状の議事録作成稼働（参考値）</span></div>
       </div>` : ""}
-    </div>
-
-    <div class="sh-section">
-      <h2>5. 運用上の課題（振り返りMTGで確認）</h2>
-      <table class="sh-table">
-        <tr><th>課題の有無・内容</th><td>${issueCell}</td></tr>
-      </table>
     </div>
 
     <div class="sh-agree">
       <div class="sh-agree-title">■ 本ロードマップの内容について、下記の通り確認しました。</div>
       <div class="sh-sign">
         <div class="box">
-          <div class="bx-label">${val(S.companyName, "貴社")}　ご確認者</div>
-          <div class="bx-name">${val(S.contactName, "")}${S.dmName ? "　／　" + esc(S.dmName) : ""}</div>
+          <div class="bx-label">貴社　ご確認者</div>
         </div>
         <div class="box">
           <div class="bx-label">Rimo LLC　担当</div>
-          <div class="bx-name">${val(S.salesName, "")}</div>
         </div>
       </div>
     </div>
@@ -1031,19 +1023,39 @@ window.addEventListener("beforeprint", () => {
 /* ============================================================
    Init
 ============================================================ */
-buildChips("dmJoin", OPTIONS.dmJoin, "dmJoin");
 buildChips("meetingTools", OPTIONS.meetingTools, "meetingTools");
-buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod");
+buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
+  if (opt === "文字起こし/議事録ツール活用中") {
+    const on = S.minutesMethod.includes(opt);
+    document.getElementById("competingToolsWrap").style.display = on ? "block" : "none";
+    if (!on) {
+      S.competingTools = [];
+      S.competingToolRatings = {};
+      document.querySelectorAll("#competingTools .chip").forEach(c => c.classList.remove("selected"));
+      renderCompetingRatings();
+    }
+  }
+});
+buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
+buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
+  if (S.meetingPurposes.includes(opt)) {
+    S.meetingDetail[opt] = { makes: "", perWeek: 3, perDoc: 30 };
+  } else {
+    delete S.meetingDetail[opt];
+  }
+  renderMeetingDetailRows();
+  updateCalc();
+});
 buildChips("targetMeetings", OPTIONS.targetMeetings, "targetMeetings");
 buildChips("aiFeatures", OPTIONS.aiFeatures, "aiFeatures");
+buildChips("sharingScenes", OPTIONS.sharingScenes, "sharingScenes");
 buildChips("ragScenes", OPTIONS.ragScenes, "ragScenes");
 buildChips("sideEffects", OPTIONS.sideEffects, "sideEffects");
-buildChips("issueCategories", OPTIONS.issueCategories, "issueCategories");
 buildSegmented();
-buildJudges();
 document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.dataset.step));
 goStep(0);
+renderMeetingDetailRows();
 updateCalc();
 </script>
 </body>
