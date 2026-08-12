@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rimo Voice トライアル実証ロードマップ</title>
+<style>
+  :root {
+    --primary: #0e7c86;
+    --primary-light: #e6f4f5;
+    --primary-dark: #0a5c64;
+    --accent: #f59e0b;
+    --text: #1f2937;
+    --text-sub: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --danger: #dc2626;
+    --success: #059669;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; }
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.6;
+  }
+
+  /* ===== Layout ===== */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 240px; flex-shrink: 0;
+    background: #fff; border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky; top: 0; height: 100vh;
+    display: flex; flex-direction: column;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; padding: 0 8px 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary), #14a3b0);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px;
+  }
+  .logo-text { font-weight: 700; font-size: 14px; line-height: 1.3; }
+  .logo-text small { display: block; font-weight: 500; color: var(--text-sub); font-size: 11px; }
+
+  .nav-step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 10px; border-radius: 8px; cursor: pointer;
+    color: var(--text-sub); font-size: 13.5px; font-weight: 500;
+    border: none; background: none; width: 100%; text-align: left;
+    transition: background .15s;
+  }
+  .nav-step:hover { background: var(--bg); }
+  .nav-step.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 700; }
+  .nav-step .num {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 1.5px solid #cbd5e1; color: var(--text-sub);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .nav-step.active .num { border-color: var(--primary); background: var(--primary); color: #fff; }
+  .nav-step.done .num { border-color: var(--success); background: var(--success); color: #fff; }
+
+  .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+  .btn-print-side {
+    width: 100%; padding: 11px; border-radius: 8px; border: none;
+    background: var(--primary); color: #fff; font-weight: 700; font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-print-side:hover { background: var(--primary-dark); }
+
+  .main { flex: 1; padding: 32px 40px 80px; max-width: 900px; }
+  .step-panel { display: none; }
+  .step-panel.active { display: block; animation: fadein .2s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
+
+  .step-header { margin-bottom: 24px; }
+  .step-header .step-tag {
+    display: inline-block; background: var(--primary-light); color: var(--primary-dark);
+    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 8px;
+  }
+  .step-header h1 { font-size: 22px; font-weight: 700; }
+  .step-header p { color: var(--text-sub); font-size: 13.5px; margin-top: 4px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px 24px; margin-bottom: 18px;
+  }
+  .card h2 {
+    font-size: 15px; font-weight: 700; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2::before { content: ""; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-label { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .field-label .hint { font-weight: 400; color: var(--text-sub); font-size: 12px; }
+  .field-row { display: flex; gap: 16px; flex-wrap: wrap; }
+  .field-row .field { flex: 1; min-width: 200px; }
+
+  input[type="text"], input[type="date"], select, textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; font-family: inherit; background: #fff; color: var(--text);
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--primary); outline-offset: -1px; border-color: var(--primary); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* ===== Chips (multi-select) ===== */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 7px 14px; border-radius: 99px; border: 1.5px solid var(--border);
+    background: #fff; font-size: 13px; cursor: pointer; user-select: none;
+    color: var(--text-sub); font-weight: 500; transition: all .12s;
+  }
+  .chip:hover { border-color: var(--primary); color: var(--primary-dark); }
+  .chip.selected { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
+
+  /* ===== Segmented (radio) ===== */
+  .segmented { display: inline-flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; flex-wrap: wrap; background: #fff; }
+  .segmented button {
+    padding: 8px 16px; border: none; background: #fff; font-size: 13px; cursor: pointer;
+    color: var(--text-sub); font-weight: 500; border-right: 1px solid var(--border);
+  }
+  .segmented button:last-child { border-right: none; }
+  .segmented button.selected { background: var(--primary); color: #fff; font-weight: 700; }
+
+  /* ===== Slider ===== */
+  .slider-wrap { display: flex; align-items: center; gap: 16px; }
+  .slider-wrap input[type="range"] { flex: 1; accent-color: var(--primary); height: 6px; cursor: pointer; }
+  .slider-value {
+    min-width: 96px; text-align: center; background: var(--primary-light);
+    color: var(--primary-dark); font-weight: 700; font-size: 14px;
+    padding: 6px 10px; border-radius: 8px; white-space: nowrap;
+  }
+
+  /* ===== Calc box ===== */
+  .calc-box {
+    background: linear-gradient(135deg, #f0fafb, #e6f4f5);
+    border: 1px solid #b8dfe3; border-radius: var(--radius);
+    padding: 18px 22px; margin-top: 4px;
+  }
+  .calc-box .calc-title { font-size: 12px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; letter-spacing: .04em; }
+  .calc-row { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .calc-item { }
+  .calc-item .v { font-size: 26px; font-weight: 700; color: var(--primary-dark); }
+  .calc-item .u { font-size: 13px; color: var(--primary-dark); font-weight: 600; }
+  .calc-item .l { font-size: 11.5px; color: var(--text-sub); display: block; }
+  .calc-arrow { font-size: 20px; color: var(--primary); font-weight: 700; align-self: center; }
+
+  .checker-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
+
+  /* ===== Verify item card ===== */
+  .verify-card { border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; background: #fff; }
+  .verify-head {
+    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+    cursor: pointer; background: #fff;
+  }
+  .verify-card.on .verify-head { background: var(--primary-light); }
+  .verify-head .toggle {
+    width: 42px; height: 24px; border-radius: 99px; background: #d1d5db; position: relative; flex-shrink: 0; transition: background .15s;
+  }
+  .verify-head .toggle::after {
+    content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
+  .verify-card.on .toggle { background: var(--primary); }
+  .verify-card.on .toggle::after { left: 21px; }
+  .verify-head .vh-title { font-weight: 700; font-size: 14.5px; }
+  .verify-head .vh-sub { font-size: 12px; color: var(--text-sub); }
+  .verify-body { padding: 18px; border-top: 1px solid var(--border); display: none; }
+  .verify-card.on .verify-body { display: block; }
+
+  .criteria-line {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 10px 14px; font-size: 13.5px; margin-top: 12px;
+  }
+  .criteria-line b { color: #92400e; }
+  .criteria-line .crit-text { font-weight: 700; }
+
+  /* ===== Judge (post-trial) ===== */
+  .judge-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .judge-label { font-size: 12.5px; font-weight: 700; color: var(--text-sub); }
+  .judge-opts { display: inline-flex; gap: 6px; }
+  .judge-opts button {
+    padding: 5px 14px; border-radius: 99px; border: 1.5px solid var(--border); background: #fff;
+    font-size: 12.5px; cursor: pointer; color: var(--text-sub); font-weight: 600;
+  }
+  .judge-opts button.sel-ok { background: var(--success); border-color: var(--success); color: #fff; }
+  .judge-opts button.sel-mid { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .judge-opts button.sel-ng { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+  /* ===== Footer nav ===== */
+  .panel-nav { display: flex; justify-content: space-between; margin-top: 28px; }
+  .btn {
+    padding: 11px 26px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none;
+  }
+  .btn-next { background: var(--primary); color: #fff; }
+  .btn-next:hover { background: var(--primary-dark); }
+  .btn-back { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
+  .btn-back:hover { background: var(--bg); }
+
+  /* ===== Decision-maker banner ===== */
+  .dm-banner {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius);
+    padding: 14px 18px; margin-bottom: 18px; font-size: 13px;
+  }
+  .dm-banner .icon { font-size: 18px; }
+  .dm-banner b { color: #9a3412; }
+
+  /* ============================================================
+     SHEET (print view)
+  ============================================================ */
+  .sheet-container { display: none; }
+  body.sheet-mode .app { display: none; }
+  body.sheet-mode .sheet-container { display: block; }
+
+  .sheet-toolbar {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--text); color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 28px;
+  }
+  .sheet-toolbar .tb-title { font-size: 14px; font-weight: 700; }
+  .sheet-toolbar .tb-actions { display: flex; gap: 10px; }
+  .sheet-toolbar button {
+    padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; font-size: 13px;
+  }
+  .tb-back { background: #4b5563; color: #fff; }
+  .tb-pdf { background: var(--accent); color: #fff; }
+
+  .sheet {
+    width: 210mm; min-height: 297mm; margin: 24px auto; background: #fff;
+    padding: 14mm 14mm 12mm; box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    font-size: 12px; color: #111;
+  }
+  .sh-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 14px; }
+  .sh-header h1 { font-size: 19px; font-weight: 700; color: var(--primary-dark); }
+  .sh-header .sh-sub { font-size: 11px; color: var(--text-sub); }
+  .sh-header .sh-brand { font-size: 13px; font-weight: 700; color: var(--primary); text-align: right; }
+  .sh-header .sh-brand small { display: block; font-weight: 400; color: var(--text-sub); font-size: 10px; }
+
+  .sh-section { margin-bottom: 13px; }
+  .sh-section > h2 {
+    font-size: 12.5px; font-weight: 700; color: #fff; background: var(--primary);
+    padding: 4px 10px; border-radius: 4px; margin-bottom: 7px;
+  }
+  table.sh-table { width: 100%; border-collapse: collapse; }
+  table.sh-table th, table.sh-table td {
+    border: 1px solid #cbd5e1; padding: 5px 9px; font-size: 11.5px; vertical-align: top; text-align: left;
+  }
+  table.sh-table th { background: #f1f5f9; font-weight: 700; width: 30%; white-space: nowrap; }
+  table.sh-table.verify th:nth-child(1) { width: 22%; }
+  table.sh-table.verify th { background: #f1f5f9; width: auto; }
+
+  .sh-calc {
+    display: flex; gap: 24px; align-items: center;
+    background: var(--primary-light); border: 1px solid #b8dfe3; border-radius: 6px;
+    padding: 8px 16px; margin-top: 6px;
+  }
+  .sh-calc .item .v { font-size: 17px; font-weight: 700; color: var(--primary-dark); }
+  .sh-calc .item .l { font-size: 9.5px; color: var(--text-sub); display: block; }
+  .sh-calc .arr { font-weight: 700; color: var(--primary); font-size: 15px; }
+
+  .sh-check { font-size: 12px; letter-spacing: .05em; white-space: nowrap; }
+
+  .sh-schedule { display: flex; gap: 0; margin-top: 4px; }
+  .sh-step { flex: 1; text-align: center; position: relative; padding: 7px 4px; border: 1px solid #cbd5e1; background: #f8fafc; }
+  .sh-step:not(:last-child) { border-right: none; }
+  .sh-step .st-name { font-size: 10.5px; font-weight: 700; color: var(--primary-dark); }
+  .sh-step .st-date { font-size: 12px; font-weight: 700; }
+  .sh-step .st-dm { font-size: 9.5px; color: #9a3412; font-weight: 700; }
+
+  .sh-agree { margin-top: 16px; border-top: 2px solid var(--primary); padding-top: 10px; }
+  .sh-agree-title { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .sh-sign { display: flex; gap: 20px; }
+  .sh-sign .box { flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px 12px; min-height: 58px; }
+  .sh-sign .box .bx-label { font-size: 9.5px; color: var(--text-sub); }
+  .sh-sign .box .bx-name { font-size: 12px; margin-top: 4px; }
+
+  .sh-empty { color: #9ca3af; }
+  .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
+
+  /* ===== Print ===== */
+  @page { size: A4; margin: 0; }
+  @media print {
+    body { background: #fff; }
+    .app, .sheet-toolbar { display: none !important; }
+    .sheet-container { display: block !important; }
+    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; }
+    .sh-section { break-inside: avoid; }
+  }
+
+  @media (max-width: 860px) {
+    .app { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; padding: 12px; }
+    .logo { border: none; padding: 0 12px 0 0; margin: 0; }
+    .sidebar-footer { margin: 0 0 0 auto; padding: 0; border: none; }
+    .main { padding: 20px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== APP ==================== -->
+<div class="app">
+  <nav class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">R</div>
+      <div class="logo-text">Rimo Voice<small>トライアル実証ロードマップ</small></div>
+    </div>
+    <button class="nav-step" data-step="0"><span class="num">1</span>基本情報・スケジュール</button>
+    <button class="nav-step" data-step="1"><span class="num">2</span>現状確認</button>
+    <button class="nav-step" data-step="2"><span class="num">3</span>トライアル前提確認</button>
+    <button class="nav-step" data-step="3"><span class="num">4</span>検証項目・クリア基準</button>
+    <button class="nav-step" data-step="4"><span class="num">5</span>課題（振り返り時）</button>
+    <div class="sidebar-footer">
+      <button class="btn-print-side" onclick="openSheet()">📄 トライアルシート</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ========== STEP 0: 基本情報 ========== -->
+    <section class="step-panel" data-panel="0">
+      <div class="step-header">
+        <span class="step-tag">STEP 1</span>
+        <h1>基本情報・トライアルスケジュール</h1>
+        <p>お客様の基本情報と、トライアルの各マイルストーンを設定します。</p>
+      </div>
+
+      <div class="card">
+        <h2>お客様情報</h2>
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label">会社名</div>
+            <input type="text" id="companyName" placeholder="例）株式会社〇〇" oninput="S.companyName=this.value">
+          </div>
+          <div class="field">
+            <div class="field-label">部署名</div>
+            <input type="text" id="deptName" placeholder="例）営業企画部" oninput="S.deptName=this.value">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label">ご担当者名</div>
+            <input type="text" id="contactName" placeholder="例）山田 様" oninput="S.contactName=this.value">
+          </div>
+          <div class="field">
+            <div class="field-label">決裁者名 <span class="hint">わかる範囲で</span></div>
+            <input type="text" id="dmName" placeholder="例）佐藤部長 様" oninput="S.dmName=this.value">
+          </div>
+          <div class="field">
+            <div class="field-label">Rimo担当</div>
+            <input type="text" id="salesName" placeholder="例）土屋" oninput="S.salesName=this.value">
+          </div>
+        </div>
+      </div>
+
+      <div class="dm-banner">
+        <span class="icon">💡</span>
+        <div><b>受注案件の共通点：</b>決裁者の方がハーフMTG・振り返りMTGに早期から参加されている案件ほど、スムーズに導入判断まで進んでいます。可能であればこの場でご予定を仮押さえください。</div>
+      </div>
+
+      <div class="card">
+        <h2>トライアルスケジュール</h2>
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label">トライアル開始日</div>
+            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates()">
+          </div>
+          <div class="field">
+            <div class="field-label">ハーフMTG <span class="hint">中間確認・任意</span></div>
+            <input type="date" id="dateHalf" onchange="S.dateHalf=this.value">
+          </div>
+          <div class="field">
+            <div class="field-label">振り返りMTG <span class="hint">効果確認</span></div>
+            <input type="date" id="dateReview" onchange="S.dateReview=this.value">
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">決裁者のご参加予定 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="dmJoin"></div>
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <span></span>
+        <button class="btn btn-next" onclick="goStep(1)">次へ：現状確認 →</button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 1: 現状確認 ========== -->
+    <section class="step-panel" data-panel="1">
+      <div class="step-header">
+        <span class="step-tag">STEP 2</span>
+        <h1>現状確認</h1>
+        <p>現在の会議・議事録まわりの運用を確認させてください。</p>
+      </div>
+
+      <div class="card">
+        <h2>会議環境</h2>
+        <div class="field">
+          <div class="field-label">お使いの会議ツール <span class="hint">複数選択可</span></div>
+          <div class="chips" id="meetingTools"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">現在の議事録作成方法</div>
+          <div class="chips" id="minutesMethod"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>打ち合わせの実態</h2>
+        <div class="field">
+          <div class="field-label">実施方法</div>
+          <div class="segmented" data-seg="meetingStyle"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">社内 / 社外</div>
+          <div class="segmented" data-seg="meetingScope"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">議事録の作成対象</div>
+          <div class="segmented" data-seg="minutesTarget"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>議事録作成にかかる時間</h2>
+        <div class="field">
+          <div class="field-label">1件あたりの作成時間</div>
+          <div class="slider-wrap">
+            <input type="range" min="0" max="120" step="5" value="30" id="minutesPerDoc"
+              oninput="S.minutesPerDoc=+this.value; updateCalc()">
+            <div class="slider-value" id="minutesPerDocVal">30 分</div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">議事録を作成する会議の件数（週あたり・チーム全体）</div>
+          <div class="slider-wrap">
+            <input type="range" min="0" max="50" step="1" value="5" id="docsPerWeek"
+              oninput="S.docsPerWeek=+this.value; updateCalc()">
+            <div class="slider-value" id="docsPerWeekVal">5 件/週</div>
+          </div>
+        </div>
+        <div class="calc-box">
+          <div class="calc-title">📊 議事録作成にかかっている稼働（自動試算）</div>
+          <div class="calc-row">
+            <div class="calc-item">
+              <span class="v" id="calcMonthlyHours">10</span><span class="u"> 時間/月</span>
+              <span class="l">現在の議事録作成稼働</span>
+            </div>
+            <div class="calc-arrow" id="calcArrow" style="display:none;">→</div>
+            <div class="calc-item" id="calcTargetWrap" style="display:none;">
+              <span class="v" id="calcTargetHours">-</span><span class="u"> 時間/月</span>
+              <span class="l">目標（検証項目で設定した削減率を適用）</span>
+            </div>
+          </div>
+          <div class="checker-note">※ 週あたり件数 × 1件あたり時間 × 4週で試算しています。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>議事録の活用状況</h2>
+        <div class="field">
+          <div class="field-label">作成した議事録は現在どのように活用されていますか <span class="hint">複数選択可</span></div>
+          <div class="chips" id="minutesUsage"></div>
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <button class="btn btn-back" onclick="goStep(0)">← 戻る</button>
+        <button class="btn btn-next" onclick="goStep(2)">次へ：トライアル前提確認 →</button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 2: トライアル前提確認 ========== -->
+    <section class="step-panel" data-panel="2">
+      <div class="step-header">
+        <span class="step-tag">STEP 3</span>
+        <h1>トライアル前提確認</h1>
+        <p>トライアルを有意義にするための体制を確認します。<b>実際に触れる人数が多いほど検証の精度が上がります。</b></p>
+      </div>
+
+      <div class="card">
+        <h2>社内周知</h2>
+        <div class="field">
+          <div class="field-label">トライアル実施の社内周知のご予定</div>
+          <div class="segmented" data-seg="announce"></div>
+        </div>
+        <div class="field" id="announceDateWrap" style="display:none;">
+          <div class="field-label">周知予定日</div>
+          <input type="date" id="announceDate" style="max-width:220px;" onchange="S.announceDate=this.value">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>利用メンバー</h2>
+        <div class="field">
+          <div class="field-label">トライアルで利用予定のメンバー数（おおよそ）</div>
+          <div class="slider-wrap">
+            <input type="range" min="1" max="50" step="1" value="5" id="memberCount"
+              oninput="S.memberCount=+this.value; updateCalc()">
+            <div class="slider-value" id="memberCountVal">5 名</div>
+          </div>
+          <div class="checker-note" id="memberNote">💡 受注に至った案件では、複数の現場メンバーが実際に利用し高評価を得たことが決め手になっています。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>活用予定の打ち合わせ・会議</h2>
+        <div class="field">
+          <div class="field-label">トライアル中にRimo Voiceを使う予定の会議 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="targetMeetings"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">その他・補足 <span class="hint">任意</span></div>
+          <input type="text" id="targetMeetingsNote" placeholder="例）毎週月曜の定例、顧客との商談 など" oninput="S.targetMeetingsNote=this.value">
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <button class="btn btn-back" onclick="goStep(1)">← 戻る</button>
+        <button class="btn btn-next" onclick="goStep(3)">次へ：検証項目の設定 →</button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 3: 検証項目 ========== -->
+    <section class="step-panel" data-panel="3">
+      <div class="step-header">
+        <span class="step-tag">STEP 4</span>
+        <h1>検証項目・クリア基準の合意</h1>
+        <p>「何が確認できたら導入価値がある」と言えるか、トライアル前にお客様と合意します。検証する項目をONにしてください。</p>
+      </div>
+
+      <!-- 検証1: 稼働軽減 -->
+      <div class="verify-card on" id="vc-workload">
+        <div class="verify-head" onclick="toggleVerify('workload')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">① 議事録作成稼働の軽減</div>
+            <div class="vh-sub">議事録作成にかかる時間がどれだけ削減できるか</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <div class="field">
+            <div class="field-label">クリア基準：作成時間の削減率</div>
+            <div class="slider-wrap">
+              <input type="range" min="10" max="90" step="10" value="50" id="reductionTarget"
+                oninput="S.reductionTarget=+this.value; updateCalc()">
+              <div class="slider-value" id="reductionTargetVal">50 % 以上</div>
+            </div>
+          </div>
+          <div class="calc-box">
+            <div class="calc-title">📊 削減効果の試算</div>
+            <div class="calc-row">
+              <div class="calc-item">
+                <span class="v" id="v1Current">10</span><span class="u"> 時間/月</span>
+                <span class="l">現状の作成稼働</span>
+              </div>
+              <div class="calc-arrow">→</div>
+              <div class="calc-item">
+                <span class="v" id="v1After">5</span><span class="u"> 時間/月</span>
+                <span class="l">削減後の想定稼働</span>
+              </div>
+              <div class="calc-item">
+                <span class="v" id="v1Saved" style="color:var(--success);">5</span><span class="u" style="color:var(--success);"> 時間/月 削減</span>
+                <span class="l">創出できる時間</span>
+              </div>
+            </div>
+          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text" id="critWorkload">議事録1件あたりの作成時間を 50% 以上削減できること</span></div>
+          <div class="judge-row">
+            <span class="judge-label">振り返り時の判定：</span>
+            <div class="judge-opts" data-judge="workload"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 検証2: AI機能 -->
+      <div class="verify-card on" id="vc-ai">
+        <div class="verify-head" onclick="toggleVerify('ai')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">② 議事録内のAI機能の活用</div>
+            <div class="vh-sub">AI要約などの機能が実務のどこに活きるか</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <div class="field">
+            <div class="field-label">活用したいAI機能 <span class="hint">複数選択可</span></div>
+            <div class="chips" id="aiFeatures"></div>
+          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した機能が実際の会議で業務に活用できると確認できること</span></div>
+          <div class="judge-row">
+            <span class="judge-label">振り返り時の判定：</span>
+            <div class="judge-opts" data-judge="ai"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 検証3: RAG検索 -->
+      <div class="verify-card" id="vc-rag">
+        <div class="verify-head" onclick="toggleVerify('rag')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">③ RAG検索（過去議事録の横断検索・AIへの質問）</div>
+            <div class="vh-sub">蓄積した議事録をナレッジとして引き出せるか</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <div class="field">
+            <div class="field-label">想定する利用シーン <span class="hint">複数選択可</span></div>
+            <div class="chips" id="ragScenes"></div>
+          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">想定シーンで必要な情報が検索・抽出できると確認できること</span></div>
+          <div class="judge-row">
+            <span class="judge-label">振り返り時の判定：</span>
+            <div class="judge-opts" data-judge="rag"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 検証4: 副次効果 -->
+      <div class="verify-card" id="vc-side">
+        <div class="verify-head" onclick="toggleVerify('side')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">④ その他の副次効果</div>
+            <div class="vh-sub">稼働削減以外に期待する効果</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <div class="field">
+            <div class="field-label">期待する効果 <span class="hint">複数選択可</span></div>
+            <div class="chips" id="sideEffects"></div>
+          </div>
+          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した効果が実感できたとメンバーから確認できること</span></div>
+          <div class="judge-row">
+            <span class="judge-label">振り返り時の判定：</span>
+            <div class="judge-opts" data-judge="side"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <button class="btn btn-back" onclick="goStep(2)">← 戻る</button>
+        <button class="btn btn-next" onclick="goStep(4)">次へ：課題の記録 →</button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 4: 課題 ========== -->
+    <section class="step-panel" data-panel="4">
+      <div class="step-header">
+        <span class="step-tag">STEP 5</span>
+        <h1>課題（振り返りMTG時に記入）</h1>
+        <p>トライアル運用の中で出てきた課題を記録します。初回商談時は空欄のままで構いません。</p>
+      </div>
+
+      <div class="card">
+        <h2>運用上の課題</h2>
+        <div class="field">
+          <div class="field-label">運用する中で課題はありましたか</div>
+          <div class="segmented" data-seg="hasIssue"></div>
+        </div>
+        <div class="field" id="issueDetailWrap" style="display:none;">
+          <div class="field-label">課題のカテゴリ <span class="hint">複数選択可</span></div>
+          <div class="chips" id="issueCategories"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">詳細メモ <span class="hint">任意</span></div>
+          <textarea id="issueNote" placeholder="例）社外MTGでの録音の許諾フローを整理したい 等" oninput="S.issueNote=this.value"></textarea>
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <button class="btn btn-back" onclick="goStep(3)">← 戻る</button>
+        <button class="btn btn-next" onclick="openSheet()">📄 トライアルシートを確認 →</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ==================== SHEET (PDF) ==================== -->
+<div class="sheet-container">
+  <div class="sheet-toolbar">
+    <span class="tb-title">トライアルシート プレビュー — このままPDF保存できます</span>
+    <div class="tb-actions">
+      <button class="tb-back" onclick="closeSheet()">← 編集に戻る</button>
+      <button class="tb-pdf" onclick="window.print()">PDFとして保存 / 印刷</button>
+    </div>
+  </div>
+  <div class="sheet" id="sheetBody"><!-- JSで生成 --></div>
+</div>
+
+<script>
+/* ============================================================
+   State
+============================================================ */
+const S = {
+  companyName: "", deptName: "", contactName: "", dmName: "", salesName: "",
+  dateStart: "", dateHalf: "", dateReview: "",
+  dmJoin: [],                 // 決裁者参加予定
+  meetingTools: [], meetingToolsOther: "",
+  minutesMethod: [],
+  meetingStyle: "", meetingScope: "", minutesTarget: "",
+  minutesPerDoc: 30, docsPerWeek: 5,
+  minutesUsage: [],
+  announce: "", announceDate: "",
+  memberCount: 5,
+  targetMeetings: [], targetMeetingsNote: "",
+  verify: { workload: true, ai: true, rag: false, side: false },
+  reductionTarget: 50,
+  aiFeatures: [], ragScenes: [], sideEffects: [],
+  judge: { workload: "", ai: "", rag: "", side: "" },
+  hasIssue: "", issueCategories: [], issueNote: ""
+};
+
+/* ============================================================
+   Option definitions
+============================================================ */
+const OPTIONS = {
+  dmJoin: ["トライアル開始MTG", "ハーフMTG", "振り返りMTG"],
+  meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面のみ", "その他"],
+  minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "他の文字起こしツール", "作成していない"],
+  minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
+  targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
+  aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳", "共有リンクでの展開"],
+  ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
+  sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"],
+  issueCategories: ["操作性・使い方", "文字起こし精度", "運用ルールの整備", "セキュリティ・許諾", "権限・アカウント管理", "外部ツール連携"]
+};
+
+const SEGMENTS = {
+  meetingStyle: ["Webが中心", "対面が中心", "半々くらい"],
+  meetingScope: ["社内が中心", "社外が中心", "両方"],
+  minutesTarget: ["すべての会議", "重要な会議のみ", "決まっていない"],
+  announce: ["周知済み", "周知予定あり", "未定"],
+  hasIssue: ["特になし", "課題あり", "（未記入）"]
+};
+
+const JUDGE_OPTS = [
+  { key: "達成", cls: "sel-ok" },
+  { key: "一部達成", cls: "sel-mid" },
+  { key: "未達", cls: "sel-ng" }
+];
+
+/* ============================================================
+   UI builders
+============================================================ */
+function buildChips(id, options, stateKey) {
+  const wrap = document.getElementById(id);
+  options.forEach(opt => {
+    const el = document.createElement("div");
+    el.className = "chip";
+    el.textContent = opt;
+    el.onclick = () => {
+      const arr = S[stateKey];
+      const i = arr.indexOf(opt);
+      if (i >= 0) arr.splice(i, 1); else arr.push(opt);
+      el.classList.toggle("selected");
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function buildSegmented() {
+  document.querySelectorAll("[data-seg]").forEach(wrap => {
+    const key = wrap.dataset.seg;
+    SEGMENTS[key].forEach(opt => {
+      if (key === "hasIssue" && opt === "（未記入）") return;
+      const b = document.createElement("button");
+      b.textContent = opt;
+      b.onclick = () => {
+        S[key] = (S[key] === opt) ? "" : opt;
+        wrap.querySelectorAll("button").forEach(x => x.classList.remove("selected"));
+        if (S[key]) b.classList.add("selected");
+        if (key === "announce") {
+          document.getElementById("announceDateWrap").style.display =
+            (S.announce === "周知予定あり") ? "block" : "none";
+        }
+        if (key === "hasIssue") {
+          document.getElementById("issueDetailWrap").style.display =
+            (S.hasIssue === "課題あり") ? "block" : "none";
+        }
+      };
+      wrap.appendChild(b);
+    });
+  });
+}
+
+function buildJudges() {
+  document.querySelectorAll("[data-judge]").forEach(wrap => {
+    const key = wrap.dataset.judge;
+    JUDGE_OPTS.forEach(({ key: opt, cls }) => {
+      const b = document.createElement("button");
+      b.textContent = opt;
+      b.onclick = () => {
+        S.judge[key] = (S.judge[key] === opt) ? "" : opt;
+        wrap.querySelectorAll("button").forEach(x => x.className = "");
+        if (S.judge[key]) b.className = cls;
+      };
+      wrap.appendChild(b);
+    });
+  });
+}
+
+/* ============================================================
+   Interactions
+============================================================ */
+function goStep(n) {
+  document.querySelectorAll(".step-panel").forEach(p => p.classList.toggle("active", +p.dataset.panel === n));
+  document.querySelectorAll(".nav-step").forEach(b => b.classList.toggle("active", +b.dataset.step === n));
+  window.scrollTo({ top: 0 });
+}
+
+function toggleVerify(key) {
+  S.verify[key] = !S.verify[key];
+  document.getElementById("vc-" + key).classList.toggle("on", S.verify[key]);
+  updateCalc();
+}
+
+function autoFillDates() {
+  // 開始日からハーフMTG(+7日)・振り返り(+14日)を自動提案（未入力時のみ）
+  if (!S.dateStart) return;
+  const base = new Date(S.dateStart + "T00:00:00");
+  const fmt = d => d.toISOString().slice(0, 10);
+  if (!S.dateHalf) {
+    const d = new Date(base); d.setDate(d.getDate() + 7);
+    S.dateHalf = fmt(d); document.getElementById("dateHalf").value = S.dateHalf;
+  }
+  if (!S.dateReview) {
+    const d = new Date(base); d.setDate(d.getDate() + 14);
+    S.dateReview = fmt(d); document.getElementById("dateReview").value = S.dateReview;
+  }
+}
+
+function monthlyHours() {
+  return Math.round(S.minutesPerDoc * S.docsPerWeek * 4 / 60 * 10) / 10;
+}
+
+function updateCalc() {
+  document.getElementById("minutesPerDocVal").textContent = S.minutesPerDoc + " 分";
+  document.getElementById("docsPerWeekVal").textContent = S.docsPerWeek + " 件/週";
+  document.getElementById("memberCountVal").textContent = S.memberCount + " 名";
+  document.getElementById("reductionTargetVal").textContent = S.reductionTarget + " % 以上";
+
+  const cur = monthlyHours();
+  const after = Math.round(cur * (100 - S.reductionTarget) / 100 * 10) / 10;
+  const saved = Math.round((cur - after) * 10) / 10;
+
+  document.getElementById("calcMonthlyHours").textContent = cur;
+  const showTarget = S.verify.workload;
+  document.getElementById("calcArrow").style.display = showTarget ? "" : "none";
+  document.getElementById("calcTargetWrap").style.display = showTarget ? "" : "none";
+  document.getElementById("calcTargetHours").textContent = after;
+
+  document.getElementById("v1Current").textContent = cur;
+  document.getElementById("v1After").textContent = after;
+  document.getElementById("v1Saved").textContent = saved;
+  document.getElementById("critWorkload").textContent =
+    `議事録1件あたりの作成時間を ${S.reductionTarget}% 以上削減できること`;
+}
+
+/* ============================================================
+   Sheet generation
+============================================================ */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const val = (v, empty = "―") => v ? esc(v) : `<span class="sh-empty">${empty}</span>`;
+const list = (arr, empty = "―") => arr.length ? esc(arr.join("、")) : `<span class="sh-empty">${empty}</span>`;
+const fmtDate = d => {
+  if (!d) return "";
+  const [y, m, dd] = d.split("-");
+  return `${y}/${+m}/${+dd}`;
+};
+
+function judgeMark(key) {
+  const j = S.judge[key];
+  if (!j) return `<span class="sh-check">☐ 達成　☐ 一部達成　☐ 未達</span>`;
+  return JUDGE_OPTS.map(o =>
+    `<span class="sh-check">${o.key === j ? "☑" : "☐"} ${o.key}</span>`
+  ).join("　");
+}
+
+function renderSheet() {
+  const cur = monthlyHours();
+  const after = Math.round(cur * (100 - S.reductionTarget) / 100 * 10) / 10;
+  const saved = Math.round((cur - after) * 10) / 10;
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+
+  const verifyRows = [];
+  if (S.verify.workload) verifyRows.push({
+    name: "① 議事録作成稼働の軽減",
+    crit: `作成時間を ${S.reductionTarget}% 以上削減（${cur}時間/月 → ${after}時間/月、${saved}時間/月の創出）`,
+    judge: judgeMark("workload")
+  });
+  if (S.verify.ai) verifyRows.push({
+    name: "② AI機能の活用",
+    crit: (S.aiFeatures.length ? "対象機能：" + S.aiFeatures.join("、") + "。" : "") + "実務で活用できると確認できること",
+    judge: judgeMark("ai")
+  });
+  if (S.verify.rag) verifyRows.push({
+    name: "③ RAG検索",
+    crit: (S.ragScenes.length ? "利用シーン：" + S.ragScenes.join("、") + "。" : "") + "必要な情報が検索・抽出できること",
+    judge: judgeMark("rag")
+  });
+  if (S.verify.side) verifyRows.push({
+    name: "④ その他の副次効果",
+    crit: (S.sideEffects.length ? S.sideEffects.join("、") + " が" : "期待する効果が") + "実感できたと確認できること",
+    judge: judgeMark("side")
+  });
+
+  const issueCell = S.hasIssue === "課題あり"
+    ? `${list(S.issueCategories, "")}${S.issueNote ? "<br>" + esc(S.issueNote) : ""}`
+    : S.hasIssue === "特になし" ? "特になし"
+    : `<span class="sh-empty">振り返りMTGにて記入</span>`;
+
+  document.getElementById("sheetBody").innerHTML = `
+    <div class="sh-header">
+      <div>
+        <h1>トライアル実証ロードマップ</h1>
+        <div class="sh-sub">作成日：${todayStr}　│　${val(S.companyName, "会社名未入力")} ${esc(S.deptName)} 御中</div>
+      </div>
+      <div class="sh-brand">Rimo Voice<small>Rimo LLC　担当：${val(S.salesName, "")}</small></div>
+    </div>
+
+    <div class="sh-section">
+      <h2>1. トライアルスケジュール</h2>
+      <div class="sh-schedule">
+        <div class="sh-step">
+          <div class="st-name">STEP 1　トライアル開始</div>
+          <div class="st-date">${val(fmtDate(S.dateStart), "未定")}</div>
+          <div class="st-dm">${S.dmJoin.includes("トライアル開始MTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
+        </div>
+        <div class="sh-step">
+          <div class="st-name">STEP 2　実利用＋ハーフMTG</div>
+          <div class="st-date">${val(fmtDate(S.dateHalf), "未定")}</div>
+          <div class="st-dm">${S.dmJoin.includes("ハーフMTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
+        </div>
+        <div class="sh-step">
+          <div class="st-name">STEP 3　振り返りMTG</div>
+          <div class="st-date">${val(fmtDate(S.dateReview), "未定")}</div>
+          <div class="st-dm">${S.dmJoin.includes("振り返りMTG") ? "★ 決裁者ご参加" : "&nbsp;"}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sh-section">
+      <h2>2. 現状の確認</h2>
+      <table class="sh-table">
+        <tr><th>会議ツール</th><td>${list(S.meetingTools)}</td></tr>
+        <tr><th>議事録作成方法</th><td>${list(S.minutesMethod)}</td></tr>
+        <tr><th>打ち合わせの実施方法</th><td>${val(S.meetingStyle)}　／　${val(S.meetingScope)}</td></tr>
+        <tr><th>議事録の作成対象</th><td>${val(S.minutesTarget)}</td></tr>
+        <tr><th>議事録作成の稼働</th><td>1件あたり ${S.minutesPerDoc}分 × 週${S.docsPerWeek}件 ＝ <b>約 ${cur} 時間/月</b></td></tr>
+        <tr><th>議事録の活用状況</th><td>${list(S.minutesUsage)}</td></tr>
+      </table>
+    </div>
+
+    <div class="sh-section">
+      <h2>3. トライアルの前提</h2>
+      <table class="sh-table">
+        <tr><th>社内周知</th><td>${val(S.announce)}${S.announce === "周知予定あり" && S.announceDate ? "（" + fmtDate(S.announceDate) + " 予定）" : ""}</td></tr>
+        <tr><th>利用予定メンバー数</th><td>約 ${S.memberCount} 名</td></tr>
+        <tr><th>活用予定の会議</th><td>${list(S.targetMeetings)}${S.targetMeetingsNote ? "<br>" + esc(S.targetMeetingsNote) : ""}</td></tr>
+      </table>
+    </div>
+
+    <div class="sh-section">
+      <h2>4. 検証項目とクリア基準（両社合意事項）</h2>
+      ${verifyRows.length ? `
+      <table class="sh-table verify">
+        <tr><th>検証項目</th><th>クリア基準</th><th style="width:33%;">振り返りMTGでの判定</th></tr>
+        ${verifyRows.map(r => `<tr><td><b>${r.name}</b></td><td>${esc(r.crit).replace(/&lt;br&gt;/g, "<br>")}</td><td>${r.judge}</td></tr>`).join("")}
+      </table>` : `<span class="sh-empty">検証項目が選択されていません</span>`}
+      ${S.verify.workload ? `
+      <div class="sh-calc">
+        <div class="item"><span class="v">${cur} 時間/月</span><span class="l">現状の議事録作成稼働</span></div>
+        <div class="arr">→</div>
+        <div class="item"><span class="v">${after} 時間/月</span><span class="l">クリア基準達成時</span></div>
+        <div class="item"><span class="v" style="color:var(--success);">＋${saved} 時間/月</span><span class="l">創出される時間（約${S.memberCount}名で活用）</span></div>
+      </div>` : ""}
+    </div>
+
+    <div class="sh-section">
+      <h2>5. 運用上の課題（振り返りMTGで確認）</h2>
+      <table class="sh-table">
+        <tr><th>課題の有無・内容</th><td>${issueCell}</td></tr>
+      </table>
+    </div>
+
+    <div class="sh-agree">
+      <div class="sh-agree-title">■ 本ロードマップの内容について、下記の通り確認しました。</div>
+      <div class="sh-sign">
+        <div class="box">
+          <div class="bx-label">${val(S.companyName, "貴社")}　ご確認者</div>
+          <div class="bx-name">${val(S.contactName, "")}${S.dmName ? "　／　" + esc(S.dmName) : ""}</div>
+        </div>
+        <div class="box">
+          <div class="bx-label">Rimo LLC　担当</div>
+          <div class="bx-name">${val(S.salesName, "")}</div>
+        </div>
+      </div>
+    </div>
+    <div class="sh-footer">Rimo Voice トライアル実証ロードマップ — Rimo LLC</div>
+  `;
+}
+
+function openSheet() {
+  renderSheet();
+  document.body.classList.add("sheet-mode");
+  window.scrollTo({ top: 0 });
+}
+function closeSheet() {
+  document.body.classList.remove("sheet-mode");
+}
+// 印刷ショートカット(Cmd+P)でもシートが最新になるように
+window.addEventListener("beforeprint", () => {
+  renderSheet();
+  document.body.classList.add("sheet-mode");
+});
+
+/* ============================================================
+   Init
+============================================================ */
+buildChips("dmJoin", OPTIONS.dmJoin, "dmJoin");
+buildChips("meetingTools", OPTIONS.meetingTools, "meetingTools");
+buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod");
+buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
+buildChips("targetMeetings", OPTIONS.targetMeetings, "targetMeetings");
+buildChips("aiFeatures", OPTIONS.aiFeatures, "aiFeatures");
+buildChips("ragScenes", OPTIONS.ragScenes, "ragScenes");
+buildChips("sideEffects", OPTIONS.sideEffects, "sideEffects");
+buildChips("issueCategories", OPTIONS.issueCategories, "issueCategories");
+buildSegmented();
+buildJudges();
+document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.dataset.step));
+goStep(0);
+updateCalc();
+</script>
+</body>
+</html>
