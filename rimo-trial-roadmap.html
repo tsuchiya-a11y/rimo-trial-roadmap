@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rimo Voice トライアル実証ロードマップ</title>
+<title>Rimo Voice トライアルロードマップ</title>
 <style>
   :root {
     --primary: #0e7c86;
@@ -164,21 +164,18 @@
     padding: 6px 10px; border-radius: 8px; white-space: nowrap;
   }
 
-  /* ===== Calc box ===== */
-  .calc-box {
-    background: linear-gradient(135deg, #f0fafb, #e6f4f5);
-    border: 1px solid #b8dfe3; border-radius: var(--radius);
-    padding: 18px 22px; margin-top: 4px;
-  }
-  .calc-box .calc-title { font-size: 12px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; letter-spacing: .04em; }
-  .calc-row { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
-  .calc-item { }
-  .calc-item .v { font-size: 26px; font-weight: 700; color: var(--primary-dark); }
-  .calc-item .u { font-size: 13px; color: var(--primary-dark); font-weight: 600; }
-  .calc-item .l { font-size: 11.5px; color: var(--text-sub); display: block; }
-  .calc-arrow { font-size: 20px; color: var(--primary); font-weight: 700; align-self: center; }
-
   .checker-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
+
+  /* ===== Sub headings / notes (STEP4) ===== */
+  .sub-head {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    margin: 26px 0 12px; padding-left: 10px; border-left: 4px solid var(--primary);
+  }
+  .sub-head:first-of-type { margin-top: 0; }
+  .axis-note {
+    background: var(--bg); border: 1px dashed var(--border); border-radius: var(--radius);
+    padding: 12px 16px; font-size: 12.5px; color: var(--text-sub); margin: 4px 0 6px;
+  }
 
   /* ===== Verify item card ===== */
   .verify-card { border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; background: #fff; }
@@ -209,16 +206,6 @@
   .criteria-line .crit-text { font-weight: 700; }
 
   /* ===== Judge (post-trial) ===== */
-  .judge-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
-  .judge-label { font-size: 12.5px; font-weight: 700; color: var(--text-sub); }
-  .judge-opts { display: inline-flex; gap: 6px; }
-  .judge-opts button {
-    padding: 5px 14px; border-radius: 99px; border: 1.5px solid var(--border); background: #fff;
-    font-size: 12.5px; cursor: pointer; color: var(--text-sub); font-weight: 600;
-  }
-  .judge-opts button.sel-ok { background: var(--success); border-color: var(--success); color: #fff; }
-  .judge-opts button.sel-mid { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .judge-opts button.sel-ng { background: var(--danger); border-color: var(--danger); color: #fff; }
 
   /* ===== Footer nav ===== */
   .panel-nav { display: flex; justify-content: space-between; margin-top: 28px; }
@@ -272,34 +259,14 @@
     border: 1px solid #cbd5e1; padding: 5px 9px; font-size: 11.5px; vertical-align: top; text-align: left;
   }
   table.sh-table th { background: #f1f5f9; font-weight: 700; width: 30%; white-space: nowrap; }
-  table.sh-table.verify th:nth-child(1) { width: 22%; }
-  table.sh-table.verify th { background: #f1f5f9; width: auto; }
-
-  .sh-calc {
-    display: flex; gap: 24px; align-items: center;
-    background: var(--primary-light); border: 1px solid #b8dfe3; border-radius: 6px;
-    padding: 8px 16px; margin-top: 6px;
-  }
-  .sh-calc .item .v { font-size: 17px; font-weight: 700; color: var(--primary-dark); }
-  .sh-calc .item .l { font-size: 9.5px; color: var(--text-sub); display: block; }
-  .sh-calc .arr { font-weight: 700; color: var(--primary); font-size: 15px; }
-
-  .sh-check { font-size: 12px; letter-spacing: .05em; white-space: nowrap; }
 
   .sh-schedule { display: flex; gap: 0; margin-top: 4px; }
   .sh-step { flex: 1; text-align: center; position: relative; padding: 7px 4px; border: 1px solid #cbd5e1; background: #f8fafc; }
   .sh-step:not(:last-child) { border-right: none; }
   .sh-step .st-name { font-size: 10.5px; font-weight: 700; color: var(--primary-dark); }
   .sh-step .st-date { font-size: 12px; font-weight: 700; }
-  .sh-step .st-dm { font-size: 9.5px; color: #9a3412; font-weight: 700; }
 
-  .sh-agree { margin-top: 16px; border-top: 2px solid var(--primary); padding-top: 10px; }
-  .sh-agree-title { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
-  .sh-sign { display: flex; gap: 20px; }
-  .sh-sign .box { flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px 12px; min-height: 58px; }
-  .sh-sign .box .bx-label { font-size: 9.5px; color: var(--text-sub); }
-  .sh-sign .box .bx-name { font-size: 12px; margin-top: 4px; }
-
+  .sh-note { font-size: 10px; color: var(--text-sub); margin-top: 6px; }
   .sh-empty { color: #9ca3af; }
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
@@ -329,12 +296,12 @@
   <nav class="sidebar">
     <div class="logo">
       <div class="logo-mark">R</div>
-      <div class="logo-text">Rimo Voice<small>トライアル実証ロードマップ</small></div>
+      <div class="logo-text">Rimo Voice<small>トライアルロードマップ</small></div>
     </div>
     <button class="nav-step" data-step="0"><span class="num">1</span>基本情報・スケジュール</button>
     <button class="nav-step" data-step="1"><span class="num">2</span>現状確認</button>
     <button class="nav-step" data-step="2"><span class="num">3</span>トライアル前提確認</button>
-    <button class="nav-step" data-step="3"><span class="num">4</span>検証項目・クリア基準</button>
+    <button class="nav-step" data-step="3"><span class="num">4</span>確認したいポイント</button>
     <div class="sidebar-footer">
       <button class="btn-print-side" onclick="openSheet()">📄 トライアルシート</button>
     </div>
@@ -419,16 +386,6 @@
         <h2>打ち合わせごとの議事録作成状況</h2>
         <div id="meetingDetailEmpty" class="checker-note">上の「打ち合わせの実施目的」から種類を選択すると、ここに入力欄が表示されます。</div>
         <div id="meetingDetailRows"></div>
-        <div class="calc-box" id="workloadCalcBox" style="display:none;">
-          <div class="calc-title">📊 議事録作成にかかっている稼働（自動試算）</div>
-          <div class="calc-row">
-            <div class="calc-item">
-              <span class="v" id="calcMonthlyHours">0</span><span class="u"> 時間/月</span>
-              <span class="l">現在の議事録作成稼働</span>
-            </div>
-          </div>
-          <div class="checker-note">※ 打ち合わせ種類ごとの「頻度 × 1件あたり時間」を合算して試算しています。</div>
-        </div>
       </div>
 
       <div class="card">
@@ -436,6 +393,10 @@
         <div class="field">
           <div class="field-label">作成した議事録は現在どのように活用されていますか <span class="hint">複数選択可</span></div>
           <div class="chips" id="minutesUsage"></div>
+        </div>
+        <div class="field">
+          <div class="field-label">議事録の保管方法 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="minutesStorage"></div>
         </div>
       </div>
 
@@ -492,7 +453,7 @@
 
       <div class="panel-nav">
         <button class="btn btn-back" onclick="goStep(1)">← 戻る</button>
-        <button class="btn btn-next" onclick="goStep(3)">次へ：検証項目の設定 →</button>
+        <button class="btn btn-next" onclick="goStep(3)">次へ：確認したいポイント →</button>
       </div>
     </section>
 
@@ -500,34 +461,75 @@
     <section class="step-panel" data-panel="3">
       <div class="step-header">
         <span class="step-tag">STEP 4</span>
-        <h1>検証項目・クリア基準の合意</h1>
-        <p>トライアルで「何を確認できれば有用性を実感できたか」を、実施前にお客様と合意します。検証する項目をONにしてください。</p>
+        <h1>トライアルで確認したいポイント</h1>
+        <p>ツール選びの際に皆さまがよく気にされるポイントです。今回のトライアルではどれを確認したいか、一緒に整理させてください。</p>
       </div>
 
-      <!-- 検証1: 稼働軽減 -->
+      <div class="sub-head">よくある選定ポイント</div>
+
+      <!-- 判断軸: クオリティ -->
+      <div class="verify-card on" id="ax-quality">
+        <div class="verify-head" onclick="toggleAxis('quality')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">議事録作成のクオリティ</div>
+            <div class="vh-sub">文字起こしの精度・要約の質・そのまま使えるか</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 判断軸: 使いやすさ -->
+      <div class="verify-card on" id="ax-usability">
+        <div class="verify-head" onclick="toggleAxis('usability')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">使いやすさ</div>
+            <div class="vh-sub">誰でも迷わず使えるか・現場に浸透しそうか</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 判断軸: 費用対効果 -->
+      <div class="verify-card" id="ax-cost">
+        <div class="verify-head" onclick="toggleAxis('cost')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">費用対効果</div>
+            <div class="vh-sub">軽減できる手間と料金のバランス感</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 判断軸: その他 -->
+      <div class="verify-card" id="ax-other">
+        <div class="verify-head" onclick="toggleAxis('other')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">その他の観点</div>
+            <div class="vh-sub">上記以外に気にされている点があればお聞かせください</div>
+          </div>
+        </div>
+        <div class="verify-body">
+          <input type="text" id="axisOther" placeholder="例）多言語対応、既存ツールとの連携 など" oninput="S.axisOther=this.value">
+        </div>
+      </div>
+
+      <div class="axis-note">セキュリティ・サポート体制については、トライアル期間中には確認しづらいため、資料や別途のご説明にてご案内します。</div>
+
+      <div class="sub-head">トライアルで試してみたい使い方</div>
+
+      <!-- 1: 稼働軽減 -->
       <div class="verify-card on" id="vc-workload">
         <div class="verify-head" onclick="toggleVerify('workload')">
           <div class="toggle"></div>
           <div>
-            <div class="vh-title">① 議事録作成稼働の軽減</div>
-            <div class="vh-sub">議事録作成にかかる時間がどれだけ軽減できるか</div>
+            <div class="vh-title">① 議事録作成の手間の軽減</div>
+            <div class="vh-sub">議事録作成にかかる時間・手間がどれだけ軽くなるか</div>
           </div>
-        </div>
-        <div class="verify-body">
-          <div class="calc-box">
-            <div class="calc-title">📊 現状の作成稼働（参考値）</div>
-            <div class="calc-row">
-              <div class="calc-item">
-                <span class="v" id="v1Current">0</span><span class="u"> 時間/月</span>
-                <span class="l">現状の議事録作成稼働</span>
-              </div>
-            </div>
-          </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">議事録作成の稼働が軽減できたと実感できること</span></div>
         </div>
       </div>
 
-      <!-- 検証2: AI機能 -->
+      <!-- 2: AI機能 -->
       <div class="verify-card on" id="vc-ai">
         <div class="verify-head" onclick="toggleVerify('ai')">
           <div class="toggle"></div>
@@ -541,11 +543,11 @@
             <div class="field-label">活用したいAI機能 <span class="hint">複数選択可</span></div>
             <div class="chips" id="aiFeatures"></div>
           </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した機能が実際の会議で業務に活用できると確認できること</span></div>
+          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択した機能が実際の業務で活用できそうか</span></div>
         </div>
       </div>
 
-      <!-- 検証3: 共有・展開 -->
+      <!-- 3: 共有・展開 -->
       <div class="verify-card on" id="vc-sharing">
         <div class="verify-head" onclick="toggleVerify('sharing')">
           <div class="toggle"></div>
@@ -559,11 +561,11 @@
             <div class="field-label">想定する共有シーン <span class="hint">複数選択可</span></div>
             <div class="chips" id="sharingScenes"></div>
           </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択したシーンで共有がスムーズになったと確認できること</span></div>
+          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択したシーンで共有がスムーズになりそうか</span></div>
         </div>
       </div>
 
-      <!-- 検証4: RAG検索 -->
+      <!-- 4: RAG検索 -->
       <div class="verify-card" id="vc-rag">
         <div class="verify-head" onclick="toggleVerify('rag')">
           <div class="toggle"></div>
@@ -577,11 +579,11 @@
             <div class="field-label">想定する利用シーン <span class="hint">複数選択可</span></div>
             <div class="chips" id="ragScenes"></div>
           </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">想定シーンで必要な情報が検索・抽出できると確認できること</span></div>
+          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">想定シーンで必要な情報が探しやすくなりそうか</span></div>
         </div>
       </div>
 
-      <!-- 検証5: 副次効果 -->
+      <!-- 5: 副次効果 -->
       <div class="verify-card" id="vc-side">
         <div class="verify-head" onclick="toggleVerify('side')">
           <div class="toggle"></div>
@@ -595,7 +597,7 @@
             <div class="field-label">期待する効果 <span class="hint">複数選択可</span></div>
             <div class="chips" id="sideEffects"></div>
           </div>
-          <div class="criteria-line"><b>クリア基準：</b><span class="crit-text">選択した効果が実感できたとメンバーから確認できること</span></div>
+          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択した効果を感じられそうか</span></div>
         </div>
       </div>
 
@@ -631,13 +633,17 @@ const S = {
   competingTools: [], competingToolRatings: {},
   meetingStyle: "", meetingScope: "",
   meetingPurposes: [], meetingDetail: {},
-  minutesUsage: [],
+  minutesUsage: [], minutesStorage: [],
   announce: "", announceDate: "",
   memberCount: 5,
   targetMeetings: [], targetMeetingsNote: "",
+  axes: { quality: true, usability: true, cost: false, other: false },
+  axisOther: "",
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
+
+const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", other: "その他" };
 
 /* ============================================================
    Option definitions
@@ -647,6 +653,7 @@ const OPTIONS = {
   minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "文字起こし/議事録ツール活用中", "作成していない"],
   competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
+  minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
   meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
   aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳"],
@@ -823,7 +830,11 @@ function goStep(n) {
 function toggleVerify(key) {
   S.verify[key] = !S.verify[key];
   document.getElementById("vc-" + key).classList.toggle("on", S.verify[key]);
-  updateCalc();
+}
+
+function toggleAxis(key) {
+  S.axes[key] = !S.axes[key];
+  document.getElementById("ax-" + key).classList.toggle("on", S.axes[key]);
 }
 
 function autoFillDates() {
@@ -871,12 +882,6 @@ function monthlyHours() {
 
 function updateCalc() {
   document.getElementById("memberCountVal").textContent = S.memberCount + " 名";
-
-  const cur = monthlyHours();
-  const hasData = S.meetingPurposes.some(p => S.meetingDetail[p] && S.meetingDetail[p].makes === "作成する");
-  document.getElementById("workloadCalcBox").style.display = hasData ? "block" : "none";
-  document.getElementById("calcMonthlyHours").textContent = cur;
-  document.getElementById("v1Current").textContent = cur;
 }
 
 /* ============================================================
@@ -896,26 +901,30 @@ function renderSheet() {
   const today = new Date();
   const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
+  const axisRows = Object.keys(AXIS_LABELS)
+    .filter(k => S.axes[k])
+    .map(k => k === "other" && S.axisOther ? `その他（${esc(S.axisOther)}）` : esc(AXIS_LABELS[k]));
+
   const verifyRows = [];
   if (S.verify.workload) verifyRows.push({
-    name: "① 議事録作成稼働の軽減",
-    crit: "議事録作成の稼働が軽減できたと実感できること"
+    name: "① 議事録作成の手間の軽減",
+    crit: "作成にかかる時間・手間がどれだけ軽くなるか"
   });
   if (S.verify.ai) verifyRows.push({
     name: "② AI機能の活用",
-    crit: (S.aiFeatures.length ? "対象機能：" + S.aiFeatures.join("、") + "。" : "") + "実務で活用できると確認できること"
+    crit: (S.aiFeatures.length ? S.aiFeatures.join("、") + " を" : "AI機能を") + "実際の業務で試してみる"
   });
   if (S.verify.sharing) verifyRows.push({
     name: "③ 議事録の共有・展開",
-    crit: (S.sharingScenes.length ? "共有シーン：" + S.sharingScenes.join("、") + "。" : "") + "共有がスムーズになったと確認できること"
+    crit: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で" : "") + "共有がスムーズになるか試してみる"
   });
   if (S.verify.rag) verifyRows.push({
     name: "④ RAG検索",
-    crit: (S.ragScenes.length ? "利用シーン：" + S.ragScenes.join("、") + "。" : "") + "必要な情報が検索・抽出できること"
+    crit: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で" : "") + "必要な情報が探しやすくなるか試してみる"
   });
   if (S.verify.side) verifyRows.push({
-    name: "⑤ その他の副次効果",
-    crit: (S.sideEffects.length ? S.sideEffects.join("、") + " が" : "期待する効果が") + "実感できたと確認できること"
+    name: "⑤ その他の効果",
+    crit: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか"
   });
 
   const purposeRows = S.meetingPurposes.map(p => {
@@ -932,7 +941,7 @@ function renderSheet() {
   document.getElementById("sheetBody").innerHTML = `
     <div class="sh-header">
       <div>
-        <h1>トライアル実証ロードマップ</h1>
+        <h1>トライアルロードマップ</h1>
         <div class="sh-sub">作成日：${todayStr}</div>
       </div>
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
@@ -964,8 +973,9 @@ function renderSheet() {
         ${competingRows.length ? `<tr><th>現在お使いのツール</th><td>${competingRows.join("、")}</td></tr>` : ""}
         <tr><th>打ち合わせの実施方法</th><td>${val(S.meetingStyle)}　／　${val(S.meetingScope)}</td></tr>
         <tr><th>打ち合わせの実施目的</th><td>${purposeRows.length ? purposeRows.join("<br>") : `<span class="sh-empty">―</span>`}</td></tr>
-        <tr><th>議事録作成の稼働</th><td><b>約 ${cur} 時間/月</b>（上表の目的ごとの合算）</td></tr>
+        ${cur > 0 ? `<tr><th>議事録作成の稼働</th><td><b>約 ${cur} 時間/月</b>（上表の目的ごとの合算）</td></tr>` : ""}
         <tr><th>議事録の活用状況</th><td>${list(S.minutesUsage)}</td></tr>
+        <tr><th>議事録の保管方法</th><td>${list(S.minutesStorage)}</td></tr>
       </table>
     </div>
 
@@ -979,30 +989,15 @@ function renderSheet() {
     </div>
 
     <div class="sh-section">
-      <h2>4. 検証項目とクリア基準（両社合意事項）</h2>
-      ${verifyRows.length ? `
-      <table class="sh-table verify">
-        <tr><th>検証項目</th><th>クリア基準</th></tr>
-        ${verifyRows.map(r => `<tr><td><b>${r.name}</b></td><td>${esc(r.crit)}</td></tr>`).join("")}
-      </table>` : `<span class="sh-empty">検証項目が選択されていません</span>`}
-      ${S.verify.workload ? `
-      <div class="sh-calc">
-        <div class="item"><span class="v">${cur} 時間/月</span><span class="l">現状の議事録作成稼働（参考値）</span></div>
-      </div>` : ""}
+      <h2>4. トライアルで確認したいポイント</h2>
+      <table class="sh-table">
+        <tr><th>気にされているポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
+        ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.crit)}</td></tr>`).join("")}
+      </table>
+      <div class="sh-note">※ セキュリティ・サポート体制については、トライアルとは別に資料等でご案内します。</div>
     </div>
 
-    <div class="sh-agree">
-      <div class="sh-agree-title">■ 本ロードマップの内容について、下記の通り確認しました。</div>
-      <div class="sh-sign">
-        <div class="box">
-          <div class="bx-label">貴社　ご確認者</div>
-        </div>
-        <div class="box">
-          <div class="bx-label">Rimo LLC　担当</div>
-        </div>
-      </div>
-    </div>
-    <div class="sh-footer">Rimo Voice トライアル実証ロードマップ — Rimo LLC</div>
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC</div>
   `;
 }
 
@@ -1038,6 +1033,7 @@ buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
 });
 buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
+buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
 buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
   if (S.meetingPurposes.includes(opt)) {
     S.meetingDetail[opt] = { makes: "", perWeek: 3, perDoc: 30 };
