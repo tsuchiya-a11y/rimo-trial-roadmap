@@ -433,6 +433,10 @@
           <input type="date" id="announceDate" style="max-width:220px;" onchange="S.announceDate=this.value; updateAnnounceGap()">
           <div class="checker-note" id="announceGapNote"></div>
         </div>
+        <div class="field" id="announceMethodWrap" style="display:none;">
+          <div class="field-label">周知方法 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="announceMethods"></div>
+        </div>
       </div>
 
       <div class="card">
@@ -648,7 +652,7 @@ const S = {
   meetingStyle: "", meetingScope: "",
   meetingPurposes: [], meetingDetail: {},
   minutesUsage: [], minutesStorage: [],
-  announce: "", announceDate: "",
+  announce: "", announceDate: "", announceMethods: [],
   memberCount: 5,
   targetMeetings: [], targetMeetingsNote: "",
   axes: { quality: true, usability: true, cost: false, security: false, other: false },
@@ -669,6 +673,7 @@ const OPTIONS = {
   toolIssues: ["文字起こしの精度", "要約の品質", "音声・動画と議事録を一体で確認できない", "議事録を使ったAI活用・RAG検索がない", "使いづらい", "セキュリティ面の不安", "費用", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
   minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
+  announceMethods: ["社内定例で周知", "個別に関係者へ周知", "社内チャット等で周知", "その他"],
   meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
   aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳"],
@@ -716,6 +721,8 @@ function buildSegmented() {
         if (key === "announce") {
           document.getElementById("announceDateWrap").style.display =
             (S.announce === "周知予定あり") ? "block" : "none";
+          document.getElementById("announceMethodWrap").style.display =
+            (S.announce === "周知済み" || S.announce === "周知予定あり") ? "block" : "none";
           updateAnnounceGap();
         }
       };
@@ -1044,7 +1051,7 @@ function renderSheet() {
     <div class="sh-section">
       <h2>3. トライアルの前提</h2>
       <table class="sh-table">
-        <tr><th>社内周知</th><td>${val(S.announce)}${S.announce === "周知予定あり" && S.announceDate ? "（" + fmtDate(S.announceDate) + " 予定）" : ""}</td></tr>
+        <tr><th>社内周知</th><td>${val(S.announce)}${S.announce === "周知予定あり" && S.announceDate ? "（" + fmtDate(S.announceDate) + " 予定）" : ""}${(S.announce === "周知済み" || S.announce === "周知予定あり") && S.announceMethods.length ? "　方法：" + esc(S.announceMethods.join("、")) : ""}</td></tr>
         <tr><th>利用予定メンバー数</th><td>約 ${S.memberCount} 名</td></tr>
         <tr><th>活用予定の会議</th><td>${list(S.targetMeetings)}${S.targetMeetingsNote ? "<br>" + esc(S.targetMeetingsNote) : ""}</td></tr>
       </table>
@@ -1158,6 +1165,7 @@ buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
 buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
+buildChips("announceMethods", OPTIONS.announceMethods, "announceMethods");
 buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
   if (S.meetingPurposes.includes(opt)) {
     S.meetingDetail[opt] = { makes: "", perWeek: 3, perDoc: 30 };
