@@ -132,9 +132,9 @@
 
   /* ===== Competing tool rating rows ===== */
   .rating-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    background: var(--bg); border-radius: 8px; padding: 8px 12px; margin-top: 8px;
+    background: var(--bg); border-radius: 8px; padding: 10px 12px; margin-top: 8px;
   }
+  .rating-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .rating-tool { font-size: 13px; font-weight: 700; }
   .rating-opts { display: inline-flex; gap: 6px; }
   .rating-opts button {
@@ -144,16 +144,23 @@
   .rating-opts button.sel-good { background: var(--success); border-color: var(--success); color: #fff; }
   .rating-opts button.sel-mid { background: var(--accent); border-color: var(--accent); color: #fff; }
   .rating-opts button.sel-bad { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .rating-reasons { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+  .rating-reasons-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+  .chips.small .chip { padding: 5px 11px; font-size: 12px; }
 
   /* ===== Per-meeting-type detail rows ===== */
   .detail-row {
     border: 1.5px solid var(--border); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 12px;
+    padding: 12px 16px; margin-bottom: 10px;
   }
   .detail-row:last-child { margin-bottom: 0; }
-  .dr-head { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
-  .dr-sliders { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .dr-sliders .field-label { font-size: 12.5px; margin-bottom: 6px; }
+  .dr-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .dr-head { font-size: 14px; font-weight: 700; }
+  .dr-sliders { margin-top: 10px; display: flex; gap: 18px; flex-wrap: wrap; }
+  .dr-sliders > div { flex: 1; min-width: 220px; }
+  .dr-sliders .field-label { font-size: 12px; margin-bottom: 4px; }
+  .dr-sliders .slider-wrap { gap: 10px; }
+  .dr-sliders .slider-value { min-width: 64px; font-size: 12.5px; padding: 4px 8px; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
@@ -172,10 +179,6 @@
     margin: 26px 0 12px; padding-left: 10px; border-left: 4px solid var(--primary);
   }
   .sub-head:first-of-type { margin-top: 0; }
-  .axis-note {
-    background: var(--bg); border: 1px dashed var(--border); border-radius: var(--radius);
-    padding: 12px 16px; font-size: 12.5px; color: var(--text-sub); margin: 4px 0 6px;
-  }
 
   /* ===== Verify item card ===== */
   .verify-card { border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; background: #fff; }
@@ -197,13 +200,6 @@
   .verify-head .vh-sub { font-size: 12px; color: var(--text-sub); }
   .verify-body { padding: 18px; border-top: 1px solid var(--border); display: none; }
   .verify-card.on .verify-body { display: block; }
-
-  .criteria-line {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
-    padding: 10px 14px; font-size: 13.5px; margin-top: 12px;
-  }
-  .criteria-line b { color: #92400e; }
-  .criteria-line .crit-text { font-weight: 700; }
 
   /* ===== Judge (post-trial) ===== */
 
@@ -268,6 +264,8 @@
 
   .sh-note { font-size: 10px; color: var(--text-sub); margin-top: 6px; }
   .sh-empty { color: #9ca3af; }
+  .sh-hint { font-size: 9.5px; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
+  table.sh-review td.sh-write { height: 44px; background: #fff; }
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
   /* ===== Print ===== */
@@ -276,7 +274,8 @@
     body { background: #fff; }
     .app, .sheet-toolbar { display: none !important; }
     .sheet-container { display: block !important; }
-    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; }
+    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; page-break-after: always; }
+    .sheet:last-of-type { page-break-after: auto; }
     .sh-section { break-inside: avoid; }
   }
 
@@ -500,6 +499,17 @@
         </div>
       </div>
 
+      <!-- 判断軸: セキュリティ -->
+      <div class="verify-card" id="ax-security">
+        <div class="verify-head" onclick="toggleAxis('security')">
+          <div class="toggle"></div>
+          <div>
+            <div class="vh-title">セキュリティ</div>
+            <div class="vh-sub">データの取り扱い・社内ルールへの適合</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 判断軸: その他 -->
       <div class="verify-card" id="ax-other">
         <div class="verify-head" onclick="toggleAxis('other')">
@@ -513,8 +523,6 @@
           <input type="text" id="axisOther" placeholder="例）多言語対応、既存ツールとの連携 など" oninput="S.axisOther=this.value">
         </div>
       </div>
-
-      <div class="axis-note">セキュリティ・サポート体制については、トライアル期間中には確認しづらいため、資料や別途のご説明にてご案内します。</div>
 
       <div class="sub-head">トライアルで試してみたい使い方</div>
 
@@ -543,7 +551,6 @@
             <div class="field-label">活用したいAI機能 <span class="hint">複数選択可</span></div>
             <div class="chips" id="aiFeatures"></div>
           </div>
-          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択した機能が実際の業務で活用できそうか</span></div>
         </div>
       </div>
 
@@ -561,7 +568,6 @@
             <div class="field-label">想定する共有シーン <span class="hint">複数選択可</span></div>
             <div class="chips" id="sharingScenes"></div>
           </div>
-          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択したシーンで共有がスムーズになりそうか</span></div>
         </div>
       </div>
 
@@ -579,7 +585,6 @@
             <div class="field-label">想定する利用シーン <span class="hint">複数選択可</span></div>
             <div class="chips" id="ragScenes"></div>
           </div>
-          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">想定シーンで必要な情報が探しやすくなりそうか</span></div>
         </div>
       </div>
 
@@ -597,7 +602,6 @@
             <div class="field-label">期待する効果 <span class="hint">複数選択可</span></div>
             <div class="chips" id="sideEffects"></div>
           </div>
-          <div class="criteria-line"><b>確認したいこと：</b><span class="crit-text">選択した効果を感じられそうか</span></div>
         </div>
       </div>
 
@@ -619,7 +623,8 @@
       <button class="tb-pdf" onclick="window.print()">PDFとして保存 / 印刷</button>
     </div>
   </div>
-  <div class="sheet" id="sheetBody"><!-- JSで生成 --></div>
+  <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
+  <div class="sheet" id="sheetBody2"><!-- JSで生成：2枚目 振り返り用 --></div>
 </div>
 
 <script>
@@ -630,20 +635,20 @@ const S = {
   dateStart: "", dateEnd: "", dateReview: "",
   meetingTools: [], meetingToolsOther: "",
   minutesMethod: [],
-  competingTools: [], competingToolRatings: {},
+  competingTools: [], competingToolRatings: {}, competingToolIssues: {},
   meetingStyle: "", meetingScope: "",
   meetingPurposes: [], meetingDetail: {},
   minutesUsage: [], minutesStorage: [],
   announce: "", announceDate: "",
   memberCount: 5,
   targetMeetings: [], targetMeetingsNote: "",
-  axes: { quality: true, usability: true, cost: false, other: false },
+  axes: { quality: true, usability: true, cost: false, security: false, other: false },
   axisOther: "",
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
 
-const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", other: "その他" };
+const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", security: "セキュリティ", other: "その他" };
 
 /* ============================================================
    Option definitions
@@ -652,12 +657,13 @@ const OPTIONS = {
   meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面", "その他"],
   minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "文字起こし/議事録ツール活用中", "作成していない"],
   competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "その他"],
+  toolIssues: ["文字起こしの精度", "要約の品質", "音声・動画と議事録を一体で確認できない", "議事録を使ったAI活用・RAG検索がない", "使いづらい", "セキュリティ面の不安", "費用", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
   minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
   meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
   aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳"],
-  sharingScenes: ["共有リンクでの即時展開", "Slack/Teams等への自動連携", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
+  sharingScenes: ["共有リンクでの即時展開", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
   ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
   sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"]
 };
@@ -718,7 +724,7 @@ function buildCompetingChips() {
     el.onclick = () => {
       const arr = S.competingTools;
       const i = arr.indexOf(opt);
-      if (i >= 0) { arr.splice(i, 1); delete S.competingToolRatings[opt]; }
+      if (i >= 0) { arr.splice(i, 1); delete S.competingToolRatings[opt]; delete S.competingToolIssues[opt]; }
       else arr.push(opt);
       el.classList.toggle("selected");
       renderCompetingRatings();
@@ -733,10 +739,13 @@ function renderCompetingRatings() {
   S.competingTools.forEach(tool => {
     const row = document.createElement("div");
     row.className = "rating-row";
+
+    const top = document.createElement("div");
+    top.className = "rating-top";
     const label = document.createElement("span");
     label.className = "rating-tool";
     label.textContent = tool;
-    row.appendChild(label);
+    top.appendChild(label);
     const opts = document.createElement("div");
     opts.className = "rating-opts";
     [["満足", "sel-good"], ["やや不満", "sel-mid"], ["不満", "sel-bad"]].forEach(([r, cls]) => {
@@ -745,11 +754,40 @@ function renderCompetingRatings() {
       if (S.competingToolRatings[tool] === r) b.className = cls;
       b.onclick = () => {
         S.competingToolRatings[tool] = (S.competingToolRatings[tool] === r) ? "" : r;
+        if (!/不満/.test(S.competingToolRatings[tool] || "")) delete S.competingToolIssues[tool];
         renderCompetingRatings();
       };
       opts.appendChild(b);
     });
-    row.appendChild(opts);
+    top.appendChild(opts);
+    row.appendChild(top);
+
+    // やや不満/不満を選んだら理由チップを表示
+    if (/不満/.test(S.competingToolRatings[tool] || "")) {
+      if (!S.competingToolIssues[tool]) S.competingToolIssues[tool] = [];
+      const issues = S.competingToolIssues[tool];
+      const reasons = document.createElement("div");
+      reasons.className = "rating-reasons";
+      const rLabel = document.createElement("div");
+      rLabel.className = "rating-reasons-label";
+      rLabel.textContent = "気になっている点（複数選択可）";
+      reasons.appendChild(rLabel);
+      const chips = document.createElement("div");
+      chips.className = "chips small";
+      OPTIONS.toolIssues.forEach(reason => {
+        const c = document.createElement("div");
+        c.className = "chip" + (issues.includes(reason) ? " selected" : "");
+        c.textContent = reason;
+        c.onclick = () => {
+          const i = issues.indexOf(reason);
+          if (i >= 0) issues.splice(i, 1); else issues.push(reason);
+          c.classList.toggle("selected");
+        };
+        chips.appendChild(c);
+      });
+      reasons.appendChild(chips);
+      row.appendChild(reasons);
+    }
     wrap.appendChild(row);
   });
 }
@@ -787,10 +825,12 @@ function renderMeetingDetailRows() {
     if (!d) return;
     const row = document.createElement("div");
     row.className = "detail-row";
+    const top = document.createElement("div");
+    top.className = "dr-top";
     const head = document.createElement("div");
     head.className = "dr-head";
     head.textContent = purpose;
-    row.appendChild(head);
+    top.appendChild(head);
 
     const seg = document.createElement("div");
     seg.className = "segmented small";
@@ -805,7 +845,8 @@ function renderMeetingDetailRows() {
       };
       seg.appendChild(b);
     });
-    row.appendChild(seg);
+    top.appendChild(seg);
+    row.appendChild(top);
 
     if (d.makes === "作成する") {
       const sliders = document.createElement("div");
@@ -934,9 +975,13 @@ function renderSheet() {
     return `${esc(p)}：未設定`;
   });
 
-  const competingRows = S.competingTools.map(t =>
-    `${esc(t)}${S.competingToolRatings[t] ? "（" + esc(S.competingToolRatings[t]) + "）" : ""}`
-  );
+  const competingRows = S.competingTools.map(t => {
+    const rating = S.competingToolRatings[t] || "";
+    const issues = (S.competingToolIssues[t] || []).join("、");
+    let detail = rating;
+    if (rating && issues) detail = `${rating}：${issues}`;
+    return `${esc(t)}${detail ? "（" + esc(detail) + "）" : ""}`;
+  });
 
   document.getElementById("sheetBody").innerHTML = `
     <div class="sh-header">
@@ -994,10 +1039,71 @@ function renderSheet() {
         <tr><th>気にされているポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
         ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.crit)}</td></tr>`).join("")}
       </table>
-      <div class="sh-note">※ セキュリティ・サポート体制については、トライアルとは別に資料等でご案内します。</div>
     </div>
 
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC</div>
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/2）</div>
+  `;
+
+  // ===== 2枚目: 振り返り用シート =====
+  const reviewPoints = [];
+  Object.keys(AXIS_LABELS).forEach(k => {
+    if (!S.axes[k]) return;
+    if (k === "quality") reviewPoints.push({ name: "議事録作成のクオリティ", hint: "文字起こしの精度・要約の質・そのまま使えたか" });
+    if (k === "usability") reviewPoints.push({ name: "使いやすさ", hint: "操作で迷ったところはなかったか" });
+    if (k === "cost") reviewPoints.push({ name: "費用対効果", hint: "手間の軽減と料金のバランス感" });
+    if (k === "security") reviewPoints.push({ name: "セキュリティ", hint: "データの取り扱い・社内ルールで確認が必要な点" });
+    if (k === "other") reviewPoints.push({ name: "その他" + (S.axisOther ? `（${S.axisOther}）` : ""), hint: "" });
+  });
+  if (S.verify.workload) reviewPoints.push({ name: "議事録作成の手間", hint: "作成にかかる時間・手間は軽くなったか" });
+  if (S.verify.ai) reviewPoints.push({ name: "AI機能の活用", hint: S.aiFeatures.join("、") || "AI要約・ToDo抽出など" });
+  if (S.verify.sharing) reviewPoints.push({ name: "議事録の共有・展開", hint: S.sharingScenes.join("、") || "関係者への共有はスムーズだったか" });
+  if (S.verify.rag) reviewPoints.push({ name: "RAG検索", hint: S.ragScenes.join("、") || "必要な情報は探しやすかったか" });
+  if (S.verify.side) reviewPoints.push({ name: "その他の効果", hint: S.sideEffects.join("、") || "" });
+
+  document.getElementById("sheetBody2").innerHTML = `
+    <div class="sh-header">
+      <div>
+        <h1>トライアル振り返りシート</h1>
+        <div class="sh-sub">※ このページは振り返りの際にご使用ください</div>
+      </div>
+      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
+    </div>
+
+    <div class="sh-section">
+      <h2>1. 使ってみて、どうでしたか</h2>
+      <table class="sh-table sh-review">
+        <tr><th style="width:32%;">確認ポイント</th><th>感想・気づき</th></tr>
+        ${reviewPoints.map(p => `
+        <tr>
+          <td><b>${esc(p.name)}</b>${p.hint ? `<div class="sh-hint">${esc(p.hint)}</div>` : ""}</td>
+          <td class="sh-write"></td>
+        </tr>`).join("")}
+      </table>
+    </div>
+
+    <div class="sh-section">
+      <h2>2. これからのご相談</h2>
+      <table class="sh-table sh-review">
+        <tr>
+          <td style="width:32%;"><b>続けてお使いいただくイメージ</b><div class="sh-hint">持てそうか・どんな場面で使えそうか</div></td>
+          <td class="sh-write"></td>
+        </tr>
+        <tr>
+          <td><b>お使いいただくとしたら</b><div class="sh-hint">時期・部署・人数の規模感</div></td>
+          <td class="sh-write"></td>
+        </tr>
+        <tr>
+          <td><b>社内でのご検討の進め方</b><div class="sh-hint">ご確認が必要な方・手続きの流れ</div></td>
+          <td class="sh-write"></td>
+        </tr>
+        <tr>
+          <td><b>ご検討中のプラン</b><div class="sh-hint">ご利用時間・人数に合わせてご提案します</div></td>
+          <td class="sh-write"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/2）</div>
   `;
 }
 
@@ -1026,6 +1132,7 @@ buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
     if (!on) {
       S.competingTools = [];
       S.competingToolRatings = {};
+      S.competingToolIssues = {};
       document.querySelectorAll("#competingTools .chip").forEach(c => c.classList.remove("selected"));
       renderCompetingRatings();
     }
