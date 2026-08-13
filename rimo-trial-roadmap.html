@@ -277,6 +277,21 @@
   .sh-note a, .sh-hint a, .rv-s a { color: var(--primary-dark); font-weight: 700; }
   .sh-lead { font-size: 10.5px; color: var(--text-sub); margin: 0 0 12px; }
 
+  .sh-insights h2 { margin-bottom: 8px; }
+  .insight-card {
+    border: 1px solid #cbd5e1; border-left: 4px solid var(--primary); border-radius: 6px;
+    padding: 8px 12px; margin-bottom: 8px; background: #fafcfc; break-inside: avoid;
+  }
+  .insight-card:last-child { margin-bottom: 0; }
+  .insight-top { display: flex; align-items: center; gap: 10px; }
+  .ins-col { flex: 1; font-size: 11px; line-height: 1.4; }
+  .ins-label { display: block; font-size: 9px; font-weight: 700; letter-spacing: .03em; margin-bottom: 2px; }
+  .ins-issue .ins-label { color: #b45309; }
+  .ins-ideal .ins-label { color: var(--primary-dark); }
+  .ins-arrow { color: var(--primary); font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .ins-howto { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 10px; color: var(--text-sub); }
+  .ins-howto b { color: var(--primary-dark); }
+
   .rv-q {
     display: flex; align-items: flex-start; gap: 10px;
     border: 1px solid #cbd5e1; border-radius: 6px;
@@ -964,8 +979,88 @@ const fmtDate = d => {
   return `${y}/${+m}/${+dd}`;
 };
 
+/* ============================================================
+   現状の課題 → あるべき姿 の自動合成（ルールベース）
+============================================================ */
+function buildInsights(cur) {
+  const rules = [];
+  const push = (topic, priority, issue, ideal, howTo) => rules.push({ topic, priority, issue, ideal, howTo });
+
+  if (cur >= 3) {
+    push("workload", 10 + Math.min(cur, 20),
+      `議事録作成に月あたり約${cur}時間の工数がかかっている`,
+      "その時間を、商談準備や顧客対応など本来の業務に充てられている",
+      "自動文字起こし・要約で作成時間を圧縮し、浮いた時間を有効活用できるか試す");
+  }
+
+  const manualMethods = ["手書きメモ＋清書", "録音を聞き直して作成"].filter(m => S.minutesMethod.includes(m));
+  if (manualMethods.length && !S.minutesMethod.includes("文字起こし/議事録ツール活用中")) {
+    push("accuracy", 8,
+      `${manualMethods.join("・")}に頼っており、記録の精度や網羅性が担当者によってばらつく`,
+      "誰が議事録を作っても、一定水準の精度で記録が残っている",
+      "自動文字起こし・要約で、属人化を解消できるか試す");
+  }
+
+  const issueToInsight = {
+    "文字起こしの精度": ["accuracy", 12, t => `既存ツール（${t}）の文字起こし精度に満足できていない`, "文字起こしの精度に安心して、そのまま使える状態", "高精度な日本語特化エンジンをトライアルで比較検証する"],
+    "要約の品質": ["accuracy", 12, t => `既存ツール（${t}）の要約の質に満足できていない`, "要約の質に安心して、そのまま使える状態", "AI要約の質をトライアルで比較検証する"],
+    "音声・動画と議事録を一体で確認できない": ["context", 11, () => "文字起こしだけでは会議の文脈を追いづらい", "音声・動画と議事録を一体で振り返れる状態", "議事録から該当箇所の音声・動画を確認できるか試す"],
+    "議事録を使ったAI活用・RAG検索がない": ["knowledge", 11, () => "議事録を作って終わりで、AIによる二次活用ができていない", "議事録を起点に、AIで深掘り・検索ができる状態", "AIチャットでの深掘りやRAG検索を試す"],
+    "使いづらい": ["usability", 9, t => `既存ツール（${t}）の操作が複雑で、現場に定着しきっていない`, "誰でも迷わず使え、現場に浸透している状態", "シンプルな操作性をメンバー全員で試す"],
+    "セキュリティ面の不安": ["security", 10, () => "セキュリティ面の不安から、安心して使い切れていない", "セキュリティ要件をクリアし、安心して使える状態", "セキュリティ対策資料をもとに社内確認を並行して進める"],
+    "費用": ["cost", 9, () => "費用に対して効果が見合っているか判断しづらい", "削減できた時間や効果を数字で実感できている状態", "トライアルで実際の削減時間を可視化し、費用対効果を確認する"]
+  };
+  const toolsByIssue = {};
+  S.competingTools.forEach(t => {
+    (S.competingToolIssues[t] || []).forEach(issue => {
+      (toolsByIssue[issue] = toolsByIssue[issue] || []).push(t);
+    });
+  });
+  Object.keys(toolsByIssue).forEach(issue => {
+    const def = issueToInsight[issue];
+    if (!def) return;
+    const [topic, priority, issueFn, ideal, howTo] = def;
+    push(topic, priority, issueFn(toolsByIssue[issue].join("・")), ideal, howTo);
+  });
+
+  if (S.minutesUsage.length && (S.minutesUsage.includes("ほぼ活用できていない") || !S.minutesUsage.includes("ナレッジとして蓄積"))) {
+    push("knowledge", 7,
+      "作成した議事録が個人のメモで終わり、組織のナレッジになっていない",
+      "過去の議事録を横断的に検索し、意思決定や引き継ぎに活用できている状態",
+      "RAG検索で必要な情報をすぐに引き出せるか試す");
+  }
+
+  if (S.minutesUsage.length && !S.minutesUsage.includes("関係者への共有")) {
+    push("sharing", 7,
+      "議事録の共有に手間がかかり、関係者・欠席者への展開が遅れがち",
+      "会議の内容が即座に関係者へ届き、欠席者もすぐ追いつける状態",
+      "共有リンクでの即時展開や欠席者向け共有を試す");
+  }
+
+  if (S.axes.cost) {
+    push("cost", 6,
+      "効果が数字で見えておらず、費用対効果の判断材料が不足している",
+      "削減できた時間・効果を実感値として説明できる状態",
+      "トライアルで実際の稼働削減を数値化する");
+  }
+
+  if (S.axes.security) {
+    push("security", 6,
+      "セキュリティ・データ取り扱いへの懸念で、導入検討が進めにくい",
+      "セキュリティ要件を確認し、安心して検討を前に進められる状態",
+      "セキュリティ対策資料をもとに、社内確認を並行して進める");
+  }
+
+  const byTopic = {};
+  rules.forEach(r => {
+    if (!byTopic[r.topic] || byTopic[r.topic].priority < r.priority) byTopic[r.topic] = r;
+  });
+  return Object.values(byTopic).sort((a, b) => b.priority - a.priority).slice(0, 3);
+}
+
 function renderSheet() {
   const cur = monthlyHours();
+  const insights = buildInsights(cur);
   const today = new Date();
   const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
@@ -1019,6 +1114,20 @@ function renderSheet() {
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
     <div class="sh-lead">本シートは、AI議事録サービス「Rimo Voice」のトライアルにあたり、議事録まわりの現状と、トライアルで確認するポイントを整理したものです。トライアル後の振り返りは、2枚目のシートに沿って行います。</div>
+
+    ${insights.length ? `
+    <div class="sh-section sh-insights">
+      <h2>現状の課題とめざす姿</h2>
+      ${insights.map(i => `
+      <div class="insight-card">
+        <div class="insight-top">
+          <div class="ins-col ins-issue"><span class="ins-label">現状の課題</span>${esc(i.issue)}</div>
+          <div class="ins-arrow">→</div>
+          <div class="ins-col ins-ideal"><span class="ins-label">めざす姿</span>${esc(i.ideal)}</div>
+        </div>
+        <div class="ins-howto"><b>Rimoでの試しかた：</b>${esc(i.howTo)}</div>
+      </div>`).join("")}
+    </div>` : ""}
 
     <div class="sh-section">
       <h2>1. トライアルの日程</h2>
