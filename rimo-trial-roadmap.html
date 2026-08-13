@@ -274,8 +274,17 @@
   .sh-guide .g-desc { font-size: 10px; color: var(--text-sub); }
   .sh-guide a { color: var(--primary-dark); font-weight: 700; font-size: 11px; word-break: break-all; }
   .sh-hint { font-size: 9.5px; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
-  .sh-note a, .sh-hint a { color: var(--primary-dark); font-weight: 700; }
-  table.sh-review td.sh-write { height: 44px; background: #fff; }
+  .sh-note a, .sh-hint a, .rv-s a { color: var(--primary-dark); font-weight: 700; }
+  .sh-lead { font-size: 10.5px; color: var(--text-sub); margin: 0 0 12px; }
+
+  .rv-q {
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1px solid #cbd5e1; border-radius: 6px;
+    padding: 8px 12px; margin-bottom: 6px; break-inside: avoid;
+  }
+  .rv-num { font-size: 12px; font-weight: 700; color: var(--primary); flex-shrink: 0; margin-top: 1px; }
+  .rv-t { font-size: 12px; font-weight: 700; }
+  .rv-s { font-size: 10.5px; color: var(--text-sub); margin-top: 2px; }
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
   /* ===== Print ===== */
@@ -960,38 +969,15 @@ function renderSheet() {
   const today = new Date();
   const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
-  const axisRows = Object.keys(AXIS_LABELS)
-    .filter(k => S.axes[k])
-    .map(k => k === "other" && S.axisOther ? `その他（${esc(S.axisOther)}）` : esc(AXIS_LABELS[k]));
-
-  const verifyRows = [];
-  if (S.verify.workload) verifyRows.push({
-    name: "① 議事録作成の手間の軽減",
-    crit: "作成にかかる時間・手間がどれだけ軽くなるか"
-  });
-  if (S.verify.ai) verifyRows.push({
-    name: "② AI機能の活用",
-    crit: (S.aiFeatures.length ? S.aiFeatures.join("、") + " を" : "AI機能を") + "実際の業務で試してみる"
-  });
-  if (S.verify.sharing) verifyRows.push({
-    name: "③ 議事録の共有・展開",
-    crit: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で" : "") + "共有がスムーズになるか試してみる"
-  });
-  if (S.verify.rag) verifyRows.push({
-    name: "④ RAG検索",
-    crit: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で" : "") + "必要な情報が探しやすくなるか試してみる"
-  });
-  if (S.verify.side) verifyRows.push({
-    name: "⑤ その他の効果",
-    crit: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか"
-  });
-
-  const purposeRows = S.meetingPurposes.map(p => {
+  // ---- 現状：打ち合わせと議事録の整理 ----
+  const makesRows = [], noMakesRows = [];
+  S.meetingPurposes.forEach(p => {
     const d = S.meetingDetail[p] || {};
-    if (d.makes === "作成する") return `${esc(p)}：作成する（${d.perWeek}件/週 × ${d.perDoc}分）`;
-    if (d.makes === "作成しない") return `${esc(p)}：作成しない`;
-    return `${esc(p)}：未設定`;
+    if (d.makes === "作成する") makesRows.push(`${esc(p)}（週${d.perWeek}件・1件あたり約${d.perDoc}分）`);
+    else if (d.makes === "作成しない") noMakesRows.push(esc(p));
   });
+
+  const styleParts = [S.meetingStyle, S.meetingScope].filter(Boolean);
 
   const competingRows = S.competingTools.map(t => {
     const rating = S.competingToolRatings[t] || "";
@@ -1001,6 +987,29 @@ function renderSheet() {
     return `${esc(t)}${detail ? "（" + esc(detail) + "）" : ""}`;
   });
 
+  // ---- 社内周知 ----
+  const methods = S.announceMethods.join("、");
+  let announceCell;
+  if (S.announce === "周知済み") {
+    announceCell = "周知済み" + (methods ? `（${esc(methods)}）` : "");
+  } else if (S.announce === "周知予定あり") {
+    announceCell = (S.announceDate ? fmtDate(S.announceDate) + " に周知予定" : "周知予定あり") + (methods ? `（${esc(methods)}）` : "");
+  } else {
+    announceCell = val(S.announce, "未定");
+  }
+
+  // ---- 確認するポイント ----
+  const axisRows = Object.keys(AXIS_LABELS)
+    .filter(k => S.axes[k])
+    .map(k => k === "other" && S.axisOther ? `その他（${esc(S.axisOther)}）` : esc(AXIS_LABELS[k]));
+
+  const verifyRows = [];
+  if (S.verify.workload) verifyRows.push({ name: "議事録作成の手間", desc: "作成にかかる時間・手間がどれだけ軽くなるか" });
+  if (S.verify.ai) verifyRows.push({ name: "AI機能の活用", desc: (S.aiFeatures.length ? S.aiFeatures.join("、") + " が" : "AIの機能が") + "実際の業務で使えるか" });
+  if (S.verify.sharing) verifyRows.push({ name: "議事録の共有", desc: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で、" : "") + "関係者への共有がスムーズになるか" });
+  if (S.verify.rag) verifyRows.push({ name: "過去議事録の検索（RAG検索）", desc: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で、" : "") + "蓄積した議事録から必要な情報を探し出せるか" });
+  if (S.verify.side) verifyRows.push({ name: "その他の効果", desc: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか" });
+
   document.getElementById("sheetBody").innerHTML = `
     <div class="sh-header">
       <div>
@@ -1009,9 +1018,10 @@ function renderSheet() {
       </div>
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
+    <div class="sh-lead">本シートは、AI議事録サービス「Rimo Voice」のトライアルにあたり、議事録まわりの現状と、トライアルで確認するポイントを整理したものです。トライアル後の振り返りは、2枚目のシートに沿って行います。</div>
 
     <div class="sh-section">
-      <h2>1. トライアルスケジュール</h2>
+      <h2>1. トライアルの日程</h2>
       <div class="sh-schedule">
         <div class="sh-step">
           <div class="st-name">トライアル開始日</div>
@@ -1037,97 +1047,89 @@ function renderSheet() {
     </div>
 
     <div class="sh-section">
-      <h2>2. 現状の確認</h2>
+      <h2>2. 議事録まわりの現状</h2>
       <table class="sh-table">
-        <tr><th>会議ツール</th><td>${list(S.meetingTools)}</td></tr>
-        <tr><th>議事録作成方法</th><td>${list(S.minutesMethod)}</td></tr>
-        ${competingRows.length ? `<tr><th>現在お使いのツール</th><td>${competingRows.join("、")}</td></tr>` : ""}
-        <tr><th>打ち合わせの実施方法</th><td>${val(S.meetingStyle)}　／　${val(S.meetingScope)}</td></tr>
-        <tr><th>打ち合わせの実施目的</th><td>${purposeRows.length ? purposeRows.join("<br>") : `<span class="sh-empty">―</span>`}</td></tr>
-        ${cur > 0 ? `<tr><th>議事録作成の稼働</th><td><b>約 ${cur} 時間/月</b>（上表の目的ごとの合算）</td></tr>` : ""}
-        <tr><th>議事録の活用状況</th><td>${list(S.minutesUsage)}</td></tr>
-        <tr><th>議事録の保管方法</th><td>${list(S.minutesStorage)}</td></tr>
+        <tr><th>利用中の会議ツール</th><td>${list(S.meetingTools)}</td></tr>
+        <tr><th>打ち合わせの形式</th><td>${styleParts.length ? esc(styleParts.join("・")) : `<span class="sh-empty">―</span>`}</td></tr>
+        <tr><th>現在の議事録の作り方</th><td>${list(S.minutesMethod)}</td></tr>
+        ${competingRows.length ? `<tr><th>利用中の文字起こし/議事録ツール</th><td>${competingRows.join("、")}<div class="sh-hint">※ かっこ内は現在感じている評価</div></td></tr>` : ""}
+        ${makesRows.length ? `<tr><th>議事録を作成している打ち合わせ</th><td>${makesRows.join("<br>")}</td></tr>` : ""}
+        ${noMakesRows.length ? `<tr><th>議事録を作成していない打ち合わせ</th><td>${noMakesRows.join("、")}</td></tr>` : ""}
+        ${cur > 0 ? `<tr><th>議事録作成にかかっている時間</th><td><b>約 ${cur} 時間/月</b>（作成している打ち合わせの合計・概算）</td></tr>` : ""}
+        <tr><th>作成した議事録の使われ方</th><td>${list(S.minutesUsage)}</td></tr>
+        <tr><th>議事録の保管場所</th><td>${list(S.minutesStorage)}</td></tr>
       </table>
     </div>
 
     <div class="sh-section">
-      <h2>3. トライアルの前提</h2>
+      <h2>3. トライアルの進め方</h2>
       <table class="sh-table">
-        <tr><th>社内周知</th><td>${val(S.announce)}${S.announce === "周知予定あり" && S.announceDate ? "（" + fmtDate(S.announceDate) + " 予定）" : ""}${(S.announce === "周知済み" || S.announce === "周知予定あり") && S.announceMethods.length ? "　方法：" + esc(S.announceMethods.join("、")) : ""}</td></tr>
-        <tr><th>利用予定メンバー数</th><td>約 ${S.memberCount} 名</td></tr>
-        <tr><th>活用予定の会議</th><td>${list(S.targetMeetings)}${S.targetMeetingsNote ? "<br>" + esc(S.targetMeetingsNote) : ""}</td></tr>
+        <tr><th>社内への周知</th><td>${announceCell}</td></tr>
+        <tr><th>トライアルで利用するメンバー</th><td>約 ${S.memberCount} 名</td></tr>
+        <tr><th>Rimo Voice を使う予定の打ち合わせ</th><td>${list(S.targetMeetings)}${S.targetMeetingsNote ? "<br>" + esc(S.targetMeetingsNote) : ""}</td></tr>
       </table>
     </div>
 
     <div class="sh-section">
-      <h2>4. トライアルで確認したいポイント</h2>
+      <h2>4. トライアルで確認するポイント</h2>
       <table class="sh-table">
-        <tr><th>気にされているポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
-        ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.crit)}</td></tr>`).join("")}
+        <tr><th>ツール選定で重視するポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
+        ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.desc)}</td></tr>`).join("")}
       </table>
-      ${S.axes.security ? `<div class="sh-note">セキュリティ対策については <a href="${SECURITY_GUIDE_URL}">こちら</a> をご覧ください（${SECURITY_GUIDE_URL}）</div>` : ""}
+      ${S.axes.security ? `<div class="sh-note">セキュリティ対策の詳細は <a href="${SECURITY_GUIDE_URL}">Rimo公式ヘルプ「セキュリティ対策について」</a> をご覧ください。</div>` : ""}
     </div>
 
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/2）</div>
   `;
 
-  // ===== 2枚目: 振り返り用シート =====
-  const reviewPoints = [];
-  Object.keys(AXIS_LABELS).forEach(k => {
-    if (!S.axes[k]) return;
-    if (k === "quality") reviewPoints.push({ name: "議事録作成のクオリティ", hint: "文字起こしの精度・要約の質・そのまま使えたか" });
-    if (k === "usability") reviewPoints.push({ name: "使いやすさ", hint: "操作で迷ったところはなかったか" });
-    if (k === "cost") reviewPoints.push({ name: "費用対効果", hint: "手間の軽減と料金のバランス感" });
-    if (k === "security") reviewPoints.push({ name: "セキュリティ", hint: "データの取り扱い・社内ルールで確認が必要な点", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策についてはこちら" });
-    if (k === "other") reviewPoints.push({ name: "その他" + (S.axisOther ? `（${S.axisOther}）` : ""), hint: "" });
-  });
-  if (S.verify.workload) reviewPoints.push({ name: "議事録作成の手間", hint: "作成にかかる時間・手間は軽くなったか" });
-  if (S.verify.ai) reviewPoints.push({ name: "AI機能の活用", hint: S.aiFeatures.join("、") || "アクション整理・ToDo抽出など" });
-  if (S.verify.sharing) reviewPoints.push({ name: "議事録の共有・展開", hint: S.sharingScenes.join("、") || "関係者への共有はスムーズだったか" });
-  if (S.verify.rag) reviewPoints.push({ name: "RAG検索", hint: S.ragScenes.join("、") || "必要な情報は探しやすかったか" });
-  if (S.verify.side) reviewPoints.push({ name: "その他の効果", hint: S.sideEffects.join("、") || "" });
+  // ===== 2枚目: 振り返りシート（質問リスト） =====
+  const feelQ = [];
+  if (S.axes.quality) feelQ.push({ t: "文字起こしや要約の精度は、いかがでしたか", s: "固有名詞・専門用語の変換、そのまま使えたか など" });
+  if (S.axes.usability) feelQ.push({ t: "操作で迷ったところは、ありませんでしたか", s: "録音の開始、共有のしかた など" });
+  if (S.verify.workload) feelQ.push({ t: "議事録作成の時間・手間は、軽くなりましたか", s: "" });
+  if (S.verify.ai) feelQ.push({ t: "AIの機能は、業務で使えそうでしたか", s: S.aiFeatures.join("、") });
+  if (S.verify.sharing) feelQ.push({ t: "議事録の共有は、スムーズでしたか", s: S.sharingScenes.join("、") });
+  if (S.verify.rag) feelQ.push({ t: "過去の議事録の検索（RAG検索）は、役立ちそうでしたか", s: S.ragScenes.join("、") });
+  if (S.verify.side) feelQ.push({ t: "その他に感じられた効果は、ありましたか", s: S.sideEffects.join("、") });
+  if (S.axes.cost) feelQ.push({ t: "手間の軽減と料金のバランスは、どう感じられましたか", s: "" });
+  if (S.axes.security) feelQ.push({ t: "セキュリティ面で、社内確認が必要そうな点はありましたか", s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
+  if (S.axes.other) feelQ.push({ t: `その他${S.axisOther ? `（${S.axisOther}）` : "に気にされていた点"}は、いかがでしたか`, s: "" });
+
+  const nextQ = [
+    { t: "続けてお使いいただくイメージは、持てそうでしょうか", s: "どんな場面・打ち合わせで使えそうか" },
+    { t: "お使いいただくとしたら、時期・部署・人数はどのくらいになりそうですか", s: "" },
+    { t: "社内でご検討いただく場合、どなたのご確認や、どのような手続きが必要になりそうですか", s: "" },
+    { t: "ご検討中のプランやご希望は、ありますか", s: "ご利用の時間・人数に合わせてご提案します" }
+  ];
+
+  const qBlock = (q, i) => `
+    <div class="rv-q">
+      <span class="rv-num">${String(i + 1).padStart(2, "0")}</span>
+      <div>
+        <div class="rv-t">${esc(q.t)}</div>
+        ${q.s ? `<div class="rv-s">${esc(q.s)}</div>` : ""}
+        ${q.link ? `<div class="rv-s"><a href="${q.link}">${esc(q.linkLabel)}</a></div>` : ""}
+      </div>
+    </div>`;
 
   document.getElementById("sheetBody2").innerHTML = `
     <div class="sh-header">
       <div>
         <h1>トライアル振り返りシート</h1>
-        <div class="sh-sub">※ このページは振り返りの際にご使用ください</div>
+        <div class="sh-sub">※ このページは振り返りの際に使用します</div>
       </div>
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
+    <div class="sh-lead">トライアル終了後の振り返りでは、実際に使っていただいた感想を以下の質問に沿って伺います（記入は不要です。口頭でお聞かせください）。</div>
 
     <div class="sh-section">
       <h2>1. 使ってみて、どうでしたか</h2>
-      <table class="sh-table sh-review">
-        <tr><th style="width:32%;">確認ポイント</th><th>感想・気づき</th></tr>
-        ${reviewPoints.map(p => `
-        <tr>
-          <td><b>${esc(p.name)}</b>${p.hint ? `<div class="sh-hint">${esc(p.hint)}</div>` : ""}${p.link ? `<div class="sh-hint"><a href="${p.link}">${esc(p.linkLabel)}</a></div>` : ""}</td>
-          <td class="sh-write"></td>
-        </tr>`).join("")}
-      </table>
+      ${feelQ.map(qBlock).join("")}
     </div>
 
     <div class="sh-section">
       <h2>2. これからのご相談</h2>
-      <table class="sh-table sh-review">
-        <tr>
-          <td style="width:32%;"><b>続けてお使いいただくイメージ</b><div class="sh-hint">持てそうか・どんな場面で使えそうか</div></td>
-          <td class="sh-write"></td>
-        </tr>
-        <tr>
-          <td><b>お使いいただくとしたら</b><div class="sh-hint">時期・部署・人数の規模感</div></td>
-          <td class="sh-write"></td>
-        </tr>
-        <tr>
-          <td><b>社内でのご検討の進め方</b><div class="sh-hint">ご確認が必要な方・手続きの流れ</div></td>
-          <td class="sh-write"></td>
-        </tr>
-        <tr>
-          <td><b>ご検討中のプラン</b><div class="sh-hint">ご利用時間・人数に合わせてご提案します</div></td>
-          <td class="sh-write"></td>
-        </tr>
-      </table>
+      ${nextQ.map(qBlock).join("")}
     </div>
 
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/2）</div>
