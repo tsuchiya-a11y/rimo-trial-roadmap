@@ -920,11 +920,15 @@ function toggleAxis(key) {
   document.getElementById("ax-" + key).classList.toggle("on", S.axes[key]);
 }
 
+function fmtLocalISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function autoFillDates() {
   // 開始日から終了日・振り返り(いずれも+7日)を自動提案（未入力時のみ）
   if (!S.dateStart) return;
   const base = new Date(S.dateStart + "T00:00:00");
-  const fmt = d => d.toISOString().slice(0, 10);
+  const fmt = fmtLocalISO;
   if (!S.dateEnd) {
     const d = new Date(base); d.setDate(d.getDate() + 7);
     S.dateEnd = fmt(d); document.getElementById("dateEnd").value = S.dateEnd;
@@ -1299,6 +1303,15 @@ document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.
 goStep(0);
 renderMeetingDetailRows();
 updateCalc();
+
+// スケジュールの初期値：開始日=当日、終了日・振り返りMTG=開始日の1週間後
+(() => {
+  const today = new Date();
+  S.dateStart = fmtLocalISO(today);
+  document.getElementById("dateStart").value = S.dateStart;
+  autoFillDates();
+  updateAnnounceGap();
+})();
 </script>
 </body>
 </html>
