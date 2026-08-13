@@ -556,7 +556,7 @@
           <div class="toggle"></div>
           <div>
             <div class="vh-title">② 議事録内のAI機能の活用</div>
-            <div class="vh-sub">AI要約などの機能が実務のどこに活きるか</div>
+            <div class="vh-sub">AIの機能が実務のどこに活きるか</div>
           </div>
         </div>
         <div class="verify-body">
@@ -676,7 +676,7 @@ const OPTIONS = {
   announceMethods: ["社内定例で周知", "個別に関係者へ周知", "社内チャット等で周知", "その他"],
   meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
-  aiFeatures: ["AI要約", "決定事項・ToDoの抽出", "話者ごとの発言整理", "要約テンプレートのカスタマイズ", "翻訳"],
+  aiFeatures: ["アクション整理", "決定事項・ToDoの抽出", "話者ごとの発言整理", "AIのWeb検索との組み合わせ"],
   sharingScenes: ["共有リンクでの即時展開", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
   ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
   sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"]
@@ -1079,7 +1079,7 @@ function renderSheet() {
     if (k === "other") reviewPoints.push({ name: "その他" + (S.axisOther ? `（${S.axisOther}）` : ""), hint: "" });
   });
   if (S.verify.workload) reviewPoints.push({ name: "議事録作成の手間", hint: "作成にかかる時間・手間は軽くなったか" });
-  if (S.verify.ai) reviewPoints.push({ name: "AI機能の活用", hint: S.aiFeatures.join("、") || "AI要約・ToDo抽出など" });
+  if (S.verify.ai) reviewPoints.push({ name: "AI機能の活用", hint: S.aiFeatures.join("、") || "アクション整理・ToDo抽出など" });
   if (S.verify.sharing) reviewPoints.push({ name: "議事録の共有・展開", hint: S.sharingScenes.join("、") || "関係者への共有はスムーズだったか" });
   if (S.verify.rag) reviewPoints.push({ name: "RAG検索", hint: S.ragScenes.join("、") || "必要な情報は探しやすかったか" });
   if (S.verify.side) reviewPoints.push({ name: "その他の効果", hint: S.sideEffects.join("、") || "" });
