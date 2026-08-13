@@ -274,6 +274,7 @@
   .sh-guide .g-desc { font-size: 10px; color: var(--text-sub); }
   .sh-guide a { color: var(--primary-dark); font-weight: 700; font-size: 11px; word-break: break-all; }
   .sh-hint { font-size: 9.5px; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
+  .sh-note a, .sh-hint a { color: var(--primary-dark); font-weight: 700; }
   table.sh-review td.sh-write { height: 44px; background: #fff; }
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
@@ -662,6 +663,7 @@ const S = {
 };
 
 const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", security: "セキュリティ", other: "その他" };
+const SECURITY_GUIDE_URL = "https://guide.rimo.app/ja/articles/8847459-%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E5%AF%BE%E7%AD%96%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6";
 
 /* ============================================================
    Option definitions
@@ -1063,6 +1065,7 @@ function renderSheet() {
         <tr><th>気にされているポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
         ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.crit)}</td></tr>`).join("")}
       </table>
+      ${S.axes.security ? `<div class="sh-note">セキュリティ対策については <a href="${SECURITY_GUIDE_URL}">こちら</a> をご覧ください（${SECURITY_GUIDE_URL}）</div>` : ""}
     </div>
 
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/2）</div>
@@ -1075,7 +1078,7 @@ function renderSheet() {
     if (k === "quality") reviewPoints.push({ name: "議事録作成のクオリティ", hint: "文字起こしの精度・要約の質・そのまま使えたか" });
     if (k === "usability") reviewPoints.push({ name: "使いやすさ", hint: "操作で迷ったところはなかったか" });
     if (k === "cost") reviewPoints.push({ name: "費用対効果", hint: "手間の軽減と料金のバランス感" });
-    if (k === "security") reviewPoints.push({ name: "セキュリティ", hint: "データの取り扱い・社内ルールで確認が必要な点" });
+    if (k === "security") reviewPoints.push({ name: "セキュリティ", hint: "データの取り扱い・社内ルールで確認が必要な点", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策についてはこちら" });
     if (k === "other") reviewPoints.push({ name: "その他" + (S.axisOther ? `（${S.axisOther}）` : ""), hint: "" });
   });
   if (S.verify.workload) reviewPoints.push({ name: "議事録作成の手間", hint: "作成にかかる時間・手間は軽くなったか" });
@@ -1099,7 +1102,7 @@ function renderSheet() {
         <tr><th style="width:32%;">確認ポイント</th><th>感想・気づき</th></tr>
         ${reviewPoints.map(p => `
         <tr>
-          <td><b>${esc(p.name)}</b>${p.hint ? `<div class="sh-hint">${esc(p.hint)}</div>` : ""}</td>
+          <td><b>${esc(p.name)}</b>${p.hint ? `<div class="sh-hint">${esc(p.hint)}</div>` : ""}${p.link ? `<div class="sh-hint"><a href="${p.link}">${esc(p.linkLabel)}</a></div>` : ""}</td>
           <td class="sh-write"></td>
         </tr>`).join("")}
       </table>
