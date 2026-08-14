@@ -303,31 +303,18 @@
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
   /* ===== 社内提案用プロンプト ===== */
-  .prompt-bar {
-    width: 210mm; margin: 20px auto 40px; background: #fff; border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px 22px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
-  }
-  .prompt-bar-head { display: flex; align-items: flex-start; gap: 12px; }
-  .prompt-bar-head .pb-icon { font-size: 22px; line-height: 1; }
-  .prompt-bar-head .pb-title { font-weight: 700; font-size: 14px; color: var(--text); }
-  .prompt-bar-head .pb-desc { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; line-height: 1.5; }
-  .btn-copy-prompt {
-    margin-left: auto; padding: 9px 18px; border-radius: 8px; border: none; flex-shrink: 0;
-    background: var(--primary); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap;
-  }
-  .btn-copy-prompt:hover { background: var(--primary-dark); }
-  .btn-copy-prompt.copied { background: var(--success); }
-  .prompt-textarea {
-    width: 100%; margin-top: 12px; height: 110px; resize: vertical;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: var(--text-sub);
-    border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--bg); line-height: 1.5;
+  .sh-prompt-desc { font-size: 10px; color: var(--text-sub); margin-bottom: 6px; }
+  .sh-prompt-box {
+    white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 9.5px; line-height: 1.6; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
   }
 
   /* ===== Print ===== */
   @page { size: A4; margin: 0; }
   @media print {
     body { background: #fff; }
-    .app, .sheet-toolbar, .prompt-bar { display: none !important; }
+    .app, .sheet-toolbar { display: none !important; }
     .sheet-container { display: block !important; }
     .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; page-break-after: always; }
     .sheet:last-of-type { page-break-after: auto; }
@@ -684,18 +671,6 @@
   </div>
   <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
   <div class="sheet" id="sheetBody2"><!-- JSで生成：2枚目 振り返り用 --></div>
-
-  <div class="prompt-bar">
-    <div class="prompt-bar-head">
-      <span class="pb-icon">🤖</span>
-      <div>
-        <div class="pb-title">社内提案用プロンプト</div>
-        <div class="pb-desc">このシートの内容をもとにしたプロンプトです。AIに貼り付けると、上司・関係者向けの企画書のたたき台が作れます（社内稟議にお使いください）。</div>
-      </div>
-      <button class="btn-copy-prompt" onclick="copyProposalPrompt()">プロンプトをコピー</button>
-    </div>
-    <textarea id="proposalPromptText" class="prompt-textarea" readonly></textarea>
-  </div>
 </div>
 
 <script>
@@ -1158,7 +1133,6 @@ function renderSheet() {
       </div>
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
-    <div class="sh-lead">本シートは、AI議事録サービス「Rimo Voice」のトライアルにあたり、議事録まわりの現状と、トライアルで確認するポイントを整理したものです。トライアル後の振り返りは、2枚目のシートに沿って行います。</div>
 
     ${insights.length ? `
     <div class="sh-section sh-insights">
@@ -1233,6 +1207,12 @@ function renderSheet() {
       ${S.axes.security ? `<div class="sh-note">セキュリティ対策の詳細は <a href="${SECURITY_GUIDE_URL}">Rimo公式ヘルプ「セキュリティ対策について」</a> をご覧ください。</div>` : ""}
     </div>
 
+    <div class="sh-section">
+      <h2>5. 社内提案用プロンプト（AIへの貼り付け用）</h2>
+      <div class="sh-prompt-desc">社内の上司・関係者向けに企画書を作る際は、以下の文章をそのままAIに貼り付けてご活用ください。</div>
+      <pre class="sh-prompt-box">${esc(buildProposalPrompt())}</pre>
+    </div>
+
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/2）</div>
   `;
 
@@ -1288,9 +1268,6 @@ function renderSheet() {
 
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/2）</div>
   `;
-
-  const promptTa = document.getElementById("proposalPromptText");
-  if (promptTa) promptTa.value = buildProposalPrompt();
 }
 
 /* ============================================================
@@ -1363,34 +1340,6 @@ function buildProposalPrompt() {
   lines.push("社内提案書らしく、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は仮の記載にして「要確認」と注記してください。");
 
   return lines.join("\n");
-}
-
-function copyProposalPrompt() {
-  const text = buildProposalPrompt();
-  const ta = document.getElementById("proposalPromptText");
-  ta.value = text;
-
-  const fallbackCopy = () => {
-    ta.focus();
-    ta.select();
-    try { document.execCommand("copy"); } catch (e) {}
-    ta.blur();
-  };
-  const showCopied = () => {
-    const btn = document.querySelector(".btn-copy-prompt");
-    if (!btn) return;
-    const original = btn.textContent;
-    btn.textContent = "コピーしました ✓";
-    btn.classList.add("copied");
-    setTimeout(() => { btn.textContent = original; btn.classList.remove("copied"); }, 1800);
-  };
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(showCopied).catch(() => { fallbackCopy(); showCopied(); });
-  } else {
-    fallbackCopy();
-    showCopied();
-  }
 }
 
 function openSheet() {
