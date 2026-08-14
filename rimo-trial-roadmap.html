@@ -302,11 +302,32 @@
   .rv-s { font-size: 10.5px; color: var(--text-sub); margin-top: 2px; }
   .sh-footer { margin-top: 10px; text-align: right; font-size: 9px; color: #9ca3af; }
 
+  /* ===== 社内提案用プロンプト ===== */
+  .prompt-bar {
+    width: 210mm; margin: 20px auto 40px; background: #fff; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 22px; box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  }
+  .prompt-bar-head { display: flex; align-items: flex-start; gap: 12px; }
+  .prompt-bar-head .pb-icon { font-size: 22px; line-height: 1; }
+  .prompt-bar-head .pb-title { font-weight: 700; font-size: 14px; color: var(--text); }
+  .prompt-bar-head .pb-desc { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; line-height: 1.5; }
+  .btn-copy-prompt {
+    margin-left: auto; padding: 9px 18px; border-radius: 8px; border: none; flex-shrink: 0;
+    background: var(--primary); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap;
+  }
+  .btn-copy-prompt:hover { background: var(--primary-dark); }
+  .btn-copy-prompt.copied { background: var(--success); }
+  .prompt-textarea {
+    width: 100%; margin-top: 12px; height: 110px; resize: vertical;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: var(--text-sub);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px; background: var(--bg); line-height: 1.5;
+  }
+
   /* ===== Print ===== */
   @page { size: A4; margin: 0; }
   @media print {
     body { background: #fff; }
-    .app, .sheet-toolbar { display: none !important; }
+    .app, .sheet-toolbar, .prompt-bar { display: none !important; }
     .sheet-container { display: block !important; }
     .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; page-break-after: always; }
     .sheet:last-of-type { page-break-after: auto; }
@@ -663,6 +684,18 @@
   </div>
   <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
   <div class="sheet" id="sheetBody2"><!-- JSで生成：2枚目 振り返り用 --></div>
+
+  <div class="prompt-bar">
+    <div class="prompt-bar-head">
+      <span class="pb-icon">🤖</span>
+      <div>
+        <div class="pb-title">社内提案用プロンプト</div>
+        <div class="pb-desc">このシートの内容をもとにしたプロンプトです。AIに貼り付けると、上司・関係者向けの企画書のたたき台が作れます（社内稟議にお使いください）。</div>
+      </div>
+      <button class="btn-copy-prompt" onclick="copyProposalPrompt()">プロンプトをコピー</button>
+    </div>
+    <textarea id="proposalPromptText" class="prompt-textarea" readonly></textarea>
+  </div>
 </div>
 
 <script>
@@ -1062,6 +1095,22 @@ function buildInsights(cur) {
   return Object.values(byTopic).sort((a, b) => b.priority - a.priority).slice(0, 3);
 }
 
+function getAxisRows() {
+  return Object.keys(AXIS_LABELS)
+    .filter(k => S.axes[k])
+    .map(k => k === "other" && S.axisOther ? `その他（${S.axisOther}）` : AXIS_LABELS[k]);
+}
+
+function getVerifyRows() {
+  const rows = [];
+  if (S.verify.workload) rows.push({ name: "議事録作成の手間", desc: "作成にかかる時間・手間がどれだけ軽くなるか" });
+  if (S.verify.ai) rows.push({ name: "AI機能の活用", desc: (S.aiFeatures.length ? S.aiFeatures.join("、") + " が" : "AIの機能が") + "実際の業務で使えるか" });
+  if (S.verify.sharing) rows.push({ name: "議事録の共有", desc: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で、" : "") + "関係者への共有がスムーズになるか" });
+  if (S.verify.rag) rows.push({ name: "過去議事録の検索（RAG検索）", desc: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で、" : "") + "蓄積した議事録から必要な情報を探し出せるか" });
+  if (S.verify.side) rows.push({ name: "その他の効果", desc: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか" });
+  return rows;
+}
+
 function renderSheet() {
   const cur = monthlyHours();
   const insights = buildInsights(cur);
@@ -1098,16 +1147,8 @@ function renderSheet() {
   }
 
   // ---- 確認するポイント ----
-  const axisRows = Object.keys(AXIS_LABELS)
-    .filter(k => S.axes[k])
-    .map(k => k === "other" && S.axisOther ? `その他（${esc(S.axisOther)}）` : esc(AXIS_LABELS[k]));
-
-  const verifyRows = [];
-  if (S.verify.workload) verifyRows.push({ name: "議事録作成の手間", desc: "作成にかかる時間・手間がどれだけ軽くなるか" });
-  if (S.verify.ai) verifyRows.push({ name: "AI機能の活用", desc: (S.aiFeatures.length ? S.aiFeatures.join("、") + " が" : "AIの機能が") + "実際の業務で使えるか" });
-  if (S.verify.sharing) verifyRows.push({ name: "議事録の共有", desc: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で、" : "") + "関係者への共有がスムーズになるか" });
-  if (S.verify.rag) verifyRows.push({ name: "過去議事録の検索（RAG検索）", desc: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で、" : "") + "蓄積した議事録から必要な情報を探し出せるか" });
-  if (S.verify.side) verifyRows.push({ name: "その他の効果", desc: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか" });
+  const axisRows = getAxisRows();
+  const verifyRows = getVerifyRows();
 
   document.getElementById("sheetBody").innerHTML = `
     <div class="sh-header">
@@ -1186,7 +1227,7 @@ function renderSheet() {
     <div class="sh-section">
       <h2>4. トライアルで確認するポイント</h2>
       <table class="sh-table">
-        <tr><th>ツール選定で重視するポイント</th><td>${axisRows.length ? axisRows.join("、") : `<span class="sh-empty">―</span>`}</td></tr>
+        <tr><th>ツール選定で重視するポイント</th><td>${axisRows.length ? esc(axisRows.join("、")) : `<span class="sh-empty">―</span>`}</td></tr>
         ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.desc)}</td></tr>`).join("")}
       </table>
       ${S.axes.security ? `<div class="sh-note">セキュリティ対策の詳細は <a href="${SECURITY_GUIDE_URL}">Rimo公式ヘルプ「セキュリティ対策について」</a> をご覧ください。</div>` : ""}
@@ -1247,6 +1288,109 @@ function renderSheet() {
 
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/2）</div>
   `;
+
+  const promptTa = document.getElementById("proposalPromptText");
+  if (promptTa) promptTa.value = buildProposalPrompt();
+}
+
+/* ============================================================
+   社内提案用プロンプト
+============================================================ */
+function buildProposalPrompt() {
+  const cur = monthlyHours();
+  const insights = buildInsights(cur);
+  const axisRows = getAxisRows();
+  const verifyRows = getVerifyRows();
+  const lines = [];
+
+  lines.push("以下の情報をもとに、社内の上司・関係者に説明するための「Rimo Voice 導入検討 提案書」のたたき台を作成してください。");
+  lines.push("目的は、トライアルの内容を踏まえて社内の承認・稟議を進めやすくすることです。");
+  lines.push("");
+
+  if (insights.length) {
+    lines.push("【現状の課題とめざす姿】");
+    insights.forEach(i => {
+      lines.push(`- 課題：${i.issue}`);
+      lines.push(`  めざす姿：${i.ideal}`);
+      lines.push(`  Rimoでの試しかた：${i.howTo}`);
+    });
+    lines.push("");
+  }
+
+  lines.push("【トライアルの日程】");
+  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
+  lines.push("");
+
+  if (axisRows.length) {
+    lines.push("【ツール選定で重視しているポイント】");
+    lines.push(axisRows.join("、"));
+    lines.push("");
+  }
+
+  if (verifyRows.length) {
+    lines.push("【トライアルで確認したポイント】");
+    verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
+    lines.push("");
+  }
+
+  if (cur > 0) {
+    lines.push("【参考：現状の議事録作成にかかっている時間】");
+    lines.push(`月あたり約 ${cur} 時間`);
+    lines.push("");
+  }
+
+  if (S.competingTools.length) {
+    lines.push("【現在利用中のツールと課題】");
+    S.competingTools.forEach(t => {
+      const rating = S.competingToolRatings[t] || "";
+      const issues = (S.competingToolIssues[t] || []).join("、");
+      lines.push(`- ${t}${rating ? `（評価：${rating}）` : ""}${issues ? ` 気になる点：${issues}` : ""}`);
+    });
+    lines.push("");
+  }
+
+  lines.push("【企画書に含めてほしい項目】");
+  lines.push("1. 背景・現状の課題");
+  lines.push("2. 導入の目的・狙い");
+  lines.push("3. トライアルで確認した内容の概要");
+  lines.push("4. 期待される効果（数値・定性の両面）");
+  lines.push("5. 導入対象範囲・利用体制");
+  lines.push("6. 今後のスケジュール");
+  lines.push("7. 費用感（不明な点は「要確認」として明記）");
+  lines.push("8. 懸念点とその対応（セキュリティ面など）");
+  lines.push("9. 依頼事項（承認いただきたいこと）");
+  lines.push("");
+  lines.push("社内提案書らしく、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は仮の記載にして「要確認」と注記してください。");
+
+  return lines.join("\n");
+}
+
+function copyProposalPrompt() {
+  const text = buildProposalPrompt();
+  const ta = document.getElementById("proposalPromptText");
+  ta.value = text;
+
+  const fallbackCopy = () => {
+    ta.focus();
+    ta.select();
+    try { document.execCommand("copy"); } catch (e) {}
+    ta.blur();
+  };
+  const showCopied = () => {
+    const btn = document.querySelector(".btn-copy-prompt");
+    if (!btn) return;
+    const original = btn.textContent;
+    btn.textContent = "コピーしました ✓";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = original; btn.classList.remove("copied"); }, 1800);
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(showCopied).catch(() => { fallbackCopy(); showCopied(); });
+  } else {
+    fallbackCopy();
+    showCopied();
+  }
 }
 
 function openSheet() {
