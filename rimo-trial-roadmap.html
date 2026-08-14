@@ -309,6 +309,7 @@
     font-size: 9.5px; line-height: 1.6; color: var(--text); background: var(--bg);
     border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
   }
+  .sh-prompt-box-full { font-size: 10.5px; line-height: 1.8; padding: 14px 16px; }
 
   /* ===== Print ===== */
   @page { size: A4; margin: 0; }
@@ -670,7 +671,8 @@
     </div>
   </div>
   <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
-  <div class="sheet" id="sheetBody2"><!-- JSで生成：2枚目 振り返り用 --></div>
+  <div class="sheet" id="sheetPrompt"><!-- JSで生成：2枚目 社内提案用プロンプト --></div>
+  <div class="sheet" id="sheetBody2"><!-- JSで生成：3枚目 振り返り用 --></div>
 </div>
 
 <script>
@@ -1207,13 +1209,7 @@ function renderSheet() {
       ${S.axes.security ? `<div class="sh-note">セキュリティ対策の詳細は <a href="${SECURITY_GUIDE_URL}">Rimo公式ヘルプ「セキュリティ対策について」</a> をご覧ください。</div>` : ""}
     </div>
 
-    <div class="sh-section">
-      <h2>5. 社内提案用プロンプト（AIへの貼り付け用）</h2>
-      <div class="sh-prompt-desc">社内の上司・関係者向けに企画書を作る際は、以下の文章をそのままAIに貼り付けてご活用ください。</div>
-      <pre class="sh-prompt-box">${esc(buildProposalPrompt())}</pre>
-    </div>
-
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/2）</div>
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/3）</div>
   `;
 
   // ===== 2枚目: 振り返りシート（質問リスト） =====
@@ -1246,6 +1242,20 @@ function renderSheet() {
       </div>
     </div>`;
 
+  // ===== 2枚目: 社内提案用プロンプト =====
+  document.getElementById("sheetPrompt").innerHTML = `
+    <div class="sh-header">
+      <div>
+        <h1>社内提案用プロンプト</h1>
+        <div class="sh-sub">AIに貼り付けると、社内向けの提案書（稟議書）のたたき台が作れます</div>
+      </div>
+      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
+    </div>
+    <div class="sh-lead">トライアルと振り返りMTG（3枚目）を終えたあと、下の文章内にある追記欄に実際の結果を書き加えてから、そのままAIに貼り付けてご利用ください。</div>
+    <pre class="sh-prompt-box sh-prompt-box-full">${esc(buildProposalPrompt())}</pre>
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/3）</div>
+  `;
+
   document.getElementById("sheetBody2").innerHTML = `
     <div class="sh-header">
       <div>
@@ -1266,7 +1276,7 @@ function renderSheet() {
       ${nextQ.map(qBlock).join("")}
     </div>
 
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/2）</div>
+    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（3/3）</div>
   `;
 }
 
@@ -1280,12 +1290,15 @@ function buildProposalPrompt() {
   const verifyRows = getVerifyRows();
   const lines = [];
 
-  lines.push("以下の情報をもとに、社内の上司・関係者に説明するための「Rimo Voice 導入検討 提案書」のたたき台を作成してください。");
-  lines.push("目的は、トライアルの内容を踏まえて社内の承認・稟議を進めやすくすることです。");
+  lines.push("あなたは、社内向け提案書（稟議書）の作成を支援するアシスタントです。");
+  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルに関する情報です。トライアルと振り返りMTGを終えたあとに、下記の追記欄へ実際の結果を書き加えたうえで、上司・関係者向けの「導入検討 提案書」のたたき台を作成してください。");
+  lines.push("");
+
+  lines.push("■ トライアル開始前の状況（すでに整理済みの情報）");
   lines.push("");
 
   if (insights.length) {
-    lines.push("【現状の課題とめざす姿】");
+    lines.push("【トライアル前の課題とめざす姿】");
     insights.forEach(i => {
       lines.push(`- 課題：${i.issue}`);
       lines.push(`  めざす姿：${i.ideal}`);
@@ -1294,30 +1307,14 @@ function buildProposalPrompt() {
     lines.push("");
   }
 
-  lines.push("【トライアルの日程】");
-  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
-  lines.push("");
-
-  if (axisRows.length) {
-    lines.push("【ツール選定で重視しているポイント】");
-    lines.push(axisRows.join("、"));
-    lines.push("");
-  }
-
-  if (verifyRows.length) {
-    lines.push("【トライアルで確認したポイント】");
-    verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
-    lines.push("");
-  }
-
   if (cur > 0) {
-    lines.push("【参考：現状の議事録作成にかかっている時間】");
+    lines.push("【トライアル前の議事録作成にかかっていた時間】");
     lines.push(`月あたり約 ${cur} 時間`);
     lines.push("");
   }
 
   if (S.competingTools.length) {
-    lines.push("【現在利用中のツールと課題】");
+    lines.push("【トライアル前に利用していたツールと課題】");
     S.competingTools.forEach(t => {
       const rating = S.competingToolRatings[t] || "";
       const issues = (S.competingToolIssues[t] || []).join("、");
@@ -1326,10 +1323,40 @@ function buildProposalPrompt() {
     lines.push("");
   }
 
-  lines.push("【企画書に含めてほしい項目】");
+  lines.push("【トライアルの実施期間】");
+  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
+  lines.push("");
+
+  if (axisRows.length) {
+    lines.push("【ツール選定で重視していたポイント】");
+    lines.push(axisRows.join("、"));
+    lines.push("");
+  }
+
+  if (verifyRows.length) {
+    lines.push("【トライアルで確認する予定だったポイント】");
+    verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
+    lines.push("");
+  }
+
+  lines.push("■ ここに、実際にトライアルを使ってみた結果を追記してください");
+  lines.push("（振り返りMTGでの回答をもとに、わかる範囲で構いません。空欄の項目はAIが「要確認」として扱います）");
+  lines.push("");
+  lines.push("- 文字起こし・要約の精度について：");
+  lines.push("- 操作のしやすさ・現場への浸透について：");
+  lines.push("- 議事録作成の時間・手間の変化について：");
+  lines.push("- AI機能・共有・検索など、実際に使ってみた機能について：");
+  lines.push("- 費用対効果について：");
+  lines.push("- セキュリティ面で確認できたこと／気になった点：");
+  lines.push("- 続けて使うイメージ、時期・部署・人数の見込み：");
+  lines.push("- 社内でのご検討の進め方（誰の承認が必要か等）：");
+  lines.push("- ご検討中のプラン：");
+  lines.push("");
+
+  lines.push("■ 提案書に含めてほしい項目");
   lines.push("1. 背景・現状の課題");
   lines.push("2. 導入の目的・狙い");
-  lines.push("3. トライアルで確認した内容の概要");
+  lines.push("3. トライアルで確認できたこと（上記の追記をもとに）");
   lines.push("4. 期待される効果（数値・定性の両面）");
   lines.push("5. 導入対象範囲・利用体制");
   lines.push("6. 今後のスケジュール");
@@ -1337,7 +1364,7 @@ function buildProposalPrompt() {
   lines.push("8. 懸念点とその対応（セキュリティ面など）");
   lines.push("9. 依頼事項（承認いただきたいこと）");
   lines.push("");
-  lines.push("社内提案書らしく、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は仮の記載にして「要確認」と注記してください。");
+  lines.push("社内提案書らしく、簡潔で分かりやすい日本語でまとめてください。追記欄が空欄の項目は「要確認」として構いません。");
 
   return lines.join("\n");
 }
