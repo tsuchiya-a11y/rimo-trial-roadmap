@@ -698,6 +698,7 @@ const S = {
 
 const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", security: "セキュリティ", other: "その他" };
 const SECURITY_GUIDE_URL = "https://guide.rimo.app/ja/articles/8847459-%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E5%AF%BE%E7%AD%96%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6";
+const ONBOARDING_GUIDE_URL = "https://rimo-onboarding-guide.vercel.app/";
 
 /* ============================================================
    Option definitions
@@ -1171,7 +1172,7 @@ function renderSheet() {
         <div>
           <div class="g-title">使い方は「RimoVoice はじめてガイド」をご覧ください（5ステップ・約8分）</div>
           <div class="g-desc">ログイン〜議事録の作成・共有・活用までを画面つきでご案内しています。</div>
-          <a href="https://rimo-onboarding-guide.vercel.app/">はじめてガイドを開く ▸</a>
+          <a href="${ONBOARDING_GUIDE_URL}">はじめてガイドを開く ▸</a>
         </div>
       </div>
     </div>
@@ -1291,12 +1292,20 @@ function buildProposalPrompt() {
   const lines = [];
 
   lines.push("あなたは、社内向けの案内文・企画書の作成を支援するアシスタントです。");
-  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルを実施するにあたっての情報です。これからトライアルを始めることを社内に周知し、対象メンバーの理解と協力を得るための文章（社内アナウンス・協力依頼の企画書）のたたき台を作成してください。");
+  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルを実施するにあたっての情報です。これからトライアルを始めることを社内に周知し、対象メンバーの理解と協力を得るための文章（社内アナウンス）のたたき台を作成してください。");
   lines.push("目的は、トライアルの意義を伝え、実施そのものを推進しやすくすることです（トライアル後の結果報告や本導入の稟議のためのものではありません）。");
+  lines.push("なぜ・いつ・誰が・何を・どのように（5W1H）を網羅し、読み手が迷わない構成にしてください。文字の羅列だけでなく、表やマトリクスにした方が伝わる箇所（打ち合わせ種類ごとの想定活用シーン、実施手順、スケジュールなど）は、積極的に表形式で整理してください。");
+  lines.push("");
+
+  lines.push("【Rimo Voiceのサービス概要（事実として使ってください）】");
+  lines.push("- 日本語に特化した高精度な音声認識エンジンをベースにしたAI議事録・文字起こしサービス");
+  lines.push("- オンライン・対面を問わず利用でき、会議や商談をもれなく議事録として生成できる");
+  lines.push("- 音声・動画・文字起こし・要約（議事録）が1つの画面に統合されており、議事録の該当箇所をクリックすると、その場面の音声・動画が連動して再生される");
+  lines.push("- 蓄積した議事録をもとにAIへ質問したり、複数の議事録を横断して検索したりでき、単なる記録ツールではなく組織のナレッジプラットフォームとして活用できる");
   lines.push("");
 
   if (insights.length) {
-    lines.push("【トライアルを行う背景・課題】");
+    lines.push("【トライアルを行う背景・課題（なぜ）】");
     insights.forEach(i => {
       lines.push(`- 課題：${i.issue}`);
       lines.push(`  めざす姿：${i.ideal}`);
@@ -1321,18 +1330,21 @@ function buildProposalPrompt() {
     lines.push("");
   }
 
-  lines.push("【トライアルの実施期間】");
+  lines.push("【トライアルの実施期間（いつ）】");
   lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
   lines.push("");
 
+  lines.push("【対象者（誰が）】");
+  lines.push(`利用予定メンバー：約 ${S.memberCount} 名`);
   if (S.targetMeetings.length) {
-    lines.push("【トライアルの対象になりそうな打ち合わせ】");
-    lines.push(S.targetMeetings.join("、") + (S.targetMeetingsNote ? `（${S.targetMeetingsNote}）` : ""));
-    lines.push("");
+    lines.push(`対象になりそうな打ち合わせ：${S.targetMeetings.join("、")}${S.targetMeetingsNote ? `（${S.targetMeetingsNote}）` : ""}`);
   }
+  lines.push("");
 
-  lines.push("【トライアルに参加する予定のメンバー】");
-  lines.push(`約 ${S.memberCount} 名`);
+  lines.push("【実施方法・利用開始の手順（どのように）】");
+  lines.push("- 対象メンバーへアカウント招待メールを送付する");
+  lines.push("- 招待メールを受け取ったメンバーは、案内に沿ってアカウント登録を行う");
+  lines.push(`- 下記の「はじめてガイド」を見ながら、会議での録音・議事録の作成を始める（${ONBOARDING_GUIDE_URL}）`);
   lines.push("");
 
   if (axisRows.length) {
@@ -1342,18 +1354,21 @@ function buildProposalPrompt() {
   }
 
   if (verifyRows.length) {
-    lines.push("【トライアルで確認したいポイント】");
+    lines.push("【トライアルで確認したいこと（何を）】");
     verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
     lines.push("");
   }
 
-  lines.push("【文章に含めてほしい項目】");
-  lines.push("1. なぜ今回トライアルを行うのか（背景・課題）");
-  lines.push("2. トライアルを通じて確認したいこと");
-  lines.push("3. 対象期間・対象範囲（誰が、何の打ち合わせで使うか）");
-  lines.push("4. メンバーへのお願い（実際に使ってみてほしいこと、気づいた点を共有してほしいこと）");
-  lines.push("5. 今後のスケジュール（振り返りMTGの位置づけ）");
-  lines.push("6. 問い合わせ先");
+  lines.push("【出力してほしい構成】");
+  lines.push("1. サービス概要（Rimo Voiceとは、上記の事実にもとづいて）");
+  lines.push("2. このサービスで解決できる課題");
+  lines.push("3. トライアルを行う背景（なぜ、このタイミングで実施するのか）");
+  lines.push("4. トライアル期間・対象者（いつ・誰が）");
+  lines.push("5. 実施方法・利用開始の手順（どのように） — 招待メールを受け取ってからの流れが分かるように");
+  lines.push("6. トライアルで確認したいこと（何を）");
+  lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で）");
+  lines.push("8. 今後のスケジュールと、気づいたことの共有方法（振り返りMTGの位置づけ）");
+  lines.push("9. 問い合わせ先");
   lines.push("");
   lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は「要確認」として構いません。");
 
