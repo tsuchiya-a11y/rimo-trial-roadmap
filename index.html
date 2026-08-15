@@ -20,7 +20,7 @@
     --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 15px; }
+  html { font-size: 15px; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   body {
     font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
     color: var(--text);
@@ -291,7 +291,7 @@
   .ins-ideal .ins-label { color: var(--primary-dark); }
   .ins-arrow { color: var(--primary); font-weight: 700; font-size: 12px; flex-shrink: 0; }
   .ins-howto { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 9.5px; color: var(--text-sub); }
-  .ins-howto b { color: var(--primary-dark); font-size: inherit; font-weight: 700; }
+  .ins-howto b { color: var(--primary-dark); font-size: 9.5px; font-weight: 700; }
 
   .rv-q {
     display: flex; align-items: flex-start; gap: 10px;
@@ -1386,7 +1386,7 @@ function buildProposalPrompt() {
   lines.push("5. 実施方法・利用開始の手順（どのように） — 招待メールを受け取ってからの流れが分かるように");
   lines.push("6. トライアルで確認したいこと（何を。上記の「確認したいこと」の情報をそのまま使用）");
   lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で。上記「打ち合わせ種類ごとの現状」に記載がある種類のみを対象にし、記載のない打ち合わせ種類については書かない）");
-  lines.push("8. 今後のスケジュール（Rimo社との振り返りMTGが、感想や気づきを共有する場であることが分かるように）");
+  lines.push("8. 今後のスケジュール — 振り返りMTGについて書く際は、必ず「Rimo社の担当者と」「Rimo社を交えて」のように毎回主語を明記してください。社内メンバーだけで感想を集める会議ではありません。「皆様のフィードバックを」のような、社内向けとも読める書き方は避けてください。");
   lines.push("9. 使い方に迷ったときは（担当者名や問い合わせ先は書かず、下記の「はじめてガイド」を見れば操作方法が分かる旨を案内する："+ ONBOARDING_GUIDE_URL + "）");
   lines.push("");
   lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。");
