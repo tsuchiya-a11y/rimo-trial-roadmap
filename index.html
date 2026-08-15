@@ -1341,7 +1341,8 @@ function buildProposalPrompt() {
   }
 
   lines.push("【トライアルの実施期間（いつ）】");
-  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
+  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ Rimo社との振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
+  lines.push("（振り返りMTGは、社内メンバー間ではなく、Rimo社を交えて実施するものです）");
   lines.push("");
 
   lines.push("【対象者（誰が）】");
@@ -1385,8 +1386,8 @@ function buildProposalPrompt() {
   lines.push("5. 実施方法・利用開始の手順（どのように） — 招待メールを受け取ってからの流れが分かるように");
   lines.push("6. トライアルで確認したいこと（何を。上記の「確認したいこと」の情報をそのまま使用）");
   lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で。上記「打ち合わせ種類ごとの現状」に記載がある種類のみを対象にし、記載のない打ち合わせ種類については書かない）");
-  lines.push("8. 今後のスケジュール（振り返りMTGの位置づけ。具体的なフィードバック収集方法は分からないため「感想を共有する場を設けます」程度の一般的な表現に留める）");
-  lines.push("9. 問い合わせ先（担当者名・連絡先は分からないため、「ご担当：＿＿＿＿」のような空欄のプレースホルダーのままにする）");
+  lines.push("8. 今後のスケジュール（Rimo社との振り返りMTGが、感想や気づきを共有する場であることが分かるように）");
+  lines.push("9. 使い方に迷ったときは（担当者名や問い合わせ先は書かず、下記の「はじめてガイド」を見れば操作方法が分かる旨を案内する："+ ONBOARDING_GUIDE_URL + "）");
   lines.push("");
   lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。");
 
