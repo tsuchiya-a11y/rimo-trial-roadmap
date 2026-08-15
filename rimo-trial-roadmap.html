@@ -671,7 +671,7 @@
     </div>
   </div>
   <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
-  <div class="sheet" id="sheetPrompt"><!-- JSで生成：2枚目 社内提案用プロンプト --></div>
+  <div class="sheet" id="sheetPrompt"><!-- JSで生成：2枚目 社内周知用プロンプト --></div>
   <div class="sheet" id="sheetBody2"><!-- JSで生成：3枚目 振り返り用 --></div>
 </div>
 
@@ -1242,16 +1242,16 @@ function renderSheet() {
       </div>
     </div>`;
 
-  // ===== 2枚目: 社内提案用プロンプト =====
+  // ===== 2枚目: 社内周知用プロンプト =====
   document.getElementById("sheetPrompt").innerHTML = `
     <div class="sh-header">
       <div>
-        <h1>社内提案用プロンプト</h1>
-        <div class="sh-sub">AIに貼り付けると、社内向けの提案書（稟議書）のたたき台が作れます</div>
+        <h1>社内周知用プロンプト</h1>
+        <div class="sh-sub">AIに貼り付けると、トライアル実施を社内に伝える案内文のたたき台が作れます</div>
       </div>
       <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
     </div>
-    <div class="sh-lead">トライアルと振り返りMTG（3枚目）を終えたあと、下の文章内にある追記欄に実際の結果を書き加えてから、そのままAIに貼り付けてご利用ください。</div>
+    <div class="sh-lead">トライアルを始める前に、対象メンバーへ趣旨を伝え、協力をお願いする文章を作る際にお使いください。そのままAIに貼り付けてご利用いただけます。</div>
     <pre class="sh-prompt-box sh-prompt-box-full">${esc(buildProposalPrompt())}</pre>
     <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/3）</div>
   `;
@@ -1290,15 +1290,13 @@ function buildProposalPrompt() {
   const verifyRows = getVerifyRows();
   const lines = [];
 
-  lines.push("あなたは、社内向け提案書（稟議書）の作成を支援するアシスタントです。");
-  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルに関する情報です。トライアルと振り返りMTGを終えたあとに、下記の追記欄へ実際の結果を書き加えたうえで、上司・関係者向けの「導入検討 提案書」のたたき台を作成してください。");
-  lines.push("");
-
-  lines.push("■ トライアル開始前の状況（すでに整理済みの情報）");
+  lines.push("あなたは、社内向けの案内文・企画書の作成を支援するアシスタントです。");
+  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルを実施するにあたっての情報です。これからトライアルを始めることを社内に周知し、対象メンバーの理解と協力を得るための文章（社内アナウンス・協力依頼の企画書）のたたき台を作成してください。");
+  lines.push("目的は、トライアルの意義を伝え、実施そのものを推進しやすくすることです（トライアル後の結果報告や本導入の稟議のためのものではありません）。");
   lines.push("");
 
   if (insights.length) {
-    lines.push("【トライアル前の課題とめざす姿】");
+    lines.push("【トライアルを行う背景・課題】");
     insights.forEach(i => {
       lines.push(`- 課題：${i.issue}`);
       lines.push(`  めざす姿：${i.ideal}`);
@@ -1308,13 +1306,13 @@ function buildProposalPrompt() {
   }
 
   if (cur > 0) {
-    lines.push("【トライアル前の議事録作成にかかっていた時間】");
+    lines.push("【参考：現状の議事録作成にかかっている時間】");
     lines.push(`月あたり約 ${cur} 時間`);
     lines.push("");
   }
 
   if (S.competingTools.length) {
-    lines.push("【トライアル前に利用していたツールと課題】");
+    lines.push("【現在利用中のツールと課題】");
     S.competingTools.forEach(t => {
       const rating = S.competingToolRatings[t] || "";
       const issues = (S.competingToolIssues[t] || []).join("、");
@@ -1327,44 +1325,37 @@ function buildProposalPrompt() {
   lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ 振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
   lines.push("");
 
+  if (S.targetMeetings.length) {
+    lines.push("【トライアルの対象になりそうな打ち合わせ】");
+    lines.push(S.targetMeetings.join("、") + (S.targetMeetingsNote ? `（${S.targetMeetingsNote}）` : ""));
+    lines.push("");
+  }
+
+  lines.push("【トライアルに参加する予定のメンバー】");
+  lines.push(`約 ${S.memberCount} 名`);
+  lines.push("");
+
   if (axisRows.length) {
-    lines.push("【ツール選定で重視していたポイント】");
+    lines.push("【ツール選定で重視しているポイント】");
     lines.push(axisRows.join("、"));
     lines.push("");
   }
 
   if (verifyRows.length) {
-    lines.push("【トライアルで確認する予定だったポイント】");
+    lines.push("【トライアルで確認したいポイント】");
     verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
     lines.push("");
   }
 
-  lines.push("■ ここに、実際にトライアルを使ってみた結果を追記してください");
-  lines.push("（振り返りMTGでの回答をもとに、わかる範囲で構いません。空欄の項目はAIが「要確認」として扱います）");
+  lines.push("【文章に含めてほしい項目】");
+  lines.push("1. なぜ今回トライアルを行うのか（背景・課題）");
+  lines.push("2. トライアルを通じて確認したいこと");
+  lines.push("3. 対象期間・対象範囲（誰が、何の打ち合わせで使うか）");
+  lines.push("4. メンバーへのお願い（実際に使ってみてほしいこと、気づいた点を共有してほしいこと）");
+  lines.push("5. 今後のスケジュール（振り返りMTGの位置づけ）");
+  lines.push("6. 問い合わせ先");
   lines.push("");
-  lines.push("- 文字起こし・要約の精度について：");
-  lines.push("- 操作のしやすさ・現場への浸透について：");
-  lines.push("- 議事録作成の時間・手間の変化について：");
-  lines.push("- AI機能・共有・検索など、実際に使ってみた機能について：");
-  lines.push("- 費用対効果について：");
-  lines.push("- セキュリティ面で確認できたこと／気になった点：");
-  lines.push("- 続けて使うイメージ、時期・部署・人数の見込み：");
-  lines.push("- 社内でのご検討の進め方（誰の承認が必要か等）：");
-  lines.push("- ご検討中のプラン：");
-  lines.push("");
-
-  lines.push("■ 提案書に含めてほしい項目");
-  lines.push("1. 背景・現状の課題");
-  lines.push("2. 導入の目的・狙い");
-  lines.push("3. トライアルで確認できたこと（上記の追記をもとに）");
-  lines.push("4. 期待される効果（数値・定性の両面）");
-  lines.push("5. 導入対象範囲・利用体制");
-  lines.push("6. 今後のスケジュール");
-  lines.push("7. 費用感（不明な点は「要確認」として明記）");
-  lines.push("8. 懸念点とその対応（セキュリティ面など）");
-  lines.push("9. 依頼事項（承認いただきたいこと）");
-  lines.push("");
-  lines.push("社内提案書らしく、簡潔で分かりやすい日本語でまとめてください。追記欄が空欄の項目は「要確認」として構いません。");
+  lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は「要確認」として構いません。");
 
   return lines.join("\n");
 }
