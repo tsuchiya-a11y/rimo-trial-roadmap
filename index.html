@@ -1089,6 +1089,18 @@ function getVerifyRows() {
   return rows;
 }
 
+// S.meetingPurposes / S.meetingDetail から「作成する／しない」の実データ行を作る（プロンプト・シート共通）
+function getMeetingPurposeRows() {
+  const makes = [], notMakes = [];
+  S.meetingPurposes.forEach(p => {
+    const d = S.meetingDetail[p];
+    if (!d) return;
+    if (d.makes === "作成する") makes.push({ name: p, perWeek: d.perWeek, perDoc: d.perDoc });
+    else if (d.makes === "作成しない") notMakes.push(p);
+  });
+  return { makes, notMakes };
+}
+
 function renderSheet() {
   const cur = monthlyHours();
   const insights = buildInsights(cur);
@@ -1096,12 +1108,9 @@ function renderSheet() {
   const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
 
   // ---- 現状：打ち合わせと議事録の整理 ----
-  const makesRows = [], noMakesRows = [];
-  S.meetingPurposes.forEach(p => {
-    const d = S.meetingDetail[p] || {};
-    if (d.makes === "作成する") makesRows.push(`${esc(p)}（週${d.perWeek}件・1件あたり約${d.perDoc}分）`);
-    else if (d.makes === "作成しない") noMakesRows.push(esc(p));
-  });
+  const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
+  const makesRows = meetingMakes.map(m => `${esc(m.name)}（週${m.perWeek}件・1件あたり約${m.perDoc}分）`);
+  const noMakesRows = meetingNotMakes.map(esc);
 
   const styleParts = [S.meetingStyle, S.meetingScope].filter(Boolean);
 
@@ -1295,6 +1304,7 @@ function buildProposalPrompt() {
   lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルを実施するにあたっての情報です。これからトライアルを始めることを社内に周知し、対象メンバーの理解と協力を得るための文章（社内アナウンス）のたたき台を作成してください。");
   lines.push("目的は、トライアルの意義を伝え、実施そのものを推進しやすくすることです（トライアル後の結果報告や本導入の稟議のためのものではありません）。");
   lines.push("なぜ・いつ・誰が・何を・どのように（5W1H）を網羅し、読み手が迷わない構成にしてください。文字の羅列だけでなく、表やマトリクスにした方が伝わる箇所（打ち合わせ種類ごとの想定活用シーン、実施手順、スケジュールなど）は、積極的に表形式で整理してください。");
+  lines.push("重要：以下に記載のない具体的な事実・数値・固有名詞（担当者名、部署名、社内制度名など）を作り出さないでください。情報がない箇所は「要確認」「別途ご案内」のように、断定しない表現に留めてください。");
   lines.push("");
 
   lines.push("【Rimo Voiceのサービス概要（事実として使ってください）】");
@@ -1347,6 +1357,14 @@ function buildProposalPrompt() {
   lines.push(`- 下記の「はじめてガイド」を見ながら、会議での録音・議事録の作成を始める（${ONBOARDING_GUIDE_URL}）`);
   lines.push("");
 
+  const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
+  if (meetingMakes.length || meetingNotMakes.length) {
+    lines.push("【打ち合わせ種類ごとの現状（この表だけを根拠に7を作成してください）】");
+    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（週${m.perWeek}件・1件あたり約${m.perDoc}分）`));
+    meetingNotMakes.forEach(name => lines.push(`- ${name}：現在は議事録を作成していない`));
+    lines.push("");
+  }
+
   if (axisRows.length) {
     lines.push("【ツール選定で重視しているポイント】");
     lines.push(axisRows.join("、"));
@@ -1360,17 +1378,17 @@ function buildProposalPrompt() {
   }
 
   lines.push("【出力してほしい構成】");
-  lines.push("1. サービス概要（Rimo Voiceとは、上記の事実にもとづいて）");
-  lines.push("2. このサービスで解決できる課題");
-  lines.push("3. トライアルを行う背景（なぜ、このタイミングで実施するのか）");
-  lines.push("4. トライアル期間・対象者（いつ・誰が）");
+  lines.push("1. サービス概要（Rimo Voiceとは、上記の「サービス概要」の事実のみにもとづいて）");
+  lines.push("2. このサービスで解決できる課題（上記の「サービス概要」および「背景・課題」の範囲にとどめ、新しい課題を作り出さない）");
+  lines.push("3. トライアルを行う背景（なぜ、このタイミングで実施するのか。上記の「背景・課題」にもとづいて）");
+  lines.push("4. トライアル期間・対象者（いつ・誰が。上記の日程・対象者の情報をそのまま使用）");
   lines.push("5. 実施方法・利用開始の手順（どのように） — 招待メールを受け取ってからの流れが分かるように");
-  lines.push("6. トライアルで確認したいこと（何を）");
-  lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で）");
-  lines.push("8. 今後のスケジュールと、気づいたことの共有方法（振り返りMTGの位置づけ）");
-  lines.push("9. 問い合わせ先");
+  lines.push("6. トライアルで確認したいこと（何を。上記の「確認したいこと」の情報をそのまま使用）");
+  lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で。上記「打ち合わせ種類ごとの現状」に記載がある種類のみを対象にし、記載のない打ち合わせ種類については書かない）");
+  lines.push("8. 今後のスケジュール（振り返りMTGの位置づけ。具体的なフィードバック収集方法は分からないため「感想を共有する場を設けます」程度の一般的な表現に留める）");
+  lines.push("9. 問い合わせ先（担当者名・連絡先は分からないため、「ご担当：＿＿＿＿」のような空欄のプレースホルダーのままにする）");
   lines.push("");
-  lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。情報が不足している項目は「要確認」として構いません。");
+  lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。");
 
   return lines.join("\n");
 }
