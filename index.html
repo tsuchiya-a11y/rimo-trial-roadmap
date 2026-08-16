@@ -705,8 +705,8 @@ const ONBOARDING_GUIDE_URL = "https://rimo-onboarding-guide.vercel.app/";
 ============================================================ */
 const OPTIONS = {
   meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面", "その他"],
-  minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "文字起こし/議事録ツール活用中", "作成していない"],
-  competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "その他"],
+  minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "会議ツールの文字起こし＋ChatGPT等で作成", "文字起こし/議事録ツール活用中", "作成していない"],
+  competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "ChatGPT/Claude等の汎用AI", "その他"],
   toolIssues: ["文字起こしの精度", "要約の品質", "音声・動画と議事録を一体で確認できない", "議事録を使ったAI活用・RAG検索がない", "使いづらい", "セキュリティ面の不安", "費用", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
   minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
@@ -1412,11 +1412,12 @@ window.addEventListener("beforeprint", () => {
    Init
 ============================================================ */
 buildChips("meetingTools", OPTIONS.meetingTools, "meetingTools");
+const TOOL_METHOD_TRIGGERS = ["文字起こし/議事録ツール活用中", "会議ツールの文字起こし＋ChatGPT等で作成"];
 buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
-  if (opt === "文字起こし/議事録ツール活用中") {
-    const on = S.minutesMethod.includes(opt);
-    document.getElementById("competingToolsWrap").style.display = on ? "block" : "none";
-    if (!on) {
+  if (TOOL_METHOD_TRIGGERS.includes(opt)) {
+    const anyOn = TOOL_METHOD_TRIGGERS.some(m => S.minutesMethod.includes(m));
+    document.getElementById("competingToolsWrap").style.display = anyOn ? "block" : "none";
+    if (!anyOn) {
       S.competingTools = [];
       S.competingToolRatings = {};
       S.competingToolIssues = {};
