@@ -522,6 +522,9 @@
             <div class="vh-sub">文字起こしの精度・要約の質・そのまま使えるか</div>
           </div>
         </div>
+        <div class="verify-body">
+          <input type="text" id="axisDetail-quality" placeholder="例）固有名詞・専門用語の認識精度、話者分離の精度 など" oninput="S.axisDetail.quality=this.value">
+        </div>
       </div>
 
       <!-- 判断軸: 使いやすさ -->
@@ -532,6 +535,9 @@
             <div class="vh-title">使いやすさ</div>
             <div class="vh-sub">誰でも迷わず使えるか・現場に浸透しそうか</div>
           </div>
+        </div>
+        <div class="verify-body">
+          <input type="text" id="axisDetail-usability" placeholder="例）ITリテラシーが高くない部署でも定着するか など" oninput="S.axisDetail.usability=this.value">
         </div>
       </div>
 
@@ -544,6 +550,9 @@
             <div class="vh-sub">軽減できる手間と料金のバランス感</div>
           </div>
         </div>
+        <div class="verify-body">
+          <input type="text" id="axisDetail-cost" placeholder="例）他社ツールとの総額比較、稟議に必要な資料 など" oninput="S.axisDetail.cost=this.value">
+        </div>
       </div>
 
       <!-- 判断軸: セキュリティ -->
@@ -554,6 +563,9 @@
             <div class="vh-title">セキュリティ</div>
             <div class="vh-sub">データの取り扱い・社内ルールへの適合</div>
           </div>
+        </div>
+        <div class="verify-body">
+          <input type="text" id="axisDetail-security" placeholder="例）データの保管場所、ISO27001の認証有無 など" oninput="S.axisDetail.security=this.value">
         </div>
       </div>
 
@@ -692,6 +704,7 @@ const S = {
   targetMeetings: [], targetMeetingsNote: "",
   axes: { quality: true, usability: true, cost: false, security: false, other: false },
   axisOther: "",
+  axisDetail: { quality: "", usability: "", cost: "", security: "" },
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
@@ -1077,7 +1090,10 @@ function buildInsights(cur) {
 function getAxisRows() {
   return Object.keys(AXIS_LABELS)
     .filter(k => S.axes[k])
-    .map(k => k === "other" && S.axisOther ? `その他（${S.axisOther}）` : AXIS_LABELS[k]);
+    .map(k => {
+      const detail = k === "other" ? S.axisOther : S.axisDetail[k];
+      return detail ? `${AXIS_LABELS[k]}（${detail}）` : AXIS_LABELS[k];
+    });
 }
 
 function getVerifyRows() {
@@ -1225,15 +1241,15 @@ function renderSheet() {
 
   // ===== 2枚目: 振り返りシート（質問リスト） =====
   const feelQ = [];
-  if (S.axes.quality) feelQ.push({ t: "文字起こしや要約の精度は、いかがでしたか", s: "固有名詞・専門用語の変換、そのまま使えたか など" });
-  if (S.axes.usability) feelQ.push({ t: "操作で迷ったところは、ありませんでしたか", s: "録音の開始、共有のしかた など" });
+  if (S.axes.quality) feelQ.push({ t: `文字起こしや要約の精度は、いかがでしたか${S.axisDetail.quality ? `（${S.axisDetail.quality}）` : ""}`, s: "固有名詞・専門用語の変換、そのまま使えたか など" });
+  if (S.axes.usability) feelQ.push({ t: `操作で迷ったところは、ありませんでしたか${S.axisDetail.usability ? `（${S.axisDetail.usability}）` : ""}`, s: "録音の開始、共有のしかた など" });
   if (S.verify.workload) feelQ.push({ t: "議事録作成の時間・手間は、軽くなりましたか", s: "" });
   if (S.verify.ai) feelQ.push({ t: "AIの機能は、業務で使えそうでしたか", s: S.aiFeatures.join("、") });
   if (S.verify.sharing) feelQ.push({ t: "議事録の共有は、スムーズでしたか", s: S.sharingScenes.join("、") });
   if (S.verify.rag) feelQ.push({ t: "過去の議事録の検索（RAG検索）は、役立ちそうでしたか", s: S.ragScenes.join("、") });
   if (S.verify.side) feelQ.push({ t: "その他に感じられた効果は、ありましたか", s: S.sideEffects.join("、") });
-  if (S.axes.cost) feelQ.push({ t: "手間の軽減と料金のバランスは、どう感じられましたか", s: "" });
-  if (S.axes.security) feelQ.push({ t: "セキュリティ面で、社内確認が必要そうな点はありましたか", s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
+  if (S.axes.cost) feelQ.push({ t: `手間の軽減と料金のバランスは、どう感じられましたか${S.axisDetail.cost ? `（${S.axisDetail.cost}）` : ""}`, s: "" });
+  if (S.axes.security) feelQ.push({ t: `セキュリティ面で、社内確認が必要そうな点はありましたか${S.axisDetail.security ? `（${S.axisDetail.security}）` : ""}`, s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
   if (S.axes.other) feelQ.push({ t: `その他${S.axisOther ? `（${S.axisOther}）` : "に気にされていた点"}は、いかがでしたか`, s: "" });
 
   const nextQ = [
