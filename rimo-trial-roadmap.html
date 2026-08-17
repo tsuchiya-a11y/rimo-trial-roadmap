@@ -237,63 +237,64 @@
   .tb-back { background: #4b5563; color: #fff; }
   .tb-pdf { background: var(--accent); color: #fff; }
 
-  /* シート内の文字サイズは3段階に統一: 基本11px / 補足9.5px / 見出し12px（タイトル19pxのみ別格） */
+  /* シート内の文字サイズは3段階に統一: 基本11px / 補足9.5px / 見出し12px（タイトルのみ別格）
+     余白・行間は「1論理ページ=A4 1枚」に収まる密度までまとめて詰めている */
   .sheet {
     width: 210mm; min-height: 297mm; margin: 24px auto; background: #fff;
-    padding: 14mm 14mm 12mm; box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    padding: 12mm 14mm 10mm; box-shadow: 0 4px 24px rgba(0,0,0,.12);
     font-size: 11px; color: #111;
   }
-  .sh-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 10px; margin-bottom: 14px; }
-  .sh-header h1 { font-size: 19px; font-weight: 700; color: var(--primary-dark); }
+  .sh-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 6px; margin-bottom: 8px; }
+  .sh-header h1 { font-size: 17px; font-weight: 700; color: var(--primary-dark); }
   .sh-header .sh-sub { font-size: 11px; color: var(--text-sub); }
   .sh-header .sh-brand { font-size: 12px; font-weight: 700; color: var(--primary); text-align: right; }
   .sh-header .sh-brand small { display: block; font-weight: 400; color: var(--text-sub); font-size: 9.5px; }
 
-  .sh-section { margin-bottom: 13px; }
+  .sh-section { margin-bottom: 7px; }
   .sh-section > h2 {
     font-size: 12px; font-weight: 700; color: #fff; background: var(--primary);
-    padding: 4px 10px; border-radius: 4px; margin-bottom: 7px;
+    padding: 3px 10px; border-radius: 4px; margin-bottom: 5px;
   }
   table.sh-table { width: 100%; border-collapse: collapse; }
   table.sh-table th, table.sh-table td {
-    border: 1px solid #cbd5e1; padding: 5px 9px; font-size: 11px; vertical-align: top; text-align: left;
+    border: 1px solid #cbd5e1; padding: 2px 8px; font-size: 11px; line-height: 1.25; vertical-align: top; text-align: left;
   }
   table.sh-table th { background: #f1f5f9; font-weight: 700; width: 30%; white-space: nowrap; }
 
-  .sh-schedule { display: flex; gap: 0; margin-top: 4px; }
-  .sh-step { flex: 1; text-align: center; position: relative; padding: 7px 4px; border: 1px solid #cbd5e1; background: #f8fafc; }
+  .sh-schedule { display: flex; gap: 0; margin-top: 3px; }
+  .sh-step { flex: 1; text-align: center; position: relative; padding: 4px 4px; border: 1px solid #cbd5e1; background: #f8fafc; }
   .sh-step:not(:last-child) { border-right: none; }
   .sh-step .st-name { font-size: 9.5px; font-weight: 700; color: var(--primary-dark); }
   .sh-step .st-date { font-size: 12px; font-weight: 700; }
 
-  .sh-note { font-size: 9.5px; color: var(--text-sub); margin-top: 6px; }
+  .sh-note { font-size: 9.5px; color: var(--text-sub); margin-top: 4px; }
   .sh-empty { color: #9ca3af; }
   .sh-guide {
-    display: flex; align-items: center; gap: 12px;
+    display: flex; align-items: center; gap: 8px;
     background: var(--primary-light); border: 1px solid #b8dfe3; border-radius: 6px;
-    padding: 9px 14px; margin-top: 8px;
+    padding: 6px 12px; margin-top: 6px;
   }
-  .sh-guide .g-icon { font-size: 18px; }
+  .sh-guide .g-icon { font-size: 16px; }
   .sh-guide .g-title { font-size: 11px; font-weight: 700; color: var(--primary-dark); }
   .sh-guide .g-desc { font-size: 9.5px; color: var(--text-sub); }
   .sh-guide a { color: var(--primary-dark); font-weight: 700; font-size: 11px; word-break: break-all; }
   .sh-hint { font-size: 9.5px; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
   .sh-note a, .sh-hint a, .rv-s a { color: var(--primary-dark); font-weight: 700; }
-  .sh-lead { font-size: 11px; color: var(--text-sub); margin: 0 0 12px; }
+  .sh-lead { font-size: 11px; color: var(--text-sub); margin: 0 0 8px; }
 
-  .sh-insights h2 { margin-bottom: 8px; }
+  .sh-insights h2 { margin-bottom: 6px; }
   .insight-card {
     border: 1px solid #cbd5e1; border-left: 4px solid var(--primary); border-radius: 6px;
-    padding: 8px 12px; margin-bottom: 8px; background: #fafcfc; break-inside: avoid;
+    padding: 4px 8px; margin-bottom: 4px; background: #fafcfc; break-inside: avoid;
   }
   .insight-card:last-child { margin-bottom: 0; }
-  .insight-top { display: flex; align-items: center; gap: 10px; }
-  .ins-col { flex: 1; font-size: 11px; line-height: 1.4; }
-  .ins-label { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .03em; margin-bottom: 2px; }
+  .insight-top { display: flex; align-items: flex-start; gap: 6px; }
+  .ins-col { flex: 1; font-size: 11px; line-height: 1.3; }
+  .ins-label { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .03em; margin-bottom: 1px; }
   .ins-issue .ins-label { color: #b45309; }
   .ins-ideal .ins-label { color: var(--primary-dark); }
   .ins-arrow { color: var(--primary); font-weight: 700; font-size: 12px; flex-shrink: 0; }
-  .ins-howto { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); font-size: 9.5px; color: var(--text-sub); }
+  .ins-howto { margin-top: 3px; padding-top: 3px; border-top: 1px dashed var(--border); font-size: 9.5px; color: var(--text-sub); }
   .ins-howto b { color: var(--primary-dark); font-size: 9.5px; font-weight: 700; }
 
   .rv-q {
@@ -304,14 +305,14 @@
   .rv-num { font-size: 11px; font-weight: 700; color: var(--primary); flex-shrink: 0; margin-top: 1px; }
   .rv-t { font-size: 11px; font-weight: 700; }
   .rv-s { font-size: 9.5px; color: var(--text-sub); margin-top: 2px; }
-  .sh-footer { margin-top: 10px; text-align: right; font-size: 9.5px; color: #9ca3af; }
+  .sh-footer { margin-top: 5px; text-align: right; font-size: 9.5px; color: #9ca3af; }
 
   /* ===== 社内提案用プロンプト ===== */
   .sh-prompt-desc { font-size: 9.5px; color: var(--text-sub); margin-bottom: 6px; }
   .sh-prompt-box {
     white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 10px; line-height: 1.7; color: var(--text); background: var(--bg);
-    border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px;
+    font-size: 8.5px; line-height: 1.35; color: var(--text); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
   }
 
   /* ===== Print ===== */
@@ -320,7 +321,7 @@
     body { background: #fff; }
     .app, .sheet-toolbar { display: none !important; }
     .sheet-container { display: block !important; }
-    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 12mm 13mm; min-height: auto; page-break-after: always; }
+    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 10mm 12mm 9mm; min-height: auto; page-break-after: always; }
     .sheet:last-of-type { page-break-after: auto; }
     .sh-section { break-inside: avoid; }
   }
