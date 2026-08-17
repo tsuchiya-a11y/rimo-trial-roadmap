@@ -161,6 +161,9 @@
   .dr-sliders .field-label { font-size: 12px; margin-bottom: 4px; }
   .dr-sliders .slider-wrap { gap: 10px; }
   .dr-sliders .slider-value { min-width: 64px; font-size: 12.5px; padding: 4px 8px; }
+  .freq-row { display: flex; align-items: center; gap: 10px; }
+  .freq-row .slider-wrap { flex: 1; }
+  .freq-unit { flex-shrink: 0; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
@@ -881,6 +884,51 @@ function buildDetailSlider(label, value, min, max, step, unit, onChange) {
   return field;
 }
 
+function buildFreqControl(d) {
+  const field = document.createElement("div");
+  const lbl = document.createElement("div");
+  lbl.className = "field-label";
+  lbl.textContent = "頻度";
+  field.appendChild(lbl);
+
+  const row = document.createElement("div");
+  row.className = "freq-row";
+
+  const sw = document.createElement("div");
+  sw.className = "slider-wrap";
+  const input = document.createElement("input");
+  input.type = "range"; input.min = 1; input.max = 20; input.step = 1; input.value = d.freqCount;
+  const valDisplay = document.createElement("div");
+  valDisplay.className = "slider-value";
+  valDisplay.textContent = `${d.freqCount} 件`;
+  input.oninput = () => {
+    d.freqCount = +input.value;
+    valDisplay.textContent = `${input.value} 件`;
+    updateCalc();
+  };
+  sw.appendChild(input); sw.appendChild(valDisplay);
+  row.appendChild(sw);
+
+  const seg = document.createElement("div");
+  seg.className = "segmented small freq-unit";
+  [["週", "week"], ["月", "month"]].forEach(([label, unitKey]) => {
+    const b = document.createElement("button");
+    b.textContent = "/" + label;
+    if (d.freqUnit === unitKey) b.classList.add("selected");
+    b.onclick = () => {
+      d.freqUnit = unitKey;
+      seg.querySelectorAll("button").forEach(x => x.classList.remove("selected"));
+      b.classList.add("selected");
+      updateCalc();
+    };
+    seg.appendChild(b);
+  });
+  row.appendChild(seg);
+
+  field.appendChild(row);
+  return field;
+}
+
 function renderMeetingDetailRows() {
   const wrap = document.getElementById("meetingDetailRows");
   const empty = document.getElementById("meetingDetailEmpty");
@@ -917,7 +965,7 @@ function renderMeetingDetailRows() {
     if (d.makes === "作成する") {
       const sliders = document.createElement("div");
       sliders.className = "dr-sliders";
-      sliders.appendChild(buildDetailSlider("頻度（件/週）", d.perWeek, 0, 20, 1, "件/週", v => { d.perWeek = v; }));
+      sliders.appendChild(buildFreqControl(d));
       sliders.appendChild(buildDetailSlider("1件あたりの作成時間", d.perDoc, 0, 120, 5, "分", v => { d.perDoc = v; }));
       row.appendChild(sliders);
     }
@@ -985,10 +1033,15 @@ function monthlyHours() {
   for (const p of S.meetingPurposes) {
     const d = S.meetingDetail[p];
     if (d && d.makes === "作成する") {
-      totalMinutes += (d.perWeek || 0) * (d.perDoc || 0) * 4;
+      const monthlyCount = d.freqUnit === "month" ? (d.freqCount || 0) : (d.freqCount || 0) * 4;
+      totalMinutes += monthlyCount * (d.perDoc || 0);
     }
   }
   return Math.round(totalMinutes / 60 * 10) / 10;
+}
+
+function freqLabel(d) {
+  return `${d.freqUnit === "month" ? "月" : "週"}${d.freqCount}件`;
 }
 
 function updateCalc() {
@@ -1112,7 +1165,7 @@ function getMeetingPurposeRows() {
   S.meetingPurposes.forEach(p => {
     const d = S.meetingDetail[p];
     if (!d) return;
-    if (d.makes === "作成する") makes.push({ name: p, perWeek: d.perWeek, perDoc: d.perDoc });
+    if (d.makes === "作成する") makes.push({ name: p, freqUnit: d.freqUnit, freqCount: d.freqCount, perDoc: d.perDoc });
     else if (d.makes === "作成しない") notMakes.push(p);
   });
   return { makes, notMakes };
@@ -1126,7 +1179,7 @@ function renderSheet() {
 
   // ---- 現状：打ち合わせと議事録の整理 ----
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  const makesRows = meetingMakes.map(m => `${esc(m.name)}（週${m.perWeek}件・1件あたり約${m.perDoc}分）`);
+  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・1件あたり約${m.perDoc}分）`);
   const noMakesRows = meetingNotMakes.map(esc);
 
   const styleParts = [S.meetingStyle, S.meetingScope].filter(Boolean);
@@ -1378,7 +1431,7 @@ function buildProposalPrompt() {
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
   if (meetingMakes.length || meetingNotMakes.length) {
     lines.push("【打ち合わせ種類ごとの現状（この表だけを根拠に7を作成してください）】");
-    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（週${m.perWeek}件・1件あたり約${m.perDoc}分）`));
+    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・1件あたり約${m.perDoc}分）`));
     meetingNotMakes.forEach(name => lines.push(`- ${name}：現在は議事録を作成していない`));
     lines.push("");
   }
@@ -1449,7 +1502,7 @@ buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
 buildChips("announceMethods", OPTIONS.announceMethods, "announceMethods");
 buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
   if (S.meetingPurposes.includes(opt)) {
-    S.meetingDetail[opt] = { makes: "", perWeek: 3, perDoc: 30 };
+    S.meetingDetail[opt] = { makes: "", freqUnit: "week", freqCount: 3, perDoc: 30 };
   } else {
     delete S.meetingDetail[opt];
   }
