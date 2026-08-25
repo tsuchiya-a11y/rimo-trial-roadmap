@@ -344,8 +344,8 @@
       <div class="logo-mark">R</div>
       <div class="logo-text">Rimo Voice<small>トライアルロードマップ</small></div>
     </div>
-    <button class="nav-step" data-step="0"><span class="num">1</span>基本情報・スケジュール</button>
-    <button class="nav-step" data-step="1"><span class="num">2</span>現状確認</button>
+    <button class="nav-step" data-step="0"><span class="num">1</span>現状確認</button>
+    <button class="nav-step" data-step="1"><span class="num">2</span>基本情報・スケジュール</button>
     <button class="nav-step" data-step="2"><span class="num">3</span>トライアル前提確認</button>
     <button class="nav-step" data-step="3"><span class="num">4</span>確認したいポイント</button>
     <div class="sidebar-footer">
@@ -355,42 +355,10 @@
 
   <main class="main">
 
-    <!-- ========== STEP 0: 基本情報 ========== -->
+    <!-- ========== STEP 1: 現状確認 ========== -->
     <section class="step-panel" data-panel="0">
       <div class="step-header">
         <span class="step-tag">STEP 1</span>
-        <h1>基本情報・トライアルスケジュール</h1>
-        <p>お客様の基本情報と、トライアルの各マイルストーンを設定します。</p>
-      </div>
-
-      <div class="card">
-        <h2>トライアルスケジュール</h2>
-        <div class="field-row">
-          <div class="field">
-            <div class="field-label">トライアル開始日</div>
-            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates(); updateAnnounceGap()">
-          </div>
-          <div class="field">
-            <div class="field-label">トライアル終了日</div>
-            <input type="date" id="dateEnd" onchange="S.dateEnd=this.value">
-          </div>
-          <div class="field">
-            <div class="field-label">振り返りMTG</div>
-            <input type="date" id="dateReview" onchange="S.dateReview=this.value">
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-nav">
-        <span></span>
-        <button class="btn btn-next" onclick="goStep(1)">次へ：現状確認 →</button>
-      </div>
-    </section>
-
-    <!-- ========== STEP 1: 現状確認 ========== -->
-    <section class="step-panel" data-panel="1">
-      <div class="step-header">
-        <span class="step-tag">STEP 2</span>
         <h1>現状確認</h1>
         <p>現在の会議・議事録まわりの運用を確認させてください。</p>
       </div>
@@ -398,7 +366,7 @@
       <div class="card">
         <h2>会議環境</h2>
         <div class="field">
-          <div class="field-label">お使いの会議ツール <span class="hint">複数選択可</span></div>
+          <div class="field-label">お使いの会議の実施方法 <span class="hint">複数選択可</span></div>
           <div class="chips" id="meetingTools"></div>
         </div>
         <div class="field">
@@ -444,6 +412,41 @@
           <div class="field-label">議事録の保管方法 <span class="hint">複数選択可</span></div>
           <div class="chips" id="minutesStorage"></div>
         </div>
+        <div class="field">
+          <div class="field-label">議事録作成の課題 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="minutesChallenges"></div>
+        </div>
+      </div>
+
+      <div class="panel-nav">
+        <span></span>
+        <button class="btn btn-next" onclick="goStep(1)">次へ：基本情報・スケジュール →</button>
+      </div>
+    </section>
+
+    <section class="step-panel" data-panel="1">
+      <div class="step-header">
+        <span class="step-tag">STEP 2</span>
+        <h1>基本情報・トライアルスケジュール</h1>
+        <p>お客様の基本情報と、トライアルの各マイルストーンを設定します。</p>
+      </div>
+
+      <div class="card">
+        <h2>トライアルスケジュール</h2>
+        <div class="field-row">
+          <div class="field">
+            <div class="field-label">トライアル開始日</div>
+            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates(); updateAnnounceGap()">
+          </div>
+          <div class="field">
+            <div class="field-label">トライアル終了日</div>
+            <input type="date" id="dateEnd" onchange="S.dateEnd=this.value">
+          </div>
+          <div class="field">
+            <div class="field-label">振り返りMTG</div>
+            <input type="date" id="dateReview" onchange="S.dateReview=this.value">
+          </div>
+        </div>
       </div>
 
       <div class="panel-nav">
@@ -452,7 +455,7 @@
       </div>
     </section>
 
-    <!-- ========== STEP 2: トライアル前提確認 ========== -->
+    <!-- ========== STEP 3: トライアル前提確認 ========== -->
     <section class="step-panel" data-panel="2">
       <div class="step-header">
         <span class="step-tag">STEP 3</span>
@@ -507,7 +510,7 @@
       </div>
     </section>
 
-    <!-- ========== STEP 3: 検証項目 ========== -->
+    <!-- ========== STEP 4: 検証項目 ========== -->
     <section class="step-panel" data-panel="3">
       <div class="step-header">
         <span class="step-tag">STEP 4</span>
@@ -527,7 +530,9 @@
           </div>
         </div>
         <div class="verify-body">
-          <input type="text" id="axisDetail-quality" placeholder="例）固有名詞・専門用語の認識精度、話者分離の精度 など" oninput="S.axisDetail.quality=this.value">
+          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="axisPreset-quality"></div>
+          <input type="text" id="axisDetail-quality" placeholder="その他、自由に入力" oninput="S.axisDetail.quality=this.value" style="margin-top:10px;">
         </div>
       </div>
 
@@ -541,7 +546,9 @@
           </div>
         </div>
         <div class="verify-body">
-          <input type="text" id="axisDetail-usability" placeholder="例）ITリテラシーが高くない部署でも定着するか など" oninput="S.axisDetail.usability=this.value">
+          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="axisPreset-usability"></div>
+          <input type="text" id="axisDetail-usability" placeholder="その他、自由に入力" oninput="S.axisDetail.usability=this.value" style="margin-top:10px;">
         </div>
       </div>
 
@@ -569,7 +576,9 @@
           </div>
         </div>
         <div class="verify-body">
-          <input type="text" id="axisDetail-security" placeholder="例）データの保管場所、ISO27001の認証有無 など" oninput="S.axisDetail.security=this.value">
+          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
+          <div class="chips" id="axisPreset-security"></div>
+          <input type="text" id="axisDetail-security" placeholder="その他、自由に入力" oninput="S.axisDetail.security=this.value" style="margin-top:10px;">
         </div>
       </div>
 
@@ -709,6 +718,8 @@ const S = {
   axes: { quality: true, usability: true, cost: false, security: false, other: false },
   axisOther: "",
   axisDetail: { quality: "", usability: "", cost: "", security: "" },
+  axisPresetQuality: [], axisPresetUsability: [], axisPresetSecurity: [],
+  minutesChallenges: [],
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
@@ -727,6 +738,10 @@ const OPTIONS = {
   toolIssues: ["文字起こしの精度", "要約の品質", "音声・動画と議事録を一体で確認できない", "議事録を使ったAI活用・RAG検索がない", "対面での打ち合わせで使えない", "使いづらい", "セキュリティ面の不安", "費用", "その他"],
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
   minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
+  minutesChallenges: ["作成者によってクオリティや作成時間にばらつきがある", "議事録作成稼働により日中の業務がひっ迫する", "作成が後回しになり、記憶が薄れて精度が落ちる", "抜け漏れ・誤りが発生しやすい", "共有や展開に時間がかかる", "担当者に依存し、不在時に対応できない", "その他"],
+  qualityPoints: ["固有名詞・専門用語の認識精度", "話者分離の精度", "要約がそのまま使えるか", "方言・訛りへの対応"],
+  usabilityPoints: ["操作の直感性", "ITリテラシーが高くない人でも使えるか", "会議への参加・Botの動作", "アプリ/ブラウザの使い勝手"],
+  securityPoints: ["データの保管場所（国内/海外）", "ISO27001等の認証有無", "AI学習利用の有無", "アクセス権限管理"],
   announceMethods: ["社内定例で周知", "個別に関係者へ周知", "社内チャット等で周知", "その他"],
   meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
   targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
@@ -895,31 +910,78 @@ function buildFreqControl(d) {
   const row = document.createElement("div");
   row.className = "freq-row";
 
-  const sw = document.createElement("div");
-  sw.className = "slider-wrap";
-  const input = document.createElement("input");
-  input.type = "range"; input.min = 1; input.max = 20; input.step = 1; input.value = d.freqCount;
-  const valDisplay = document.createElement("div");
-  valDisplay.className = "slider-value";
-  valDisplay.textContent = `${d.freqCount} 件`;
-  input.oninput = () => {
-    d.freqCount = +input.value;
-    valDisplay.textContent = `${input.value} 件`;
-    updateCalc();
-  };
-  sw.appendChild(input); sw.appendChild(valDisplay);
-  row.appendChild(sw);
+  if (d.freqUnit !== "irregular") {
+    const sw = document.createElement("div");
+    sw.className = "slider-wrap";
+    const input = document.createElement("input");
+    input.type = "range"; input.min = 1; input.max = 20; input.step = 1; input.value = d.freqCount;
+    const valDisplay = document.createElement("div");
+    valDisplay.className = "slider-value";
+    valDisplay.textContent = `${d.freqCount} 件`;
+    input.oninput = () => {
+      d.freqCount = +input.value;
+      valDisplay.textContent = `${input.value} 件`;
+      updateCalc();
+    };
+    sw.appendChild(input); sw.appendChild(valDisplay);
+    row.appendChild(sw);
+  }
 
   const seg = document.createElement("div");
   seg.className = "segmented small freq-unit";
-  [["週", "week"], ["月", "month"]].forEach(([label, unitKey]) => {
+  [["週", "week"], ["月", "month"], ["不定期", "irregular"]].forEach(([label, unitKey]) => {
     const b = document.createElement("button");
-    b.textContent = "/" + label;
+    b.textContent = unitKey === "irregular" ? label : "/" + label;
     if (d.freqUnit === unitKey) b.classList.add("selected");
     b.onclick = () => {
       d.freqUnit = unitKey;
-      seg.querySelectorAll("button").forEach(x => x.classList.remove("selected"));
-      b.classList.add("selected");
+      renderMeetingDetailRows();
+      updateCalc();
+    };
+    seg.appendChild(b);
+  });
+  row.appendChild(seg);
+
+  field.appendChild(row);
+  return field;
+}
+
+function buildTimeControl(d) {
+  const field = document.createElement("div");
+  const lbl = document.createElement("div");
+  lbl.className = "field-label";
+  lbl.textContent = "1件あたりの作成時間";
+  field.appendChild(lbl);
+
+  const row = document.createElement("div");
+  row.className = "freq-row";
+
+  if (!d.perDocVaries) {
+    const sw = document.createElement("div");
+    sw.className = "slider-wrap";
+    const input = document.createElement("input");
+    input.type = "range"; input.min = 0; input.max = 120; input.step = 5; input.value = d.perDoc;
+    const valDisplay = document.createElement("div");
+    valDisplay.className = "slider-value";
+    valDisplay.textContent = `${d.perDoc} 分`;
+    input.oninput = () => {
+      d.perDoc = +input.value;
+      valDisplay.textContent = `${input.value} 分`;
+      updateCalc();
+    };
+    sw.appendChild(input); sw.appendChild(valDisplay);
+    row.appendChild(sw);
+  }
+
+  const seg = document.createElement("div");
+  seg.className = "segmented small freq-unit";
+  [["一定", false], ["ばらばら", true]].forEach(([label, variesVal]) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    if (!!d.perDocVaries === variesVal) b.classList.add("selected");
+    b.onclick = () => {
+      d.perDocVaries = variesVal;
+      renderMeetingDetailRows();
       updateCalc();
     };
     seg.appendChild(b);
@@ -967,7 +1029,7 @@ function renderMeetingDetailRows() {
       const sliders = document.createElement("div");
       sliders.className = "dr-sliders";
       sliders.appendChild(buildFreqControl(d));
-      sliders.appendChild(buildDetailSlider("1件あたりの作成時間", d.perDoc, 0, 120, 5, "分", v => { d.perDoc = v; }));
+      sliders.appendChild(buildTimeControl(d));
       row.appendChild(sliders);
     }
     wrap.appendChild(row);
@@ -1033,7 +1095,7 @@ function monthlyHours() {
   let totalMinutes = 0;
   for (const p of S.meetingPurposes) {
     const d = S.meetingDetail[p];
-    if (d && d.makes === "作成する") {
+    if (d && d.makes === "作成する" && d.freqUnit !== "irregular" && !d.perDocVaries) {
       const monthlyCount = d.freqUnit === "month" ? (d.freqCount || 0) : (d.freqCount || 0) * 4;
       totalMinutes += monthlyCount * (d.perDoc || 0);
     }
@@ -1042,7 +1104,12 @@ function monthlyHours() {
 }
 
 function freqLabel(d) {
+  if (d.freqUnit === "irregular") return "不定期";
   return `${d.freqUnit === "month" ? "月" : "週"}${d.freqCount}件`;
+}
+
+function timeLabel(d) {
+  return d.perDocVaries ? "1件あたりの時間はばらばら" : `1件あたり約${d.perDoc}分`;
 }
 
 function updateCalc() {
@@ -1141,11 +1208,20 @@ function buildInsights(cur) {
   return Object.values(byTopic).sort((a, b) => b.priority - a.priority).slice(0, 3);
 }
 
+function axisDetailText(key) {
+  if (key === "other") return S.axisOther;
+  const presetMap = { quality: S.axisPresetQuality, usability: S.axisPresetUsability, security: S.axisPresetSecurity };
+  const presets = presetMap[key] || [];
+  const combined = [...presets];
+  if (S.axisDetail[key]) combined.push(S.axisDetail[key]);
+  return combined.join("、");
+}
+
 function getAxisRows() {
   return Object.keys(AXIS_LABELS)
     .filter(k => S.axes[k])
     .map(k => {
-      const detail = k === "other" ? S.axisOther : S.axisDetail[k];
+      const detail = axisDetailText(k);
       return detail ? `${AXIS_LABELS[k]}（${detail}）` : AXIS_LABELS[k];
     });
 }
@@ -1166,7 +1242,7 @@ function getMeetingPurposeRows() {
   S.meetingPurposes.forEach(p => {
     const d = S.meetingDetail[p];
     if (!d) return;
-    if (d.makes === "作成する") makes.push({ name: p, freqUnit: d.freqUnit, freqCount: d.freqCount, perDoc: d.perDoc });
+    if (d.makes === "作成する") makes.push({ name: p, freqUnit: d.freqUnit, freqCount: d.freqCount, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
     else if (d.makes === "作成しない") notMakes.push(p);
   });
   return { makes, notMakes };
@@ -1180,7 +1256,7 @@ function renderSheet() {
 
   // ---- 現状：打ち合わせと議事録の整理 ----
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・1件あたり約${m.perDoc}分）`);
+  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・${timeLabel(m)}）`);
   const noMakesRows = meetingNotMakes.map(esc);
 
   const styleParts = [S.meetingStyle, S.meetingScope].filter(Boolean);
@@ -1269,6 +1345,7 @@ function renderSheet() {
         ${cur > 0 ? `<tr><th>議事録作成にかかっている時間</th><td><b>約 ${cur} 時間/月</b>（作成している打ち合わせの合計・概算）</td></tr>` : ""}
         <tr><th>作成した議事録の使われ方</th><td>${list(S.minutesUsage)}</td></tr>
         <tr><th>議事録の保管場所</th><td>${list(S.minutesStorage)}</td></tr>
+        ${S.minutesChallenges.length ? `<tr><th>議事録作成の課題</th><td>${list(S.minutesChallenges)}</td></tr>` : ""}
       </table>
     </div>
 
@@ -1295,15 +1372,15 @@ function renderSheet() {
 
   // ===== 2枚目: 振り返りシート（質問リスト） =====
   const feelQ = [];
-  if (S.axes.quality) feelQ.push({ t: `文字起こしや要約の精度は、いかがでしたか${S.axisDetail.quality ? `（${S.axisDetail.quality}）` : ""}`, s: "固有名詞・専門用語の変換、そのまま使えたか など" });
-  if (S.axes.usability) feelQ.push({ t: `操作で迷ったところは、ありませんでしたか${S.axisDetail.usability ? `（${S.axisDetail.usability}）` : ""}`, s: "録音の開始、共有のしかた など" });
+  if (S.axes.quality) feelQ.push({ t: `文字起こしや要約の精度は、いかがでしたか${axisDetailText("quality") ? `（${axisDetailText("quality")}）` : ""}`, s: "固有名詞・専門用語の変換、そのまま使えたか など" });
+  if (S.axes.usability) feelQ.push({ t: `操作で迷ったところは、ありませんでしたか${axisDetailText("usability") ? `（${axisDetailText("usability")}）` : ""}`, s: "録音の開始、共有のしかた など" });
   if (S.verify.workload) feelQ.push({ t: "議事録作成の時間・手間は、軽くなりましたか", s: "" });
   if (S.verify.ai) feelQ.push({ t: "AIの機能は、業務で使えそうでしたか", s: S.aiFeatures.join("、") });
   if (S.verify.sharing) feelQ.push({ t: "議事録の共有は、スムーズでしたか", s: S.sharingScenes.join("、") });
   if (S.verify.rag) feelQ.push({ t: "過去の議事録の検索（RAG検索）は、役立ちそうでしたか", s: S.ragScenes.join("、") });
   if (S.verify.side) feelQ.push({ t: "その他に感じられた効果は、ありましたか", s: S.sideEffects.join("、") });
   if (S.axes.cost) feelQ.push({ t: `手間の軽減と料金のバランスは、どう感じられましたか${S.axisDetail.cost ? `（${S.axisDetail.cost}）` : ""}`, s: "" });
-  if (S.axes.security) feelQ.push({ t: `セキュリティ面で、社内確認が必要そうな点はありましたか${S.axisDetail.security ? `（${S.axisDetail.security}）` : ""}`, s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
+  if (S.axes.security) feelQ.push({ t: `セキュリティ面で、社内確認が必要そうな点はありましたか${axisDetailText("security") ? `（${axisDetailText("security")}）` : ""}`, s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
   if (S.axes.other) feelQ.push({ t: `その他${S.axisOther ? `（${S.axisOther}）` : "に気にされていた点"}は、いかがでしたか`, s: "" });
 
   const nextQ = [
@@ -1432,7 +1509,7 @@ function buildProposalPrompt() {
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
   if (meetingMakes.length || meetingNotMakes.length) {
     lines.push("【打ち合わせ種類ごとの現状（この表だけを根拠に7を作成してください）】");
-    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・1件あたり約${m.perDoc}分）`));
+    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・${timeLabel(m)}）`));
     meetingNotMakes.forEach(name => lines.push(`- ${name}：現在は議事録を作成していない`));
     lines.push("");
   }
@@ -1500,6 +1577,10 @@ buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
 buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
+buildChips("minutesChallenges", OPTIONS.minutesChallenges, "minutesChallenges");
+buildChips("axisPreset-quality", OPTIONS.qualityPoints, "axisPresetQuality");
+buildChips("axisPreset-usability", OPTIONS.usabilityPoints, "axisPresetUsability");
+buildChips("axisPreset-security", OPTIONS.securityPoints, "axisPresetSecurity");
 buildChips("announceMethods", OPTIONS.announceMethods, "announceMethods");
 buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
   if (S.meetingPurposes.includes(opt)) {
