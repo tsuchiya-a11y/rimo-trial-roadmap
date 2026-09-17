@@ -168,6 +168,7 @@
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
   .slider-wrap input[type="range"] { flex: 1; accent-color: var(--primary); height: 6px; cursor: pointer; }
+  .ratio-value { min-width: 200px; }
   .slider-value {
     min-width: 96px; text-align: center; background: var(--primary-light);
     color: var(--primary-dark); font-weight: 700; font-size: 14px;
@@ -378,17 +379,21 @@
           <div class="chips" id="competingTools"></div>
           <div id="competingToolsRatings"></div>
         </div>
+        <div class="field">
+          <div class="field-label">現在お使いのAIエージェント <span class="hint">複数選択可</span></div>
+          <div class="chips" id="aiAgents"></div>
+        </div>
       </div>
 
       <div class="card">
         <h2>打ち合わせの実態</h2>
         <div class="field">
-          <div class="field-label">実施方法</div>
-          <div class="segmented" data-seg="meetingStyle"></div>
+          <div class="field-label">実施方法のおおよその割合</div>
+          <div id="meetingStyleSlider"></div>
         </div>
         <div class="field">
-          <div class="field-label">社内 / 社外</div>
-          <div class="segmented" data-seg="meetingScope"></div>
+          <div class="field-label">社内 / 社外のおおよその割合</div>
+          <div id="meetingScopeSlider"></div>
         </div>
         <div class="field">
           <div class="field-label">打ち合わせの実施目的 <span class="hint">複数選択可</span></div>
@@ -709,7 +714,7 @@ const S = {
   meetingTools: [], meetingToolsOther: "",
   minutesMethod: [],
   competingTools: [], competingToolRatings: {}, competingToolIssues: {},
-  meetingStyle: "", meetingScope: "",
+  meetingWebPct: 50, meetingInternalPct: 50,
   meetingPurposes: [], meetingDetail: {},
   minutesUsage: [], minutesStorage: [],
   announce: "", announceDate: "", announceMethods: [],
@@ -720,6 +725,7 @@ const S = {
   axisDetail: { quality: "", usability: "", cost: "", security: "" },
   axisPresetQuality: [], axisPresetUsability: [], axisPresetSecurity: [],
   minutesChallenges: [],
+  aiAgents: [],
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
 };
@@ -739,6 +745,7 @@ const OPTIONS = {
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
   minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
   minutesChallenges: ["作成者によってクオリティや作成時間にばらつきがある", "議事録作成稼働により日中の業務がひっ迫する", "作成が後回しになり、記憶が薄れて精度が落ちる", "抜け漏れ・誤りが発生しやすい", "共有や展開に時間がかかる", "担当者に依存し、不在時に対応できない", "その他"],
+  aiAgents: ["ChatGPT", "Copilot", "Claude", "Gemini", "内製ツール", "その他", "使っていない"],
   qualityPoints: ["固有名詞・専門用語の認識精度", "話者分離の精度", "要約がそのまま使えるか", "方言・訛りへの対応"],
   usabilityPoints: ["操作の直感性", "ITリテラシーが高くない人でも使えるか", "会議への参加・Botの動作", "アプリ/ブラウザの使い勝手"],
   securityPoints: ["データの保管場所（国内/海外）", "ISO27001等の認証有無", "AI学習利用の有無", "アクセス権限管理"],
@@ -752,8 +759,6 @@ const OPTIONS = {
 };
 
 const SEGMENTS = {
-  meetingStyle: ["Webが中心", "対面が中心", "半々くらい"],
-  meetingScope: ["社内が中心", "社外が中心", "両方"],
   announce: ["周知済み", "周知予定あり", "未定"]
 };
 
@@ -898,6 +903,25 @@ function buildDetailSlider(label, value, min, max, step, unit, onChange) {
   sw.appendChild(input); sw.appendChild(valDisplay);
   field.appendChild(sw);
   return field;
+}
+
+function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = "";
+  const sw = document.createElement("div");
+  sw.className = "slider-wrap";
+  const input = document.createElement("input");
+  input.type = "range"; input.min = 0; input.max = 100; input.step = 5; input.value = S[stateKey];
+  const valDisplay = document.createElement("div");
+  valDisplay.className = "slider-value ratio-value";
+  const render = () => { valDisplay.textContent = `${rightLabel} ${S[stateKey]}%　／　${leftLabel} ${100 - S[stateKey]}%`; };
+  render();
+  input.oninput = () => {
+    S[stateKey] = +input.value;
+    render();
+  };
+  sw.appendChild(input); sw.appendChild(valDisplay);
+  el.appendChild(sw);
 }
 
 function buildFreqControl(d) {
@@ -1259,7 +1283,10 @@ function renderSheet() {
   const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・${timeLabel(m)}）`);
   const noMakesRows = meetingNotMakes.map(esc);
 
-  const styleParts = [S.meetingStyle, S.meetingScope].filter(Boolean);
+  const styleParts = [
+    `Web ${S.meetingWebPct}%／対面 ${100 - S.meetingWebPct}%`,
+    `社内 ${S.meetingInternalPct}%／社外 ${100 - S.meetingInternalPct}%`
+  ];
 
   const competingRows = S.competingTools.map(t => {
     const rating = S.competingToolRatings[t] || "";
@@ -1337,9 +1364,10 @@ function renderSheet() {
       <h2>2. 議事録まわりの現状</h2>
       <table class="sh-table">
         <tr><th>利用中の会議ツール</th><td>${list(S.meetingTools)}</td></tr>
-        <tr><th>打ち合わせの形式</th><td>${styleParts.length ? esc(styleParts.join("・")) : `<span class="sh-empty">―</span>`}</td></tr>
+        <tr><th>打ち合わせの形式</th><td>${styleParts.map(esc).join("<br>")}</td></tr>
         <tr><th>現在の議事録の作り方</th><td>${list(S.minutesMethod)}</td></tr>
         ${competingRows.length ? `<tr><th>利用中の文字起こし/議事録ツール</th><td>${competingRows.join("、")}<div class="sh-hint">※ かっこ内は現在感じている評価</div></td></tr>` : ""}
+        ${S.aiAgents.length ? `<tr><th>現在お使いのAIエージェント</th><td>${list(S.aiAgents)}</td></tr>` : ""}
         ${makesRows.length ? `<tr><th>議事録を作成している打ち合わせ</th><td>${makesRows.join("<br>")}</td></tr>` : ""}
         ${noMakesRows.length ? `<tr><th>議事録を作成していない打ち合わせ</th><td>${noMakesRows.join("、")}</td></tr>` : ""}
         ${cur > 0 ? `<tr><th>議事録作成にかかっている時間</th><td><b>約 ${cur} 時間/月</b>（作成している打ち合わせの合計・概算）</td></tr>` : ""}
@@ -1578,6 +1606,7 @@ buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
 buildChips("minutesChallenges", OPTIONS.minutesChallenges, "minutesChallenges");
+buildChips("aiAgents", OPTIONS.aiAgents, "aiAgents");
 buildChips("axisPreset-quality", OPTIONS.qualityPoints, "axisPresetQuality");
 buildChips("axisPreset-usability", OPTIONS.usabilityPoints, "axisPresetUsability");
 buildChips("axisPreset-security", OPTIONS.securityPoints, "axisPresetSecurity");
@@ -1596,6 +1625,8 @@ buildChips("aiFeatures", OPTIONS.aiFeatures, "aiFeatures");
 buildChips("sharingScenes", OPTIONS.sharingScenes, "sharingScenes");
 buildChips("ragScenes", OPTIONS.ragScenes, "ragScenes");
 buildChips("sideEffects", OPTIONS.sideEffects, "sideEffects");
+buildRatioSlider("meetingStyleSlider", "meetingWebPct", "対面", "Web");
+buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内");
 buildSegmented();
 document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.dataset.step));
 goStep(0);
