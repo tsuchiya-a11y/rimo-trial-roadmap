@@ -189,6 +189,11 @@
   .ratio-range { width: 100%; accent-color: var(--primary); height: 6px; cursor: pointer; margin-top: 10px; }
 
   .checker-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
+  .wage-monthly-note {
+    display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700;
+    color: var(--primary-dark); background: var(--primary-light);
+    padding: 6px 12px; border-radius: 8px;
+  }
 
   @media (max-width: 860px) {
     .app { flex-direction: column; }
@@ -314,12 +319,14 @@ const S = {
   meetingTypeCustomName: "",
   minutesUsage: [], minutesStorage: [],
   aiAgents: [],
-  hourlyWage: 3000
+  hourlyWage: Math.round(300000 / 160)
 };
 
 /* ============================================================
    Option definitions
 ============================================================ */
+const MONTHLY_WORK_HOURS = 160; // 1日8時間×20日 換算
+
 const OPTIONS = {
   meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面", "その他"],
   minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "会議ツールの文字起こし＋生成AIで作成", "文字起こし/議事録ツール活用中", "作成していない"],
@@ -532,6 +539,32 @@ function miniSlider(min, max, step, value, unit, onChange) {
   };
   sw.appendChild(input); sw.appendChild(val);
   return sw;
+}
+
+function monthlyWageLabel() {
+  return `月給換算：約${(S.hourlyWage * MONTHLY_WORK_HOURS / 10000).toFixed(1)}万円/月（月${MONTHLY_WORK_HOURS}時間換算）`;
+}
+
+function buildWageSlider(containerId) {
+  const container = document.getElementById(containerId);
+  const wrap = document.createElement("div");
+  wrap.className = "slider-wrap";
+  const input = document.createElement("input");
+  input.type = "range"; input.min = 1000; input.max = 8000; input.step = 25; input.value = S.hourlyWage;
+  const val = document.createElement("div");
+  val.className = "slider-value";
+  val.textContent = `${S.hourlyWage.toLocaleString()}円/時`;
+  const note = document.createElement("div");
+  note.className = "wage-monthly-note";
+  note.textContent = monthlyWageLabel();
+  input.oninput = () => {
+    S.hourlyWage = +input.value;
+    val.textContent = `${S.hourlyWage.toLocaleString()}円/時`;
+    note.textContent = monthlyWageLabel();
+  };
+  wrap.appendChild(input); wrap.appendChild(val);
+  container.appendChild(wrap);
+  container.appendChild(note);
 }
 
 function buildMxFreqCell(d) {
@@ -843,7 +876,7 @@ function buildHearingText() {
   lines.push("");
 
   lines.push("■ 費用対効果算出のための設定");
-  lines.push(`人件費（時給換算）：${S.hourlyWage.toLocaleString()}円/時`);
+  lines.push(`人件費（時給換算）：${S.hourlyWage.toLocaleString()}円/時（${monthlyWageLabel()}）`);
 
   return lines.join("\n");
 }
@@ -897,9 +930,7 @@ buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内",
 buildRatioSlider("meetingInternalStyleSlider", "meetingInternalWebPct", "対面", "Web", "🤝", "💻");
 buildRatioSlider("meetingExternalStyleSlider", "meetingExternalWebPct", "対面", "Web", "🤝", "💻");
 renderMeetingMatrix();
-document.getElementById("hourlyWageSlider").appendChild(
-  miniSlider(1000, 8000, 100, S.hourlyWage, "円/時", v => { S.hourlyWage = v; })
-);
+buildWageSlider("hourlyWageSlider");
 </script>
 </body>
 </html>
