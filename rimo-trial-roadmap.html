@@ -289,6 +289,14 @@
       </div>
     </div>
 
+    <div class="card">
+      <h2>費用対効果算出のための設定</h2>
+      <div class="field">
+        <div class="field-label">人件費（時給換算） <span class="hint">議事録作成にかかっている時間を費用換算する際に使用します</span></div>
+        <div id="hourlyWageSlider"></div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -305,7 +313,8 @@ const S = {
   meetingTypeOrder: [],
   meetingTypeCustomName: "",
   minutesUsage: [], minutesStorage: [],
-  aiAgents: []
+  aiAgents: [],
+  hourlyWage: 3000
 };
 
 /* ============================================================
@@ -822,12 +831,19 @@ function buildHearingText() {
     meetingNotMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・参加${m.participants}名`));
   }
   if (!meetingMakes.length && !meetingNotMakes.length) lines.push("―");
-  if (cur > 0) lines.push(`議事録作成にかかっている時間：約${cur}時間/月（作成している打ち合わせの合計・概算）`);
+  if (cur > 0) {
+    lines.push(`議事録作成にかかっている時間：約${cur}時間/月（作成している打ち合わせの合計・概算）`);
+    lines.push(`人件費換算：約${Math.round(cur * S.hourlyWage).toLocaleString()}円/月（時給${S.hourlyWage.toLocaleString()}円で計算）`);
+  }
   lines.push("");
 
   lines.push("■ 議事録の活用状況");
   lines.push(`作成した議事録の使われ方：${S.minutesUsage.join("、") || "―"}`);
   lines.push(`議事録の保管方法：${S.minutesStorage.join("、") || "―"}`);
+  lines.push("");
+
+  lines.push("■ 費用対効果算出のための設定");
+  lines.push(`人件費（時給換算）：${S.hourlyWage.toLocaleString()}円/時`);
 
   return lines.join("\n");
 }
@@ -881,6 +897,9 @@ buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内",
 buildRatioSlider("meetingInternalStyleSlider", "meetingInternalWebPct", "対面", "Web", "🤝", "💻");
 buildRatioSlider("meetingExternalStyleSlider", "meetingExternalWebPct", "対面", "Web", "🤝", "💻");
 renderMeetingMatrix();
+document.getElementById("hourlyWageSlider").appendChild(
+  miniSlider(1000, 8000, 100, S.hourlyWage, "円/時", v => { S.hourlyWage = v; })
+);
 </script>
 </body>
 </html>
