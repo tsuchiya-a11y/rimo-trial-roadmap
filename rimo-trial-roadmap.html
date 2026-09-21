@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rimo Voice トライアルロードマップ</title>
+<title>Rimo Voice ヒアリングシート</title>
 <style>
   :root {
     --primary: #0e7c86;
@@ -47,24 +47,6 @@
   .logo-text { font-weight: 700; font-size: 14px; line-height: 1.3; }
   .logo-text small { display: block; font-weight: 500; color: var(--text-sub); font-size: 11px; }
 
-  .nav-step {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 10px; border-radius: 8px; cursor: pointer;
-    color: var(--text-sub); font-size: 13.5px; font-weight: 500;
-    border: none; background: none; width: 100%; text-align: left;
-    transition: background .15s;
-  }
-  .nav-step:hover { background: var(--bg); }
-  .nav-step.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 700; }
-  .nav-step .num {
-    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-    border: 1.5px solid #cbd5e1; color: var(--text-sub);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700;
-  }
-  .nav-step.active .num { border-color: var(--primary); background: var(--primary); color: #fff; }
-  .nav-step.done .num { border-color: var(--success); background: var(--success); color: #fff; }
-
   .sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
   .btn-print-side {
     width: 100%; padding: 11px; border-radius: 8px; border: none;
@@ -72,19 +54,13 @@
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
   }
   .btn-print-side:hover { background: var(--primary-dark); }
+  .btn-print-side.copied { background: var(--success); }
 
-  .main { flex: 1; padding: 32px 40px 80px; max-width: 900px; }
-  .step-panel { display: none; }
-  .step-panel.active { display: block; animation: fadein .2s ease; }
-  @keyframes fadein { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: none;} }
+  .main { flex: 1; padding: 32px 40px 80px; max-width: 1400px; }
 
-  .step-header { margin-bottom: 24px; }
-  .step-header .step-tag {
-    display: inline-block; background: var(--primary-light); color: var(--primary-dark);
-    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 8px;
-  }
-  .step-header h1 { font-size: 22px; font-weight: 700; }
-  .step-header p { color: var(--text-sub); font-size: 13.5px; margin-top: 4px; }
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; }
+  .page-header p { color: var(--text-sub); font-size: 13.5px; margin-top: 4px; }
 
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
@@ -167,6 +143,7 @@
   .mx-cell .slider-value { min-width: 56px; font-size: 12px; padding: 4px 7px; }
   .mx-cell .segmented.small { margin-bottom: 6px; }
   .mx-cell .segmented.small:last-child { margin-bottom: 0; }
+  .mx-empty { color: #9ca3af; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
@@ -179,156 +156,6 @@
   }
 
   .checker-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
-
-  /* ===== Sub headings / notes (STEP4) ===== */
-  .sub-head {
-    font-size: 14px; font-weight: 700; color: var(--text);
-    margin: 26px 0 12px; padding-left: 10px; border-left: 4px solid var(--primary);
-  }
-  .sub-head:first-of-type { margin-top: 0; }
-
-  /* ===== Verify item card ===== */
-  .verify-card { border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 14px; overflow: hidden; background: #fff; }
-  .verify-head {
-    display: flex; align-items: center; gap: 12px; padding: 14px 18px;
-    cursor: pointer; background: #fff;
-  }
-  .verify-card.on .verify-head { background: var(--primary-light); }
-  .verify-head .toggle {
-    width: 42px; height: 24px; border-radius: 99px; background: #d1d5db; position: relative; flex-shrink: 0; transition: background .15s;
-  }
-  .verify-head .toggle::after {
-    content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%;
-    background: #fff; top: 3px; left: 3px; transition: left .15s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-  }
-  .verify-card.on .toggle { background: var(--primary); }
-  .verify-card.on .toggle::after { left: 21px; }
-  .verify-head .vh-title { font-weight: 700; font-size: 14.5px; }
-  .verify-head .vh-sub { font-size: 12px; color: var(--text-sub); }
-  .verify-body { padding: 18px; border-top: 1px solid var(--border); display: none; }
-  .verify-card.on .verify-body { display: block; }
-
-  /* ===== Judge (post-trial) ===== */
-
-  /* ===== Footer nav ===== */
-  .panel-nav { display: flex; justify-content: space-between; margin-top: 28px; }
-  .btn {
-    padding: 11px 26px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; border: none;
-  }
-  .btn-next { background: var(--primary); color: #fff; }
-  .btn-next:hover { background: var(--primary-dark); }
-  .btn-back { background: #fff; color: var(--text-sub); border: 1px solid var(--border); }
-  .btn-back:hover { background: var(--bg); }
-
-  /* ============================================================
-     SHEET (print view)
-  ============================================================ */
-  .sheet-container { display: none; }
-  body.sheet-mode .app { display: none; }
-  body.sheet-mode .sheet-container { display: block; }
-
-  .sheet-toolbar {
-    position: sticky; top: 0; z-index: 10;
-    background: var(--text); color: #fff;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 28px;
-  }
-  .sheet-toolbar .tb-title { font-size: 14px; font-weight: 700; }
-  .sheet-toolbar .tb-actions { display: flex; gap: 10px; }
-  .sheet-toolbar button {
-    padding: 8px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; font-size: 13px;
-  }
-  .tb-back { background: #4b5563; color: #fff; }
-  .tb-pdf { background: var(--accent); color: #fff; }
-
-  /* シート内の文字サイズは3段階に統一: 基本11px / 補足9.5px / 見出し12px（タイトルのみ別格）
-     余白・行間は「1論理ページ=A4 1枚」に収まる密度までまとめて詰めている */
-  .sheet {
-    width: 210mm; min-height: 297mm; margin: 24px auto; background: #fff;
-    padding: 12mm 14mm 10mm; box-shadow: 0 4px 24px rgba(0,0,0,.12);
-    font-size: 11px; color: #111;
-  }
-  .sh-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid var(--primary); padding-bottom: 6px; margin-bottom: 8px; }
-  .sh-header h1 { font-size: 17px; font-weight: 700; color: var(--primary-dark); }
-  .sh-header .sh-sub { font-size: 11px; color: var(--text-sub); }
-  .sh-header .sh-brand { font-size: 12px; font-weight: 700; color: var(--primary); text-align: right; }
-  .sh-header .sh-brand small { display: block; font-weight: 400; color: var(--text-sub); font-size: 9.5px; }
-
-  .sh-section { margin-bottom: 7px; }
-  .sh-section > h2 {
-    font-size: 12px; font-weight: 700; color: #fff; background: var(--primary);
-    padding: 3px 10px; border-radius: 4px; margin-bottom: 5px;
-  }
-  table.sh-table { width: 100%; border-collapse: collapse; }
-  table.sh-table th, table.sh-table td {
-    border: 1px solid #cbd5e1; padding: 2px 8px; font-size: 11px; line-height: 1.25; vertical-align: top; text-align: left;
-  }
-  table.sh-table th { background: #f1f5f9; font-weight: 700; width: 30%; white-space: nowrap; }
-
-  .sh-schedule { display: flex; gap: 0; margin-top: 3px; }
-  .sh-step { flex: 1; text-align: center; position: relative; padding: 4px 4px; border: 1px solid #cbd5e1; background: #f8fafc; }
-  .sh-step:not(:last-child) { border-right: none; }
-  .sh-step .st-name { font-size: 9.5px; font-weight: 700; color: var(--primary-dark); }
-  .sh-step .st-date { font-size: 12px; font-weight: 700; }
-
-  .sh-note { font-size: 9.5px; color: var(--text-sub); margin-top: 4px; }
-  .sh-empty { color: #9ca3af; }
-  .sh-guide {
-    display: flex; align-items: center; gap: 8px;
-    background: var(--primary-light); border: 1px solid #b8dfe3; border-radius: 6px;
-    padding: 6px 12px; margin-top: 6px;
-  }
-  .sh-guide .g-icon { font-size: 16px; }
-  .sh-guide .g-title { font-size: 11px; font-weight: 700; color: var(--primary-dark); }
-  .sh-guide .g-desc { font-size: 9.5px; color: var(--text-sub); }
-  .sh-guide a { color: var(--primary-dark); font-weight: 700; font-size: 11px; word-break: break-all; }
-  .sh-hint { font-size: 9.5px; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
-  .sh-note a, .sh-hint a, .rv-s a { color: var(--primary-dark); font-weight: 700; }
-  .sh-lead { font-size: 11px; color: var(--text-sub); margin: 0 0 8px; }
-
-  .sh-insights h2 { margin-bottom: 6px; }
-  .insight-card {
-    border: 1px solid #cbd5e1; border-left: 4px solid var(--primary); border-radius: 6px;
-    padding: 4px 8px; margin-bottom: 4px; background: #fafcfc; break-inside: avoid;
-  }
-  .insight-card:last-child { margin-bottom: 0; }
-  .insight-top { display: flex; align-items: flex-start; gap: 6px; }
-  .ins-col { flex: 1; font-size: 11px; line-height: 1.3; }
-  .ins-label { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: .03em; margin-bottom: 1px; }
-  .ins-issue .ins-label { color: #b45309; }
-  .ins-ideal .ins-label { color: var(--primary-dark); }
-  .ins-arrow { color: var(--primary); font-weight: 700; font-size: 12px; flex-shrink: 0; }
-  .ins-howto { margin-top: 3px; padding-top: 3px; border-top: 1px dashed var(--border); font-size: 9.5px; color: var(--text-sub); }
-  .ins-howto b { color: var(--primary-dark); font-size: 9.5px; font-weight: 700; }
-
-  .rv-q {
-    display: flex; align-items: flex-start; gap: 10px;
-    border: 1px solid #cbd5e1; border-radius: 6px;
-    padding: 8px 12px; margin-bottom: 6px; break-inside: avoid;
-  }
-  .rv-num { font-size: 11px; font-weight: 700; color: var(--primary); flex-shrink: 0; margin-top: 1px; }
-  .rv-t { font-size: 11px; font-weight: 700; }
-  .rv-s { font-size: 9.5px; color: var(--text-sub); margin-top: 2px; }
-  .sh-footer { margin-top: 5px; text-align: right; font-size: 9.5px; color: #9ca3af; }
-
-  /* ===== 社内提案用プロンプト ===== */
-  .sh-prompt-desc { font-size: 9.5px; color: var(--text-sub); margin-bottom: 6px; }
-  .sh-prompt-box {
-    white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 8.5px; line-height: 1.35; color: var(--text); background: var(--bg);
-    border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px;
-  }
-
-  /* ===== Print ===== */
-  @page { size: A4; margin: 0; }
-  @media print {
-    body { background: #fff; }
-    .app, .sheet-toolbar { display: none !important; }
-    .sheet-container { display: block !important; }
-    .sheet { width: 100%; margin: 0; box-shadow: none; padding: 10mm 12mm 9mm; min-height: auto; page-break-after: always; }
-    .sheet:last-of-type { page-break-after: auto; }
-    .sh-section { break-inside: avoid; }
-  }
 
   @media (max-width: 860px) {
     .app { flex-direction: column; }
@@ -346,371 +173,89 @@
   <nav class="sidebar">
     <div class="logo">
       <div class="logo-mark">R</div>
-      <div class="logo-text">Rimo Voice<small>トライアルロードマップ</small></div>
+      <div class="logo-text">Rimo Voice<small>ヒアリングシート</small></div>
     </div>
-    <button class="nav-step" data-step="0"><span class="num">1</span>現状確認</button>
-    <button class="nav-step" data-step="1"><span class="num">2</span>基本情報・スケジュール</button>
-    <button class="nav-step" data-step="2"><span class="num">3</span>トライアル前提確認</button>
-    <button class="nav-step" data-step="3"><span class="num">4</span>確認したいポイント</button>
     <div class="sidebar-footer">
-      <button class="btn-print-side" onclick="openSheet()">📄 トライアルシート</button>
+      <button class="btn-print-side" onclick="downloadHearingText()">⬇ テキストファイルをダウンロード</button>
     </div>
   </nav>
 
   <main class="main">
 
-    <!-- ========== STEP 1: 現状確認 ========== -->
-    <section class="step-panel" data-panel="0">
-      <div class="step-header">
-        <span class="step-tag">STEP 1</span>
-        <h1>現状確認</h1>
-        <p>現在の会議・議事録まわりの運用を確認させてください。</p>
+    <div class="page-header">
+      <h1>現状確認</h1>
+      <p>現在の会議・議事録まわりの運用を確認させてください。</p>
+    </div>
+
+    <div class="card">
+      <h2>会議環境</h2>
+      <div class="field">
+        <div class="field-label">お使いの会議の実施方法 <span class="hint">複数選択可・2回クリックで「社外から招待されて使うツール」に切替</span></div>
+        <div class="chips" id="meetingTools"></div>
       </div>
-
-      <div class="card">
-        <h2>会議環境</h2>
-        <div class="field">
-          <div class="field-label">お使いの会議の実施方法 <span class="hint">複数選択可・2回クリックで「社外から招待されて使うツール」に切替</span></div>
-          <div class="chips" id="meetingTools"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">現在の議事録作成方法</div>
-          <div class="chips" id="minutesMethod"></div>
-        </div>
-        <div class="field" id="competingToolsWrap" style="display:none;">
-          <div class="field-label">現在お使いのツール <span class="hint">複数選択可</span></div>
-          <div class="chips" id="competingTools"></div>
-          <div id="competingToolsRatings"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">現在お使いのAIエージェント <span class="hint">複数選択可</span></div>
-          <div class="chips" id="aiAgents"></div>
-        </div>
+      <div class="field">
+        <div class="field-label">現在の議事録作成方法</div>
+        <div class="chips" id="minutesMethod"></div>
       </div>
-
-      <div class="card">
-        <h2>打ち合わせの実態</h2>
-        <div class="field">
-          <div class="field-label">実施方法のおおよその割合</div>
-          <div id="meetingStyleSlider"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">社内 / 社外のおおよその割合</div>
-          <div id="meetingScopeSlider"></div>
-        </div>
+      <div class="field" id="competingToolsWrap" style="display:none;">
+        <div class="field-label">現在お使いのツール <span class="hint">複数選択可</span></div>
+        <div class="chips" id="competingTools"></div>
+        <div id="competingToolsRatings"></div>
       </div>
-
-      <div class="card">
-        <h2>打ち合わせごとの議事録作成状況</h2>
-        <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。</div>
-        <div class="matrix-scroll">
-          <table class="matrix-table">
-            <thead>
-              <tr>
-                <th>打ち合わせの種類</th>
-                <th>頻度</th>
-                <th>1回あたりの会議時間</th>
-                <th>議事録作成</th>
-                <th>作成時間（1件あたり）</th>
-              </tr>
-            </thead>
-            <tbody id="meetingMatrixBody"></tbody>
-          </table>
-        </div>
+      <div class="field">
+        <div class="field-label">現在お使いのAIエージェント <span class="hint">複数選択可</span></div>
+        <div class="chips" id="aiAgents"></div>
       </div>
+    </div>
 
-      <div class="card">
-        <h2>議事録の活用状況</h2>
-        <div class="field">
-          <div class="field-label">作成した議事録は現在どのように活用されていますか <span class="hint">複数選択可</span></div>
-          <div class="chips" id="minutesUsage"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">議事録の保管方法 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="minutesStorage"></div>
-        </div>
+    <div class="card">
+      <h2>打ち合わせの実態</h2>
+      <div class="field">
+        <div class="field-label">社内 / 社外のおおよその割合</div>
+        <div id="meetingScopeSlider"></div>
       </div>
-
-      <div class="panel-nav">
-        <span></span>
-        <button class="btn btn-next" onclick="goStep(1)">次へ：基本情報・スケジュール →</button>
+      <div class="field">
+        <div class="field-label">社内の打ち合わせ：Web / 対面のおおよその割合</div>
+        <div id="meetingInternalStyleSlider"></div>
       </div>
-    </section>
-
-    <section class="step-panel" data-panel="1">
-      <div class="step-header">
-        <span class="step-tag">STEP 2</span>
-        <h1>基本情報・トライアルスケジュール</h1>
-        <p>お客様の基本情報と、トライアルの各マイルストーンを設定します。</p>
+      <div class="field">
+        <div class="field-label">社外の打ち合わせ：Web / 対面のおおよその割合</div>
+        <div id="meetingExternalStyleSlider"></div>
       </div>
+    </div>
 
-      <div class="card">
-        <h2>トライアルスケジュール</h2>
-        <div class="field-row">
-          <div class="field">
-            <div class="field-label">トライアル開始日</div>
-            <input type="date" id="dateStart" onchange="S.dateStart=this.value; autoFillDates(); updateAnnounceGap()">
-          </div>
-          <div class="field">
-            <div class="field-label">トライアル終了日</div>
-            <input type="date" id="dateEnd" onchange="S.dateEnd=this.value">
-          </div>
-          <div class="field">
-            <div class="field-label">振り返りMTG</div>
-            <input type="date" id="dateReview" onchange="S.dateReview=this.value">
-          </div>
-        </div>
+    <div class="card">
+      <h2>打ち合わせごとの議事録作成状況</h2>
+      <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。</div>
+      <div class="matrix-scroll">
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>打ち合わせの種類</th>
+              <th>頻度</th>
+              <th>1回あたりの会議時間</th>
+              <th>議事録作成</th>
+              <th>作成時間（1件あたり）</th>
+            </tr>
+          </thead>
+          <tbody id="meetingMatrixBody"></tbody>
+        </table>
       </div>
+    </div>
 
-      <div class="panel-nav">
-        <button class="btn btn-back" onclick="goStep(0)">← 戻る</button>
-        <button class="btn btn-next" onclick="goStep(2)">次へ：トライアル前提確認 →</button>
+    <div class="card">
+      <h2>議事録の活用状況</h2>
+      <div class="field">
+        <div class="field-label">作成した議事録は現在どのように活用されていますか <span class="hint">複数選択可</span></div>
+        <div class="chips" id="minutesUsage"></div>
       </div>
-    </section>
-
-    <!-- ========== STEP 3: トライアル前提確認 ========== -->
-    <section class="step-panel" data-panel="2">
-      <div class="step-header">
-        <span class="step-tag">STEP 3</span>
-        <h1>トライアル前提確認</h1>
-        <p>トライアルを有意義にするための体制を確認します。</p>
+      <div class="field">
+        <div class="field-label">議事録の保管方法 <span class="hint">複数選択可</span></div>
+        <div class="chips" id="minutesStorage"></div>
       </div>
-
-      <div class="card">
-        <h2>社内周知</h2>
-        <div class="field">
-          <div class="field-label">トライアル実施の社内周知のご予定</div>
-          <div class="segmented" data-seg="announce"></div>
-        </div>
-        <div class="field" id="announceDateWrap" style="display:none;">
-          <div class="field-label">周知予定日</div>
-          <input type="date" id="announceDate" style="max-width:220px;" onchange="S.announceDate=this.value; updateAnnounceGap()">
-          <div class="checker-note" id="announceGapNote"></div>
-        </div>
-        <div class="field" id="announceMethodWrap" style="display:none;">
-          <div class="field-label">周知方法 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="announceMethods"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>利用メンバー</h2>
-        <div class="field">
-          <div class="field-label">トライアルで利用予定のメンバー数（おおよそ）</div>
-          <div class="slider-wrap">
-            <input type="range" min="1" max="50" step="1" value="5" id="memberCount"
-              oninput="S.memberCount=+this.value; updateCalc()">
-            <div class="slider-value" id="memberCountVal">5 名</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>活用予定の打ち合わせ・会議</h2>
-        <div class="field">
-          <div class="field-label">トライアル中にRimo Voiceを使う予定の会議 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="targetMeetings"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">その他・補足 <span class="hint">任意</span></div>
-          <input type="text" id="targetMeetingsNote" placeholder="例）毎週月曜の定例、顧客との商談 など" oninput="S.targetMeetingsNote=this.value">
-        </div>
-      </div>
-
-      <div class="panel-nav">
-        <button class="btn btn-back" onclick="goStep(1)">← 戻る</button>
-        <button class="btn btn-next" onclick="goStep(3)">次へ：確認したいポイント →</button>
-      </div>
-    </section>
-
-    <!-- ========== STEP 4: 検証項目 ========== -->
-    <section class="step-panel" data-panel="3">
-      <div class="step-header">
-        <span class="step-tag">STEP 4</span>
-        <h1>トライアルで確認したいポイント</h1>
-        <p>ツール選びの際に皆さまがよく気にされるポイントです。今回のトライアルではどれを確認したいか、一緒に整理させてください。</p>
-      </div>
-
-      <div class="sub-head">確認したいポイント</div>
-
-      <!-- 判断軸: クオリティ -->
-      <div class="verify-card on" id="ax-quality">
-        <div class="verify-head" onclick="toggleAxis('quality')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">議事録作成のクオリティ</div>
-            <div class="vh-sub">文字起こしの精度・要約の質・そのまま使えるか</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="axisPreset-quality"></div>
-          <input type="text" id="axisDetail-quality" placeholder="その他、自由に入力" oninput="S.axisDetail.quality=this.value" style="margin-top:10px;">
-        </div>
-      </div>
-
-      <!-- 判断軸: 使いやすさ -->
-      <div class="verify-card on" id="ax-usability">
-        <div class="verify-head" onclick="toggleAxis('usability')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">使いやすさ</div>
-            <div class="vh-sub">誰でも迷わず使えるか・現場に浸透しそうか</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="axisPreset-usability"></div>
-          <input type="text" id="axisDetail-usability" placeholder="その他、自由に入力" oninput="S.axisDetail.usability=this.value" style="margin-top:10px;">
-        </div>
-      </div>
-
-      <!-- 判断軸: 費用対効果 -->
-      <div class="verify-card" id="ax-cost">
-        <div class="verify-head" onclick="toggleAxis('cost')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">費用対効果</div>
-            <div class="vh-sub">軽減できる手間と料金のバランス感</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <input type="text" id="axisDetail-cost" placeholder="例）他社ツールとの総額比較、稟議に必要な資料 など" oninput="S.axisDetail.cost=this.value">
-        </div>
-      </div>
-
-      <!-- 判断軸: セキュリティ -->
-      <div class="verify-card" id="ax-security">
-        <div class="verify-head" onclick="toggleAxis('security')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">セキュリティ</div>
-            <div class="vh-sub">データの取り扱い・社内ルールへの適合</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field-label">よくある確認項目 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="axisPreset-security"></div>
-          <input type="text" id="axisDetail-security" placeholder="その他、自由に入力" oninput="S.axisDetail.security=this.value" style="margin-top:10px;">
-        </div>
-      </div>
-
-      <!-- 判断軸: その他 -->
-      <div class="verify-card" id="ax-other">
-        <div class="verify-head" onclick="toggleAxis('other')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">その他の観点</div>
-            <div class="vh-sub">上記以外に気にされている点があればお聞かせください</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <input type="text" id="axisOther" placeholder="例）多言語対応、既存ツールとの連携 など" oninput="S.axisOther=this.value">
-        </div>
-      </div>
-
-      <div class="sub-head">トライアルで試してみたい使い方</div>
-
-      <!-- 1: 稼働軽減 -->
-      <div class="verify-card on" id="vc-workload">
-        <div class="verify-head" onclick="toggleVerify('workload')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">① 議事録作成の手間の軽減</div>
-            <div class="vh-sub">議事録作成にかかる時間・手間がどれだけ軽くなるか</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2: AI機能 -->
-      <div class="verify-card on" id="vc-ai">
-        <div class="verify-head" onclick="toggleVerify('ai')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">② 議事録内のAI機能の活用</div>
-            <div class="vh-sub">AIの機能が実務のどこに活きるか</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field">
-            <div class="field-label">活用したいAI機能 <span class="hint">複数選択可</span></div>
-            <div class="chips" id="aiFeatures"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3: 共有・展開 -->
-      <div class="verify-card on" id="vc-sharing">
-        <div class="verify-head" onclick="toggleVerify('sharing')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">③ 議事録の共有・展開</div>
-            <div class="vh-sub">関係者への共有がどれだけスムーズになるか</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field">
-            <div class="field-label">想定する共有シーン <span class="hint">複数選択可</span></div>
-            <div class="chips" id="sharingScenes"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4: RAG検索 -->
-      <div class="verify-card" id="vc-rag">
-        <div class="verify-head" onclick="toggleVerify('rag')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">④ RAG検索（過去議事録の横断検索・AIへの質問）</div>
-            <div class="vh-sub">蓄積した議事録をナレッジとして引き出せるか</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field">
-            <div class="field-label">想定する利用シーン <span class="hint">複数選択可</span></div>
-            <div class="chips" id="ragScenes"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5: 副次効果 -->
-      <div class="verify-card" id="vc-side">
-        <div class="verify-head" onclick="toggleVerify('side')">
-          <div class="toggle"></div>
-          <div>
-            <div class="vh-title">⑤ その他の副次効果</div>
-            <div class="vh-sub">稼働削減以外に期待する効果</div>
-          </div>
-        </div>
-        <div class="verify-body">
-          <div class="field">
-            <div class="field-label">期待する効果 <span class="hint">複数選択可</span></div>
-            <div class="chips" id="sideEffects"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-nav">
-        <button class="btn btn-back" onclick="goStep(2)">← 戻る</button>
-        <button class="btn btn-next" onclick="openSheet()">📄 トライアルシートを確認 →</button>
-      </div>
-    </section>
+    </div>
 
   </main>
-</div>
-
-<!-- ==================== SHEET (PDF) ==================== -->
-<div class="sheet-container">
-  <div class="sheet-toolbar">
-    <span class="tb-title">トライアルシート プレビュー — このままPDF保存できます</span>
-    <div class="tb-actions">
-      <button class="tb-back" onclick="closeSheet()">← 編集に戻る</button>
-      <button class="tb-pdf" onclick="window.print()">PDFとして保存 / 印刷</button>
-    </div>
-  </div>
-  <div class="sheet" id="sheetBody"><!-- JSで生成：1枚目 ロードマップ --></div>
-  <div class="sheet" id="sheetPrompt"><!-- JSで生成：2枚目 社内周知用プロンプト --></div>
-  <div class="sheet" id="sheetBody2"><!-- JSで生成：3枚目 振り返り用 --></div>
 </div>
 
 <script>
@@ -718,28 +263,14 @@
    State
 ============================================================ */
 const S = {
-  dateStart: "", dateEnd: "", dateReview: "",
-  meetingToolStatus: {}, meetingToolsOther: "",
+  meetingToolStatus: {},
   minutesMethod: [],
   competingTools: [], competingToolRatings: {}, competingToolIssues: {},
-  meetingWebPct: 50, meetingInternalPct: 50,
+  meetingInternalPct: 50, meetingInternalWebPct: 50, meetingExternalWebPct: 50,
   meetingDetail: {},
   minutesUsage: [], minutesStorage: [],
-  announce: "", announceDate: "", announceMethods: [],
-  memberCount: 5,
-  targetMeetings: [], targetMeetingsNote: "",
-  axes: { quality: true, usability: true, cost: false, security: false, other: false },
-  axisOther: "",
-  axisDetail: { quality: "", usability: "", cost: "", security: "" },
-  axisPresetQuality: [], axisPresetUsability: [], axisPresetSecurity: [],
-  aiAgents: [],
-  verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
-  aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
+  aiAgents: []
 };
-
-const AXIS_LABELS = { quality: "議事録作成のクオリティ", usability: "使いやすさ", cost: "費用対効果", security: "セキュリティ", other: "その他" };
-const SECURITY_GUIDE_URL = "https://guide.rimo.app/ja/articles/8847459-%E3%82%BB%E3%82%AD%E3%83%A5%E3%83%AA%E3%83%86%E3%82%A3%E5%AF%BE%E7%AD%96%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6";
-const ONBOARDING_GUIDE_URL = "https://rimo-onboarding-guide.vercel.app/";
 
 /* ============================================================
    Option definitions
@@ -752,19 +283,7 @@ const OPTIONS = {
   minutesUsage: ["関係者への共有", "タスク・ToDo管理", "上長への報告", "その他"],
   minutesStorage: ["ローカル（PC内）に保管", "クラウドストレージ（Google Drive/SharePoint等）", "社内Wiki（Notion等）", "メール・チャットで共有のみ", "紙で保管", "特にルールなし"],
   aiAgents: ["ChatGPT", "Copilot", "Claude", "Gemini", "内製ツール", "その他", "使っていない"],
-  qualityPoints: ["固有名詞・専門用語の認識精度", "話者分離の精度", "要約がそのまま使えるか", "方言・訛りへの対応"],
-  usabilityPoints: ["操作の直感性", "ITリテラシーが高くない人でも使えるか", "会議への参加・Botの動作", "アプリ/ブラウザの使い勝手"],
-  securityPoints: ["データの保管場所（国内/海外）", "ISO27001等の認証有無", "AI学習利用の有無", "アクセス権限管理"],
-  announceMethods: ["社内定例で周知", "個別に関係者へ周知", "社内チャット等で周知", "その他"],
-  meetingTypes: ["全社ミーティング", "部内ミーティング", "チーム内ミーティング", "役員・経営会議", "取引先との打ち合わせ（商談含む）", "その他"],
-  aiFeatures: ["アクション整理", "決定事項・ToDoの抽出", "話者ごとの発言整理", "AIのWeb検索との組み合わせ"],
-  sharingScenes: ["共有リンクでの即時展開", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
-  ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
-  sideEffects: ["会議への集中度向上（メモ不要）", "情報共有のスピード向上", "教育・OJTへの活用", "会議に出なくても内容把握", "発言の抜け漏れ防止"]
-};
-
-const SEGMENTS = {
-  announce: ["周知済み", "周知予定あり", "未定"]
+  meetingTypes: ["全社ミーティング", "部内ミーティング", "チーム内ミーティング", "役員・経営会議", "取引先との打ち合わせ（商談含む）", "その他"]
 };
 
 /* ============================================================
@@ -817,29 +336,6 @@ function meetingToolsDisplay() {
   return Object.keys(S.meetingToolStatus).map(t =>
     S.meetingToolStatus[t] === "external" ? `${t}（社外から招待）` : t
   );
-}
-
-function buildSegmented() {
-  document.querySelectorAll("[data-seg]").forEach(wrap => {
-    const key = wrap.dataset.seg;
-    SEGMENTS[key].forEach(opt => {
-      const b = document.createElement("button");
-      b.textContent = opt;
-      b.onclick = () => {
-        S[key] = (S[key] === opt) ? "" : opt;
-        wrap.querySelectorAll("button").forEach(x => x.classList.remove("selected"));
-        if (S[key]) b.classList.add("selected");
-        if (key === "announce") {
-          document.getElementById("announceDateWrap").style.display =
-            (S.announce === "周知予定あり") ? "block" : "none";
-          document.getElementById("announceMethodWrap").style.display =
-            (S.announce === "周知済み" || S.announce === "周知予定あり") ? "block" : "none";
-          updateAnnounceGap();
-        }
-      };
-      wrap.appendChild(b);
-    });
-  });
 }
 
 function buildCompetingChips() {
@@ -940,7 +436,7 @@ function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel) {
 
 function ensureMeetingDetail(type) {
   if (!S.meetingDetail[type]) {
-    S.meetingDetail[type] = { freqUnit: "week", freqCount: 1, duration: 30, makes: "", perDoc: 30, perDocVaries: false };
+    S.meetingDetail[type] = { freqUnit: "week", freqCount: 0, duration: 30, makes: "", perDoc: 30, perDocVaries: false };
   }
   return S.meetingDetail[type];
 }
@@ -956,7 +452,6 @@ function miniSlider(min, max, step, value, unit, onChange) {
   input.oninput = () => {
     onChange(+input.value);
     val.textContent = `${input.value}${unit}`;
-    updateCalc();
   };
   sw.appendChild(input); sw.appendChild(val);
   return sw;
@@ -974,13 +469,12 @@ function buildMxFreqCell(d) {
     b.onclick = () => {
       d.freqUnit = key;
       renderMeetingMatrix();
-      updateCalc();
     };
     seg.appendChild(b);
   });
   wrap.appendChild(seg);
   if (d.freqUnit === "week" || d.freqUnit === "month") {
-    wrap.appendChild(miniSlider(1, 20, 1, d.freqCount, "件", v => { d.freqCount = v; }));
+    wrap.appendChild(miniSlider(0, 20, 1, d.freqCount, "件", v => { d.freqCount = v; }));
   }
   return wrap;
 }
@@ -1004,7 +498,6 @@ function buildMxMakesCell(d) {
     b.onclick = () => {
       d.makes = (d.makes === opt) ? "" : opt;
       renderMeetingMatrix();
-      updateCalc();
     };
     seg.appendChild(b);
   });
@@ -1024,7 +517,6 @@ function buildMxTimeCell(d) {
     b.onclick = () => {
       d.perDocVaries = variesVal;
       renderMeetingMatrix();
-      updateCalc();
     };
     seg.appendChild(b);
   });
@@ -1055,17 +547,17 @@ function renderMeetingMatrix() {
 
     const tdDur = document.createElement("td");
     if (applicable) tdDur.appendChild(buildMxDurationCell(d));
-    else tdDur.innerHTML = `<span class="sh-empty">―</span>`;
+    else tdDur.innerHTML = `<span class="mx-empty">―</span>`;
     tr.appendChild(tdDur);
 
     const tdMakes = document.createElement("td");
     if (applicable) tdMakes.appendChild(buildMxMakesCell(d));
-    else tdMakes.innerHTML = `<span class="sh-empty">―</span>`;
+    else tdMakes.innerHTML = `<span class="mx-empty">―</span>`;
     tr.appendChild(tdMakes);
 
     const tdTime = document.createElement("td");
     if (applicable && d.makes === "作成する") tdTime.appendChild(buildMxTimeCell(d));
-    else tdTime.innerHTML = `<span class="sh-empty">―</span>`;
+    else tdTime.innerHTML = `<span class="mx-empty">―</span>`;
     tr.appendChild(tdTime);
 
     tbody.appendChild(tr);
@@ -1073,60 +565,8 @@ function renderMeetingMatrix() {
 }
 
 /* ============================================================
-   Interactions
+   集計・表示用ヘルパー
 ============================================================ */
-function goStep(n) {
-  document.querySelectorAll(".step-panel").forEach(p => p.classList.toggle("active", +p.dataset.panel === n));
-  document.querySelectorAll(".nav-step").forEach(b => b.classList.toggle("active", +b.dataset.step === n));
-  window.scrollTo({ top: 0 });
-}
-
-function toggleVerify(key) {
-  S.verify[key] = !S.verify[key];
-  document.getElementById("vc-" + key).classList.toggle("on", S.verify[key]);
-}
-
-function toggleAxis(key) {
-  S.axes[key] = !S.axes[key];
-  document.getElementById("ax-" + key).classList.toggle("on", S.axes[key]);
-}
-
-function fmtLocalISO(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
-function autoFillDates() {
-  // 開始日から終了日・振り返り(いずれも+7日)を自動提案（未入力時のみ）
-  if (!S.dateStart) return;
-  const base = new Date(S.dateStart + "T00:00:00");
-  const fmt = fmtLocalISO;
-  if (!S.dateEnd) {
-    const d = new Date(base); d.setDate(d.getDate() + 7);
-    S.dateEnd = fmt(d); document.getElementById("dateEnd").value = S.dateEnd;
-  }
-  if (!S.dateReview) {
-    const d = new Date(base); d.setDate(d.getDate() + 7);
-    S.dateReview = fmt(d); document.getElementById("dateReview").value = S.dateReview;
-  }
-}
-
-function updateAnnounceGap() {
-  const note = document.getElementById("announceGapNote");
-  if (!note) return;
-  if (!S.announceDate) { note.textContent = ""; return; }
-  if (!S.dateStart) { note.textContent = "※ トライアル開始日が未設定です（先にSTEP1で設定してください）"; return; }
-  const gapDays = Math.round(
-    (new Date(S.dateStart + "T00:00:00") - new Date(S.announceDate + "T00:00:00")) / 86400000
-  );
-  if (gapDays < 0) {
-    note.textContent = `⚠ 周知予定日がトライアル開始日より ${-gapDays}日後になっています。開始日の調整をご検討ください。`;
-  } else if (gapDays === 0) {
-    note.textContent = "周知予定日とトライアル開始日が同日です。";
-  } else {
-    note.textContent = `周知からトライアル開始まで ${gapDays}日あります。`;
-  }
-}
-
 function monthlyHours() {
   let totalMinutes = 0;
   for (const type of OPTIONS.meetingTypes) {
@@ -1148,21 +588,18 @@ function timeLabel(d) {
   return d.perDocVaries ? "1件あたりの時間はばらばら" : `1件あたり約${d.perDoc}分`;
 }
 
-function updateCalc() {
-  document.getElementById("memberCountVal").textContent = S.memberCount + " 名";
+// OPTIONS.meetingTypes / S.meetingDetail から「作成する／しない」の実データ行を作る
+// 頻度が「なし」の種類（該当なし）は両方から除外する
+function getMeetingPurposeRows() {
+  const makes = [], notMakes = [];
+  OPTIONS.meetingTypes.forEach(type => {
+    const d = S.meetingDetail[type];
+    if (!d || d.freqUnit === "none") return;
+    if (d.makes === "作成する") makes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
+    else if (d.makes === "作成しない") notMakes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration });
+  });
+  return { makes, notMakes };
 }
-
-/* ============================================================
-   Sheet generation
-============================================================ */
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const val = (v, empty = "―") => v ? esc(v) : `<span class="sh-empty">${empty}</span>`;
-const list = (arr, empty = "―") => arr.length ? esc(arr.join("、")) : `<span class="sh-empty">${empty}</span>`;
-const fmtDate = d => {
-  if (!d) return "";
-  const [y, m, dd] = d.split("-");
-  return `${y}/${+m}/${+dd}`;
-};
 
 /* ============================================================
    現状の課題 → あるべき姿 の自動合成（ルールベース）
@@ -1209,32 +646,11 @@ function buildInsights(cur) {
     push(topic, priority, issueFn(toolsByIssue[issue].join("・")), ideal, howTo);
   });
 
-  if (S.minutesUsage.length && (S.minutesUsage.includes("ほぼ活用できていない") || !S.minutesUsage.includes("ナレッジとして蓄積"))) {
-    push("knowledge", 7,
-      "作成した議事録が個人のメモで終わり、組織のナレッジになっていない",
-      "過去の議事録を横断的に検索し、意思決定や引き継ぎに活用できている状態",
-      "RAG検索で必要な情報をすぐに引き出せるか試す");
-  }
-
   if (S.minutesUsage.length && !S.minutesUsage.includes("関係者への共有")) {
     push("sharing", 7,
       "議事録の共有に手間がかかり、関係者・欠席者への展開が遅れがち",
       "会議の内容が即座に関係者へ届き、欠席者もすぐ追いつける状態",
       "共有リンクでの即時展開や欠席者向け共有を試す");
-  }
-
-  if (S.axes.cost) {
-    push("cost", 6,
-      "効果が数字で見えておらず、費用対効果の判断材料が不足している",
-      "削減できた時間・効果を実感値として説明できる状態",
-      "トライアルで実際の稼働削減を数値化する");
-  }
-
-  if (S.axes.security) {
-    push("security", 6,
-      "セキュリティ・データ取り扱いへの懸念で、導入検討が進めにくい",
-      "セキュリティ要件を確認し、安心して検討を前に進められる状態",
-      "セキュリティ対策資料をもとに、社内確認を並行して進める");
   }
 
   const byTopic = {};
@@ -1244,357 +660,97 @@ function buildInsights(cur) {
   return Object.values(byTopic).sort((a, b) => b.priority - a.priority).slice(0, 3);
 }
 
-function axisDetailText(key) {
-  if (key === "other") return S.axisOther;
-  const presetMap = { quality: S.axisPresetQuality, usability: S.axisPresetUsability, security: S.axisPresetSecurity };
-  const presets = presetMap[key] || [];
-  const combined = [...presets];
-  if (S.axisDetail[key]) combined.push(S.axisDetail[key]);
-  return combined.join("、");
-}
-
-function getAxisRows() {
-  return Object.keys(AXIS_LABELS)
-    .filter(k => S.axes[k])
-    .map(k => {
-      const detail = axisDetailText(k);
-      return detail ? `${AXIS_LABELS[k]}（${detail}）` : AXIS_LABELS[k];
-    });
-}
-
-function getVerifyRows() {
-  const rows = [];
-  if (S.verify.workload) rows.push({ name: "議事録作成の手間", desc: "作成にかかる時間・手間がどれだけ軽くなるか" });
-  if (S.verify.ai) rows.push({ name: "AI機能の活用", desc: (S.aiFeatures.length ? S.aiFeatures.join("、") + " が" : "AIの機能が") + "実際の業務で使えるか" });
-  if (S.verify.sharing) rows.push({ name: "議事録の共有", desc: (S.sharingScenes.length ? S.sharingScenes.join("、") + " で、" : "") + "関係者への共有がスムーズになるか" });
-  if (S.verify.rag) rows.push({ name: "過去議事録の検索（RAG検索）", desc: (S.ragScenes.length ? S.ragScenes.join("、") + " の場面で、" : "") + "蓄積した議事録から必要な情報を探し出せるか" });
-  if (S.verify.side) rows.push({ name: "その他の効果", desc: (S.sideEffects.length ? S.sideEffects.join("、") : "期待する効果") + " を感じられるか" });
-  return rows;
-}
-
-// OPTIONS.meetingTypes / S.meetingDetail から「作成する／しない」の実データ行を作る（プロンプト・シート共通）
-// 頻度が「なし」の種類（該当なし）は両方から除外する
-function getMeetingPurposeRows() {
-  const makes = [], notMakes = [];
-  OPTIONS.meetingTypes.forEach(type => {
-    const d = S.meetingDetail[type];
-    if (!d || d.freqUnit === "none") return;
-    if (d.makes === "作成する") makes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
-    else if (d.makes === "作成しない") notMakes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration });
-  });
-  return { makes, notMakes };
-}
-
-function renderSheet() {
-  const cur = monthlyHours();
-  const insights = buildInsights(cur);
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
-
-  // ---- 現状：打ち合わせと議事録の整理 ----
-  const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}）`);
-  const noMakesRows = meetingNotMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・会議${m.duration}分）`);
-
-  const styleParts = [
-    `Web ${S.meetingWebPct}%／対面 ${100 - S.meetingWebPct}%`,
-    `社内 ${S.meetingInternalPct}%／社外 ${100 - S.meetingInternalPct}%`
-  ];
-
-  const competingRows = S.competingTools.map(t => {
-    const rating = S.competingToolRatings[t] || "";
-    const issues = (S.competingToolIssues[t] || []).join("、");
-    let detail = rating;
-    if (rating && issues) detail = `${rating}：${issues}`;
-    return `${esc(t)}${detail ? "（" + esc(detail) + "）" : ""}`;
-  });
-
-  // ---- 社内周知 ----
-  const methods = S.announceMethods.join("、");
-  let announceCell;
-  if (S.announce === "周知済み") {
-    announceCell = "周知済み" + (methods ? `（${esc(methods)}）` : "");
-  } else if (S.announce === "周知予定あり") {
-    announceCell = (S.announceDate ? fmtDate(S.announceDate) + " に周知予定" : "周知予定あり") + (methods ? `（${esc(methods)}）` : "");
-  } else {
-    announceCell = val(S.announce, "未定");
-  }
-
-  // ---- 確認するポイント ----
-  const axisRows = getAxisRows();
-  const verifyRows = getVerifyRows();
-
-  document.getElementById("sheetBody").innerHTML = `
-    <div class="sh-header">
-      <div>
-        <h1>トライアルロードマップ</h1>
-        <div class="sh-sub">作成日：${todayStr}</div>
-      </div>
-      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
-    </div>
-
-    ${insights.length ? `
-    <div class="sh-section sh-insights">
-      <h2>現状の課題とめざす姿</h2>
-      ${insights.map(i => `
-      <div class="insight-card">
-        <div class="insight-top">
-          <div class="ins-col ins-issue"><span class="ins-label">現状の課題</span>${esc(i.issue)}</div>
-          <div class="ins-arrow">→</div>
-          <div class="ins-col ins-ideal"><span class="ins-label">めざす姿</span>${esc(i.ideal)}</div>
-        </div>
-        <div class="ins-howto"><b>Rimoでの試しかた：</b>${esc(i.howTo)}</div>
-      </div>`).join("")}
-    </div>` : ""}
-
-    <div class="sh-section">
-      <h2>1. トライアルの日程</h2>
-      <div class="sh-schedule">
-        <div class="sh-step">
-          <div class="st-name">トライアル開始日</div>
-          <div class="st-date">${val(fmtDate(S.dateStart), "未定")}</div>
-        </div>
-        <div class="sh-step">
-          <div class="st-name">トライアル終了日</div>
-          <div class="st-date">${val(fmtDate(S.dateEnd), "未定")}</div>
-        </div>
-        <div class="sh-step">
-          <div class="st-name">振り返りMTG</div>
-          <div class="st-date">${val(fmtDate(S.dateReview), "未定")}</div>
-        </div>
-      </div>
-      <div class="sh-guide">
-        <span class="g-icon">📖</span>
-        <div>
-          <div class="g-title">使い方は「RimoVoice はじめてガイド」をご覧ください（5ステップ・約8分）</div>
-          <div class="g-desc">ログイン〜議事録の作成・共有・活用までを画面つきでご案内しています。</div>
-          <a href="${ONBOARDING_GUIDE_URL}">はじめてガイドを開く ▸</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="sh-section">
-      <h2>2. 議事録まわりの現状</h2>
-      <table class="sh-table">
-        <tr><th>利用中の会議ツール</th><td>${list(meetingToolsDisplay())}</td></tr>
-        <tr><th>打ち合わせの形式</th><td>${styleParts.map(esc).join("<br>")}</td></tr>
-        <tr><th>現在の議事録の作り方</th><td>${list(S.minutesMethod)}</td></tr>
-        ${competingRows.length ? `<tr><th>利用中の文字起こし/議事録ツール</th><td>${competingRows.join("、")}<div class="sh-hint">※ かっこ内は現在感じている評価</div></td></tr>` : ""}
-        ${S.aiAgents.length ? `<tr><th>現在お使いのAIエージェント</th><td>${list(S.aiAgents)}</td></tr>` : ""}
-        ${makesRows.length ? `<tr><th>議事録を作成している打ち合わせ</th><td>${makesRows.join("<br>")}</td></tr>` : ""}
-        ${noMakesRows.length ? `<tr><th>議事録を作成していない打ち合わせ</th><td>${noMakesRows.join("<br>")}</td></tr>` : ""}
-        ${cur > 0 ? `<tr><th>議事録作成にかかっている時間</th><td><b>約 ${cur} 時間/月</b>（作成している打ち合わせの合計・概算）</td></tr>` : ""}
-        <tr><th>作成した議事録の使われ方</th><td>${list(S.minutesUsage)}</td></tr>
-        <tr><th>議事録の保管場所</th><td>${list(S.minutesStorage)}</td></tr>
-      </table>
-    </div>
-
-    <div class="sh-section">
-      <h2>3. トライアルの進め方</h2>
-      <table class="sh-table">
-        <tr><th>社内への周知</th><td>${announceCell}</td></tr>
-        <tr><th>トライアルで利用するメンバー</th><td>約 ${S.memberCount} 名</td></tr>
-        <tr><th>Rimo Voice を使う予定の打ち合わせ</th><td>${list(S.targetMeetings)}${S.targetMeetingsNote ? "<br>" + esc(S.targetMeetingsNote) : ""}</td></tr>
-      </table>
-    </div>
-
-    <div class="sh-section">
-      <h2>4. トライアルで確認するポイント</h2>
-      <table class="sh-table">
-        <tr><th>ツール選定で重視するポイント</th><td>${axisRows.length ? esc(axisRows.join("、")) : `<span class="sh-empty">―</span>`}</td></tr>
-        ${verifyRows.map(r => `<tr><th>${r.name}</th><td>${esc(r.desc)}</td></tr>`).join("")}
-      </table>
-      ${S.axes.security ? `<div class="sh-note">セキュリティ対策の詳細は <a href="${SECURITY_GUIDE_URL}">Rimo公式ヘルプ「セキュリティ対策について」</a> をご覧ください。</div>` : ""}
-    </div>
-
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（1/3）</div>
-  `;
-
-  // ===== 2枚目: 振り返りシート（質問リスト） =====
-  const feelQ = [];
-  if (S.axes.quality) feelQ.push({ t: `文字起こしや要約の精度は、いかがでしたか${axisDetailText("quality") ? `（${axisDetailText("quality")}）` : ""}`, s: "固有名詞・専門用語の変換、そのまま使えたか など" });
-  if (S.axes.usability) feelQ.push({ t: `操作で迷ったところは、ありませんでしたか${axisDetailText("usability") ? `（${axisDetailText("usability")}）` : ""}`, s: "録音の開始、共有のしかた など" });
-  if (S.verify.workload) feelQ.push({ t: "議事録作成の時間・手間は、軽くなりましたか", s: "" });
-  if (S.verify.ai) feelQ.push({ t: "AIの機能は、業務で使えそうでしたか", s: S.aiFeatures.join("、") });
-  if (S.verify.sharing) feelQ.push({ t: "議事録の共有は、スムーズでしたか", s: S.sharingScenes.join("、") });
-  if (S.verify.rag) feelQ.push({ t: "過去の議事録の検索（RAG検索）は、役立ちそうでしたか", s: S.ragScenes.join("、") });
-  if (S.verify.side) feelQ.push({ t: "その他に感じられた効果は、ありましたか", s: S.sideEffects.join("、") });
-  if (S.axes.cost) feelQ.push({ t: `手間の軽減と料金のバランスは、どう感じられましたか${S.axisDetail.cost ? `（${S.axisDetail.cost}）` : ""}`, s: "" });
-  if (S.axes.security) feelQ.push({ t: `セキュリティ面で、社内確認が必要そうな点はありましたか${axisDetailText("security") ? `（${axisDetailText("security")}）` : ""}`, s: "", link: SECURITY_GUIDE_URL, linkLabel: "セキュリティ対策について（Rimo公式ヘルプ）" });
-  if (S.axes.other) feelQ.push({ t: `その他${S.axisOther ? `（${S.axisOther}）` : "に気にされていた点"}は、いかがでしたか`, s: "" });
-
-  const nextQ = [
-    { t: "続けてお使いいただくイメージは、持てそうでしょうか", s: "どんな場面・打ち合わせで使えそうか" },
-    { t: "お使いいただくとしたら、時期・部署・人数はどのくらいになりそうですか", s: "" },
-    { t: "社内でご検討いただく場合、どなたのご確認や、どのような手続きが必要になりそうですか", s: "" },
-    { t: "ご検討中のプランやご希望は、ありますか", s: "ご利用の時間・人数に合わせてご提案します" }
-  ];
-
-  const qBlock = (q, i) => `
-    <div class="rv-q">
-      <span class="rv-num">${String(i + 1).padStart(2, "0")}</span>
-      <div>
-        <div class="rv-t">${esc(q.t)}</div>
-        ${q.s ? `<div class="rv-s">${esc(q.s)}</div>` : ""}
-        ${q.link ? `<div class="rv-s"><a href="${q.link}">${esc(q.linkLabel)}</a></div>` : ""}
-      </div>
-    </div>`;
-
-  // ===== 2枚目: 社内周知用プロンプト =====
-  document.getElementById("sheetPrompt").innerHTML = `
-    <div class="sh-header">
-      <div>
-        <h1>社内周知用プロンプト</h1>
-        <div class="sh-sub">AIに貼り付けると、トライアル実施を社内に伝える案内文のたたき台が作れます</div>
-      </div>
-      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
-    </div>
-    <div class="sh-lead">トライアルを始める前に、対象メンバーへ趣旨を伝え、協力をお願いする文章を作る際にお使いください。そのままAIに貼り付けてご利用いただけます。</div>
-    <pre class="sh-prompt-box">${esc(buildProposalPrompt())}</pre>
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（2/3）</div>
-  `;
-
-  document.getElementById("sheetBody2").innerHTML = `
-    <div class="sh-header">
-      <div>
-        <h1>トライアル振り返りシート</h1>
-        <div class="sh-sub">※ このページは振り返りの際に使用します</div>
-      </div>
-      <div class="sh-brand">Rimo Voice<small>Rimo LLC</small></div>
-    </div>
-    <div class="sh-lead">トライアル終了後の振り返りでは、実際に使っていただいた感想を以下の質問に沿って伺います（記入は不要です。口頭でお聞かせください）。</div>
-
-    <div class="sh-section">
-      <h2>1. 使ってみて、どうでしたか</h2>
-      ${feelQ.map(qBlock).join("")}
-    </div>
-
-    <div class="sh-section">
-      <h2>2. これからのご相談</h2>
-      ${nextQ.map(qBlock).join("")}
-    </div>
-
-    <div class="sh-footer">Rimo Voice トライアルロードマップ — Rimo LLC　（3/3）</div>
-  `;
-}
-
 /* ============================================================
-   社内提案用プロンプト
+   テキストファイル出力
 ============================================================ */
-function buildProposalPrompt() {
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+}
+
+function buildHearingText() {
   const cur = monthlyHours();
   const insights = buildInsights(cur);
-  const axisRows = getAxisRows();
-  const verifyRows = getVerifyRows();
+  const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
   const lines = [];
 
-  lines.push("あなたは、社内向けの案内文・企画書の作成を支援するアシスタントです。");
-  lines.push("以下は、AI議事録サービス「Rimo Voice」のトライアルを実施するにあたっての情報です。これからトライアルを始めることを社内に周知し、対象メンバーの理解と協力を得るための文章（社内アナウンス）のたたき台を作成してください。");
-  lines.push("目的は、トライアルの意義を伝え、実施そのものを推進しやすくすることです（トライアル後の結果報告や本導入の稟議のためのものではありません）。");
-  lines.push("なぜ・いつ・誰が・何を・どのように（5W1H）を網羅し、読み手が迷わない構成にしてください。文字の羅列だけでなく、表やマトリクスにした方が伝わる箇所（打ち合わせ種類ごとの想定活用シーン、実施手順、スケジュールなど）は、積極的に表形式で整理してください。");
-  lines.push("重要：以下に記載のない具体的な事実・数値・固有名詞（担当者名、部署名、社内制度名など）を作り出さないでください。情報がない箇所は「要確認」「別途ご案内」のように、断定しない表現に留めてください。");
-  lines.push("");
-
-  lines.push("【Rimo Voiceのサービス概要（事実として使ってください）】");
-  lines.push("- 日本語に特化した高精度な音声認識エンジンをベースにしたAI議事録・文字起こしサービス");
-  lines.push("- オンライン・対面を問わず利用でき、会議や商談をもれなく議事録として生成できる");
-  lines.push("- 音声・動画・文字起こし・要約（議事録）が1つの画面に統合されており、議事録の該当箇所をクリックすると、その場面の音声・動画が連動して再生される");
-  lines.push("- 蓄積した議事録をもとにAIへ質問したり、複数の議事録を横断して検索したりでき、単なる記録ツールではなく組織のナレッジプラットフォームとして活用できる");
+  lines.push("Rimo Voice ヒアリングシート");
+  lines.push(`作成日：${todayStr()}`);
   lines.push("");
 
   if (insights.length) {
-    lines.push("【トライアルを行う背景・課題（なぜ）】");
+    lines.push("■ 現状の課題とめざす姿");
     insights.forEach(i => {
-      lines.push(`- 課題：${i.issue}`);
-      lines.push(`  めざす姿：${i.ideal}`);
-      lines.push(`  Rimoでの試しかた：${i.howTo}`);
+      lines.push(`・課題：${i.issue}`);
+      lines.push(`　めざす姿：${i.ideal}`);
+      lines.push(`　Rimoでの試しかた：${i.howTo}`);
     });
     lines.push("");
   }
 
-  if (cur > 0) {
-    lines.push("【参考：現状の議事録作成にかかっている時間】");
-    lines.push(`月あたり約 ${cur} 時間`);
-    lines.push("");
-  }
-
+  lines.push("■ 会議環境");
+  lines.push(`利用中の会議ツール：${meetingToolsDisplay().join("、") || "―"}`);
+  lines.push(`現在の議事録作成方法：${S.minutesMethod.join("、") || "―"}`);
   if (S.competingTools.length) {
-    lines.push("【現在利用中のツールと課題】");
-    S.competingTools.forEach(t => {
+    const toolLines = S.competingTools.map(t => {
       const rating = S.competingToolRatings[t] || "";
       const issues = (S.competingToolIssues[t] || []).join("、");
-      lines.push(`- ${t}${rating ? `（評価：${rating}）` : ""}${issues ? ` 気になる点：${issues}` : ""}`);
+      const detail = rating && issues ? `${rating}：${issues}` : rating;
+      return `${t}${detail ? `（${detail}）` : ""}`;
     });
-    lines.push("");
+    lines.push(`利用中の文字起こし/議事録ツール：${toolLines.join("、")}`);
   }
-
-  lines.push("【トライアルの実施期間（いつ）】");
-  lines.push(`開始日：${S.dateStart ? fmtDate(S.dateStart) : "未定"} ／ 終了日：${S.dateEnd ? fmtDate(S.dateEnd) : "未定"} ／ Rimo社との振り返りMTG：${S.dateReview ? fmtDate(S.dateReview) : "未定"}`);
-  lines.push("（振り返りMTGは、社内メンバー間ではなく、Rimo社を交えて実施するものです）");
+  lines.push(`現在お使いのAIエージェント：${S.aiAgents.join("、") || "―"}`);
   lines.push("");
 
-  lines.push("【対象者（誰が）】");
-  lines.push(`利用予定メンバー：約 ${S.memberCount} 名`);
-  if (S.targetMeetings.length) {
-    lines.push(`対象になりそうな打ち合わせ：${S.targetMeetings.join("、")}${S.targetMeetingsNote ? `（${S.targetMeetingsNote}）` : ""}`);
-  }
+  lines.push("■ 打ち合わせの実態");
+  lines.push(`社内 ${S.meetingInternalPct}%／社外 ${100 - S.meetingInternalPct}%`);
+  lines.push(`社内の打ち合わせ：Web ${S.meetingInternalWebPct}%／対面 ${100 - S.meetingInternalWebPct}%`);
+  lines.push(`社外の打ち合わせ：Web ${S.meetingExternalWebPct}%／対面 ${100 - S.meetingExternalWebPct}%`);
   lines.push("");
 
-  lines.push("【実施方法・利用開始の手順（どのように）】");
-  lines.push("- 対象メンバーへアカウント招待メールを送付する");
-  lines.push("- 招待メールを受け取ったメンバーは、案内に沿ってアカウント登録を行う");
-  lines.push(`- 下記の「はじめてガイド」を見ながら、会議での録音・議事録の作成を始める（${ONBOARDING_GUIDE_URL}）`);
+  lines.push("■ 打ち合わせごとの議事録作成状況");
+  if (meetingMakes.length) {
+    lines.push("［議事録を作成している］");
+    meetingMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}`));
+  }
+  if (meetingNotMakes.length) {
+    lines.push("［議事録を作成していない］");
+    meetingNotMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分`));
+  }
+  if (!meetingMakes.length && !meetingNotMakes.length) lines.push("―");
+  if (cur > 0) lines.push(`議事録作成にかかっている時間：約${cur}時間/月（作成している打ち合わせの合計・概算）`);
   lines.push("");
 
-  const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  if (meetingMakes.length || meetingNotMakes.length) {
-    lines.push("【打ち合わせ種類ごとの現状（この表だけを根拠に7を作成してください）】");
-    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}）`));
-    meetingNotMakes.forEach(m => lines.push(`- ${m.name}：現在は議事録を作成していない（${freqLabel(m)}・会議${m.duration}分）`));
-    lines.push("");
-  }
-
-  if (axisRows.length) {
-    lines.push("【ツール選定で重視しているポイント】");
-    lines.push(axisRows.join("、"));
-    lines.push("");
-  }
-
-  if (verifyRows.length) {
-    lines.push("【トライアルで確認したいこと（何を）】");
-    verifyRows.forEach(r => lines.push(`- ${r.name}：${r.desc}`));
-    lines.push("");
-  }
-
-  lines.push("【出力してほしい構成】");
-  lines.push("1. サービス概要（Rimo Voiceとは、上記の「サービス概要」の事実のみにもとづいて）");
-  lines.push("2. このサービスで解決できる課題（上記の「サービス概要」および「背景・課題」の範囲にとどめ、新しい課題を作り出さない）");
-  lines.push("3. トライアルを行う背景（なぜ、このタイミングで実施するのか。上記の「背景・課題」にもとづいて）");
-  lines.push("4. トライアル期間・対象者（いつ・誰が。上記の日程・対象者の情報をそのまま使用）");
-  lines.push("5. 実施方法・利用開始の手順（どのように） — 招待メールを受け取ってからの流れが分かるように");
-  lines.push("6. トライアルで確認したいこと（何を。上記の「確認したいこと」の情報をそのまま使用）");
-  lines.push("7. 打ち合わせ種類ごとに想定される活用シーン（表形式で。上記「打ち合わせ種類ごとの現状」に記載がある種類のみを対象にし、記載のない打ち合わせ種類については書かない）");
-  lines.push("8. 今後のスケジュール — 振り返りMTGについて書く際は、必ず「Rimo社の担当者と」「Rimo社を交えて」のように毎回主語を明記してください。社内メンバーだけで感想を集める会議ではありません。「皆様のフィードバックを」のような、社内向けとも読める書き方は避けてください。");
-  lines.push("9. 使い方に迷ったときは（担当者名や問い合わせ先は書かず、下記の「はじめてガイド」を見れば操作方法が分かる旨を案内する："+ ONBOARDING_GUIDE_URL + "）");
-  lines.push("");
-  lines.push("社内向けの案内文らしく、前向きで協力を得やすいトーンの、簡潔で分かりやすい日本語でまとめてください。");
+  lines.push("■ 議事録の活用状況");
+  lines.push(`作成した議事録の使われ方：${S.minutesUsage.join("、") || "―"}`);
+  lines.push(`議事録の保管方法：${S.minutesStorage.join("、") || "―"}`);
 
   return lines.join("\n");
 }
 
-function openSheet() {
-  renderSheet();
-  document.body.classList.add("sheet-mode");
-  window.scrollTo({ top: 0 });
+function downloadHearingText() {
+  const text = buildHearingText();
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = new Date();
+  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  a.href = url;
+  a.download = `Rimo_Voice_ヒアリングシート_${stamp}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  const btn = document.querySelector(".btn-print-side");
+  if (btn) {
+    const original = btn.textContent;
+    btn.textContent = "ダウンロードしました ✓";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = original; btn.classList.remove("copied"); }, 1800);
+  }
 }
-function closeSheet() {
-  document.body.classList.remove("sheet-mode");
-}
-// 印刷ショートカット(Cmd+P)でもシートが最新になるように
-window.addEventListener("beforeprint", () => {
-  renderSheet();
-  document.body.classList.add("sheet-mode");
-});
 
 /* ============================================================
    Init
@@ -1618,31 +774,10 @@ buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
 buildChips("aiAgents", OPTIONS.aiAgents, "aiAgents");
-buildChips("axisPreset-quality", OPTIONS.qualityPoints, "axisPresetQuality");
-buildChips("axisPreset-usability", OPTIONS.usabilityPoints, "axisPresetUsability");
-buildChips("axisPreset-security", OPTIONS.securityPoints, "axisPresetSecurity");
-buildChips("announceMethods", OPTIONS.announceMethods, "announceMethods");
-buildChips("targetMeetings", OPTIONS.meetingTypes, "targetMeetings");
-buildChips("aiFeatures", OPTIONS.aiFeatures, "aiFeatures");
-buildChips("sharingScenes", OPTIONS.sharingScenes, "sharingScenes");
-buildChips("ragScenes", OPTIONS.ragScenes, "ragScenes");
-buildChips("sideEffects", OPTIONS.sideEffects, "sideEffects");
-buildRatioSlider("meetingStyleSlider", "meetingWebPct", "対面", "Web");
 buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内");
-buildSegmented();
-document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.dataset.step));
-goStep(0);
+buildRatioSlider("meetingInternalStyleSlider", "meetingInternalWebPct", "対面", "Web");
+buildRatioSlider("meetingExternalStyleSlider", "meetingExternalWebPct", "対面", "Web");
 renderMeetingMatrix();
-updateCalc();
-
-// スケジュールの初期値：開始日=当日、終了日・振り返りMTG=開始日の1週間後
-(() => {
-  const today = new Date();
-  S.dateStart = fmtLocalISO(today);
-  document.getElementById("dateStart").value = S.dateStart;
-  autoFillDates();
-  updateAnnounceGap();
-})();
 </script>
 </body>
 </html>
