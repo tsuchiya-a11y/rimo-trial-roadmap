@@ -119,6 +119,7 @@
   }
   .chip:hover { border-color: var(--primary); color: var(--primary-dark); }
   .chip.selected { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
+  .chip.selected-external { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
   /* ===== Segmented (radio) ===== */
   .segmented { display: inline-flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; flex-wrap: wrap; background: #fff; }
@@ -148,22 +149,24 @@
   .rating-reasons-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
   .chips.small .chip { padding: 5px 11px; font-size: 12px; }
 
-  /* ===== Per-meeting-type detail rows ===== */
-  .detail-row {
-    border: 1.5px solid var(--border); border-radius: var(--radius);
-    padding: 12px 16px; margin-bottom: 10px;
+  /* ===== 打ち合わせごとの議事録作成状況（マトリクス表） ===== */
+  .matrix-scroll { overflow-x: auto; margin-top: 10px; }
+  .matrix-table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  .matrix-table th {
+    text-align: left; font-size: 12px; font-weight: 700; color: var(--text-sub);
+    padding: 8px 10px; border-bottom: 2px solid var(--border); white-space: nowrap;
   }
-  .detail-row:last-child { margin-bottom: 0; }
-  .dr-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .dr-head { font-size: 14px; font-weight: 700; }
-  .dr-sliders { margin-top: 10px; display: flex; gap: 18px; flex-wrap: wrap; }
-  .dr-sliders > div { flex: 1; min-width: 220px; }
-  .dr-sliders .field-label { font-size: 12px; margin-bottom: 4px; }
-  .dr-sliders .slider-wrap { gap: 10px; }
-  .dr-sliders .slider-value { min-width: 64px; font-size: 12.5px; padding: 4px 8px; }
-  .freq-row { display: flex; align-items: center; gap: 10px; }
-  .freq-row .slider-wrap { flex: 1; }
-  .freq-unit { flex-shrink: 0; }
+  .matrix-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .matrix-table tr:last-child td { border-bottom: none; }
+  .matrix-table .mx-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; }
+  .matrix-table tr.mx-row-inactive .mx-name { color: var(--text-sub); font-weight: 500; }
+  .mx-cell { min-width: 190px; }
+  .matrix-table td:nth-child(2) .mx-cell { min-width: 250px; }
+  .matrix-table td:nth-child(2) .segmented.small { flex-wrap: nowrap; }
+  .mx-cell .slider-wrap { gap: 8px; }
+  .mx-cell .slider-value { min-width: 56px; font-size: 12px; padding: 4px 7px; }
+  .mx-cell .segmented.small { margin-bottom: 6px; }
+  .mx-cell .segmented.small:last-child { margin-bottom: 0; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
@@ -367,7 +370,7 @@
       <div class="card">
         <h2>会議環境</h2>
         <div class="field">
-          <div class="field-label">お使いの会議の実施方法 <span class="hint">複数選択可</span></div>
+          <div class="field-label">お使いの会議の実施方法 <span class="hint">複数選択可・2回クリックで「社外から招待されて使うツール」に切替</span></div>
           <div class="chips" id="meetingTools"></div>
         </div>
         <div class="field">
@@ -395,16 +398,25 @@
           <div class="field-label">社内 / 社外のおおよその割合</div>
           <div id="meetingScopeSlider"></div>
         </div>
-        <div class="field">
-          <div class="field-label">打ち合わせの実施目的 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="meetingPurposes"></div>
-        </div>
       </div>
 
       <div class="card">
         <h2>打ち合わせごとの議事録作成状況</h2>
-        <div id="meetingDetailEmpty" class="checker-note">上の「打ち合わせの実施目的」から種類を選択すると、ここに入力欄が表示されます。</div>
-        <div id="meetingDetailRows"></div>
+        <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。</div>
+        <div class="matrix-scroll">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th>打ち合わせの種類</th>
+                <th>頻度</th>
+                <th>1回あたりの会議時間</th>
+                <th>議事録作成</th>
+                <th>作成時間（1件あたり）</th>
+              </tr>
+            </thead>
+            <tbody id="meetingMatrixBody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="card">
@@ -416,10 +428,6 @@
         <div class="field">
           <div class="field-label">議事録の保管方法 <span class="hint">複数選択可</span></div>
           <div class="chips" id="minutesStorage"></div>
-        </div>
-        <div class="field">
-          <div class="field-label">議事録作成の課題 <span class="hint">複数選択可</span></div>
-          <div class="chips" id="minutesChallenges"></div>
         </div>
       </div>
 
@@ -711,11 +719,11 @@
 ============================================================ */
 const S = {
   dateStart: "", dateEnd: "", dateReview: "",
-  meetingTools: [], meetingToolsOther: "",
+  meetingToolStatus: {}, meetingToolsOther: "",
   minutesMethod: [],
   competingTools: [], competingToolRatings: {}, competingToolIssues: {},
   meetingWebPct: 50, meetingInternalPct: 50,
-  meetingPurposes: [], meetingDetail: {},
+  meetingDetail: {},
   minutesUsage: [], minutesStorage: [],
   announce: "", announceDate: "", announceMethods: [],
   memberCount: 5,
@@ -724,7 +732,6 @@ const S = {
   axisOther: "",
   axisDetail: { quality: "", usability: "", cost: "", security: "" },
   axisPresetQuality: [], axisPresetUsability: [], axisPresetSecurity: [],
-  minutesChallenges: [],
   aiAgents: [],
   verify: { workload: true, ai: true, sharing: true, rag: false, side: false },
   aiFeatures: [], sharingScenes: [], ragScenes: [], sideEffects: []
@@ -740,18 +747,16 @@ const ONBOARDING_GUIDE_URL = "https://rimo-onboarding-guide.vercel.app/";
 const OPTIONS = {
   meetingTools: ["Zoom", "Google Meet", "Microsoft Teams", "Webex", "対面", "その他"],
   minutesMethod: ["手書きメモ＋清書", "PC直接入力", "録音を聞き直して作成", "会議ツールの文字起こし＋生成AIで作成", "文字起こし/議事録ツール活用中", "作成していない"],
-  competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "CLOVA Note", "Teams（Copilot）", "Zoom AI機能", "生成AI（ChatGPT/Claude等）", "その他"],
+  competingTools: ["Notta", "AmiVoice", "スマート書記", "LogMeets（ログミーツ）", "Otter", "tl;dv", "YOMEL", "Nishika", "その他"],
   toolIssues: ["文字起こしの精度", "要約の品質", "音声・動画と議事録を一体で確認できない", "議事録を使ったAI活用・RAG検索がない", "対面での打ち合わせで使えない", "使いづらい", "セキュリティ面の不安", "費用", "その他"],
-  minutesUsage: ["関係者への共有", "タスク・ToDo管理", "ナレッジとして蓄積", "上長への報告", "ほぼ活用できていない"],
-  minutesStorage: ["Word/Excel等のファイルで保管", "Google Drive/SharePoint等のクラウド", "Notion等の社内Wiki", "メール/チャットで共有のみ", "紙で保管", "特にルールなし"],
-  minutesChallenges: ["作成者によってクオリティや作成時間にばらつきがある", "議事録作成稼働により日中の業務がひっ迫する", "作成が後回しになり、記憶が薄れて精度が落ちる", "抜け漏れ・誤りが発生しやすい", "共有や展開に時間がかかる", "担当者に依存し、不在時に対応できない", "その他"],
+  minutesUsage: ["関係者への共有", "タスク・ToDo管理", "上長への報告", "その他"],
+  minutesStorage: ["ローカル（PC内）に保管", "クラウドストレージ（Google Drive/SharePoint等）", "社内Wiki（Notion等）", "メール・チャットで共有のみ", "紙で保管", "特にルールなし"],
   aiAgents: ["ChatGPT", "Copilot", "Claude", "Gemini", "内製ツール", "その他", "使っていない"],
   qualityPoints: ["固有名詞・専門用語の認識精度", "話者分離の精度", "要約がそのまま使えるか", "方言・訛りへの対応"],
   usabilityPoints: ["操作の直感性", "ITリテラシーが高くない人でも使えるか", "会議への参加・Botの動作", "アプリ/ブラウザの使い勝手"],
   securityPoints: ["データの保管場所（国内/海外）", "ISO27001等の認証有無", "AI学習利用の有無", "アクセス権限管理"],
   announceMethods: ["社内定例で周知", "個別に関係者へ周知", "社内チャット等で周知", "その他"],
-  meetingPurposes: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー", "その他"],
-  targetMeetings: ["社内定例", "プロジェクトMTG", "商談・顧客MTG", "1on1", "役員・経営会議", "採用面接", "研修・セミナー"],
+  meetingTypes: ["全社ミーティング", "部内ミーティング", "チーム内ミーティング", "役員・経営会議", "取引先との打ち合わせ（商談含む）", "その他"],
   aiFeatures: ["アクション整理", "決定事項・ToDoの抽出", "話者ごとの発言整理", "AIのWeb検索との組み合わせ"],
   sharingScenes: ["共有リンクでの即時展開", "欠席者へのキャッチアップ共有", "社外関係者への共有"],
   ragScenes: ["過去の決定事項の確認", "新メンバーのキャッチアップ", "顧客とのやり取りの確認", "類似案件・過去事例の参照", "言った言わないの確認"],
@@ -780,6 +785,38 @@ function buildChips(id, options, stateKey, onToggle) {
     };
     wrap.appendChild(el);
   });
+}
+
+// お使いの会議の実施方法：1クリック=自社利用(own)、2クリック=社外から招待(external)、3クリック=解除
+function buildMeetingToolChips() {
+  const wrap = document.getElementById("meetingTools");
+  OPTIONS.meetingTools.forEach(opt => {
+    const el = document.createElement("div");
+    el.className = "chip";
+    el.textContent = opt;
+    el.onclick = () => {
+      const cur = S.meetingToolStatus[opt];
+      if (!cur) {
+        S.meetingToolStatus[opt] = "own";
+        el.classList.add("selected");
+        el.classList.remove("selected-external");
+      } else if (cur === "own") {
+        S.meetingToolStatus[opt] = "external";
+        el.classList.remove("selected");
+        el.classList.add("selected-external");
+      } else {
+        delete S.meetingToolStatus[opt];
+        el.classList.remove("selected", "selected-external");
+      }
+    };
+    wrap.appendChild(el);
+  });
+}
+
+function meetingToolsDisplay() {
+  return Object.keys(S.meetingToolStatus).map(t =>
+    S.meetingToolStatus[t] === "external" ? `${t}（社外から招待）` : t
+  );
 }
 
 function buildSegmented() {
@@ -882,29 +919,6 @@ function renderCompetingRatings() {
   });
 }
 
-function buildDetailSlider(label, value, min, max, step, unit, onChange) {
-  const field = document.createElement("div");
-  const lbl = document.createElement("div");
-  lbl.className = "field-label";
-  lbl.textContent = label;
-  field.appendChild(lbl);
-  const sw = document.createElement("div");
-  sw.className = "slider-wrap";
-  const input = document.createElement("input");
-  input.type = "range"; input.min = min; input.max = max; input.step = step; input.value = value;
-  const valDisplay = document.createElement("div");
-  valDisplay.className = "slider-value";
-  valDisplay.textContent = `${value} ${unit}`;
-  input.oninput = () => {
-    onChange(+input.value);
-    valDisplay.textContent = `${input.value} ${unit}`;
-    updateCalc();
-  };
-  sw.appendChild(input); sw.appendChild(valDisplay);
-  field.appendChild(sw);
-  return field;
-}
-
 function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel) {
   const el = document.getElementById(containerId);
   el.innerHTML = "";
@@ -924,79 +938,83 @@ function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel) {
   el.appendChild(sw);
 }
 
-function buildFreqControl(d) {
-  const field = document.createElement("div");
-  const lbl = document.createElement("div");
-  lbl.className = "field-label";
-  lbl.textContent = "頻度";
-  field.appendChild(lbl);
-
-  const row = document.createElement("div");
-  row.className = "freq-row";
-
-  if (d.freqUnit !== "irregular") {
-    const sw = document.createElement("div");
-    sw.className = "slider-wrap";
-    const input = document.createElement("input");
-    input.type = "range"; input.min = 1; input.max = 20; input.step = 1; input.value = d.freqCount;
-    const valDisplay = document.createElement("div");
-    valDisplay.className = "slider-value";
-    valDisplay.textContent = `${d.freqCount} 件`;
-    input.oninput = () => {
-      d.freqCount = +input.value;
-      valDisplay.textContent = `${input.value} 件`;
-      updateCalc();
-    };
-    sw.appendChild(input); sw.appendChild(valDisplay);
-    row.appendChild(sw);
+function ensureMeetingDetail(type) {
+  if (!S.meetingDetail[type]) {
+    S.meetingDetail[type] = { freqUnit: "week", freqCount: 1, duration: 30, makes: "", perDoc: 30, perDocVaries: false };
   }
+  return S.meetingDetail[type];
+}
 
+function miniSlider(min, max, step, value, unit, onChange) {
+  const sw = document.createElement("div");
+  sw.className = "slider-wrap mx-slider";
+  const input = document.createElement("input");
+  input.type = "range"; input.min = min; input.max = max; input.step = step; input.value = value;
+  const val = document.createElement("div");
+  val.className = "slider-value";
+  val.textContent = `${value}${unit}`;
+  input.oninput = () => {
+    onChange(+input.value);
+    val.textContent = `${input.value}${unit}`;
+    updateCalc();
+  };
+  sw.appendChild(input); sw.appendChild(val);
+  return sw;
+}
+
+function buildMxFreqCell(d) {
+  const wrap = document.createElement("div");
+  wrap.className = "mx-cell";
   const seg = document.createElement("div");
   seg.className = "segmented small freq-unit";
-  [["週", "week"], ["月", "month"], ["不定期", "irregular"]].forEach(([label, unitKey]) => {
+  [["週", "week"], ["月", "month"], ["不定期", "irregular"], ["なし", "none"]].forEach(([label, key]) => {
     const b = document.createElement("button");
-    b.textContent = unitKey === "irregular" ? label : "/" + label;
-    if (d.freqUnit === unitKey) b.classList.add("selected");
+    b.textContent = key === "week" || key === "month" ? "/" + label : label;
+    if (d.freqUnit === key) b.classList.add("selected");
     b.onclick = () => {
-      d.freqUnit = unitKey;
-      renderMeetingDetailRows();
+      d.freqUnit = key;
+      renderMeetingMatrix();
       updateCalc();
     };
     seg.appendChild(b);
   });
-  row.appendChild(seg);
-
-  field.appendChild(row);
-  return field;
+  wrap.appendChild(seg);
+  if (d.freqUnit === "week" || d.freqUnit === "month") {
+    wrap.appendChild(miniSlider(1, 20, 1, d.freqCount, "件", v => { d.freqCount = v; }));
+  }
+  return wrap;
 }
 
-function buildTimeControl(d) {
-  const field = document.createElement("div");
-  const lbl = document.createElement("div");
-  lbl.className = "field-label";
-  lbl.textContent = "1件あたりの作成時間";
-  field.appendChild(lbl);
+function buildMxDurationCell(d) {
+  const wrap = document.createElement("div");
+  wrap.className = "mx-cell";
+  wrap.appendChild(miniSlider(15, 180, 15, d.duration, "分", v => { d.duration = v; }));
+  return wrap;
+}
 
-  const row = document.createElement("div");
-  row.className = "freq-row";
-
-  if (!d.perDocVaries) {
-    const sw = document.createElement("div");
-    sw.className = "slider-wrap";
-    const input = document.createElement("input");
-    input.type = "range"; input.min = 0; input.max = 120; input.step = 5; input.value = d.perDoc;
-    const valDisplay = document.createElement("div");
-    valDisplay.className = "slider-value";
-    valDisplay.textContent = `${d.perDoc} 分`;
-    input.oninput = () => {
-      d.perDoc = +input.value;
-      valDisplay.textContent = `${input.value} 分`;
+function buildMxMakesCell(d) {
+  const wrap = document.createElement("div");
+  wrap.className = "mx-cell";
+  const seg = document.createElement("div");
+  seg.className = "segmented small";
+  ["作成する", "作成しない"].forEach(opt => {
+    const b = document.createElement("button");
+    b.textContent = opt;
+    if (d.makes === opt) b.classList.add("selected");
+    b.onclick = () => {
+      d.makes = (d.makes === opt) ? "" : opt;
+      renderMeetingMatrix();
       updateCalc();
     };
-    sw.appendChild(input); sw.appendChild(valDisplay);
-    row.appendChild(sw);
-  }
+    seg.appendChild(b);
+  });
+  wrap.appendChild(seg);
+  return wrap;
+}
 
+function buildMxTimeCell(d) {
+  const wrap = document.createElement("div");
+  wrap.className = "mx-cell";
   const seg = document.createElement("div");
   seg.className = "segmented small freq-unit";
   [["一定", false], ["ばらばら", true]].forEach(([label, variesVal]) => {
@@ -1005,58 +1023,52 @@ function buildTimeControl(d) {
     if (!!d.perDocVaries === variesVal) b.classList.add("selected");
     b.onclick = () => {
       d.perDocVaries = variesVal;
-      renderMeetingDetailRows();
+      renderMeetingMatrix();
       updateCalc();
     };
     seg.appendChild(b);
   });
-  row.appendChild(seg);
-
-  field.appendChild(row);
-  return field;
+  wrap.appendChild(seg);
+  if (!d.perDocVaries) {
+    wrap.appendChild(miniSlider(0, 120, 5, d.perDoc, "分", v => { d.perDoc = v; }));
+  }
+  return wrap;
 }
 
-function renderMeetingDetailRows() {
-  const wrap = document.getElementById("meetingDetailRows");
-  const empty = document.getElementById("meetingDetailEmpty");
-  wrap.innerHTML = "";
-  empty.style.display = S.meetingPurposes.length ? "none" : "block";
-  S.meetingPurposes.forEach(purpose => {
-    const d = S.meetingDetail[purpose];
-    if (!d) return;
-    const row = document.createElement("div");
-    row.className = "detail-row";
-    const top = document.createElement("div");
-    top.className = "dr-top";
-    const head = document.createElement("div");
-    head.className = "dr-head";
-    head.textContent = purpose;
-    top.appendChild(head);
+function renderMeetingMatrix() {
+  const tbody = document.getElementById("meetingMatrixBody");
+  tbody.innerHTML = "";
+  OPTIONS.meetingTypes.forEach(type => {
+    const d = ensureMeetingDetail(type);
+    const applicable = d.freqUnit !== "none";
+    const tr = document.createElement("tr");
+    if (!applicable) tr.className = "mx-row-inactive";
 
-    const seg = document.createElement("div");
-    seg.className = "segmented small";
-    ["作成する", "作成しない"].forEach(opt => {
-      const b = document.createElement("button");
-      b.textContent = opt;
-      if (d.makes === opt) b.classList.add("selected");
-      b.onclick = () => {
-        d.makes = (d.makes === opt) ? "" : opt;
-        renderMeetingDetailRows();
-        updateCalc();
-      };
-      seg.appendChild(b);
-    });
-    top.appendChild(seg);
-    row.appendChild(top);
+    const tdName = document.createElement("td");
+    tdName.className = "mx-name";
+    tdName.textContent = type;
+    tr.appendChild(tdName);
 
-    if (d.makes === "作成する") {
-      const sliders = document.createElement("div");
-      sliders.className = "dr-sliders";
-      sliders.appendChild(buildFreqControl(d));
-      sliders.appendChild(buildTimeControl(d));
-      row.appendChild(sliders);
-    }
-    wrap.appendChild(row);
+    const tdFreq = document.createElement("td");
+    tdFreq.appendChild(buildMxFreqCell(d));
+    tr.appendChild(tdFreq);
+
+    const tdDur = document.createElement("td");
+    if (applicable) tdDur.appendChild(buildMxDurationCell(d));
+    else tdDur.innerHTML = `<span class="sh-empty">―</span>`;
+    tr.appendChild(tdDur);
+
+    const tdMakes = document.createElement("td");
+    if (applicable) tdMakes.appendChild(buildMxMakesCell(d));
+    else tdMakes.innerHTML = `<span class="sh-empty">―</span>`;
+    tr.appendChild(tdMakes);
+
+    const tdTime = document.createElement("td");
+    if (applicable && d.makes === "作成する") tdTime.appendChild(buildMxTimeCell(d));
+    else tdTime.innerHTML = `<span class="sh-empty">―</span>`;
+    tr.appendChild(tdTime);
+
+    tbody.appendChild(tr);
   });
 }
 
@@ -1117,9 +1129,9 @@ function updateAnnounceGap() {
 
 function monthlyHours() {
   let totalMinutes = 0;
-  for (const p of S.meetingPurposes) {
-    const d = S.meetingDetail[p];
-    if (d && d.makes === "作成する" && d.freqUnit !== "irregular" && !d.perDocVaries) {
+  for (const type of OPTIONS.meetingTypes) {
+    const d = S.meetingDetail[type];
+    if (d && d.freqUnit !== "none" && d.makes === "作成する" && d.freqUnit !== "irregular" && !d.perDocVaries) {
       const monthlyCount = d.freqUnit === "month" ? (d.freqCount || 0) : (d.freqCount || 0) * 4;
       totalMinutes += monthlyCount * (d.perDoc || 0);
     }
@@ -1260,14 +1272,15 @@ function getVerifyRows() {
   return rows;
 }
 
-// S.meetingPurposes / S.meetingDetail から「作成する／しない」の実データ行を作る（プロンプト・シート共通）
+// OPTIONS.meetingTypes / S.meetingDetail から「作成する／しない」の実データ行を作る（プロンプト・シート共通）
+// 頻度が「なし」の種類（該当なし）は両方から除外する
 function getMeetingPurposeRows() {
   const makes = [], notMakes = [];
-  S.meetingPurposes.forEach(p => {
-    const d = S.meetingDetail[p];
-    if (!d) return;
-    if (d.makes === "作成する") makes.push({ name: p, freqUnit: d.freqUnit, freqCount: d.freqCount, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
-    else if (d.makes === "作成しない") notMakes.push(p);
+  OPTIONS.meetingTypes.forEach(type => {
+    const d = S.meetingDetail[type];
+    if (!d || d.freqUnit === "none") return;
+    if (d.makes === "作成する") makes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
+    else if (d.makes === "作成しない") notMakes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration });
   });
   return { makes, notMakes };
 }
@@ -1280,8 +1293,8 @@ function renderSheet() {
 
   // ---- 現状：打ち合わせと議事録の整理 ----
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・${timeLabel(m)}）`);
-  const noMakesRows = meetingNotMakes.map(esc);
+  const makesRows = meetingMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}）`);
+  const noMakesRows = meetingNotMakes.map(m => `${esc(m.name)}（${freqLabel(m)}・会議${m.duration}分）`);
 
   const styleParts = [
     `Web ${S.meetingWebPct}%／対面 ${100 - S.meetingWebPct}%`,
@@ -1363,17 +1376,16 @@ function renderSheet() {
     <div class="sh-section">
       <h2>2. 議事録まわりの現状</h2>
       <table class="sh-table">
-        <tr><th>利用中の会議ツール</th><td>${list(S.meetingTools)}</td></tr>
+        <tr><th>利用中の会議ツール</th><td>${list(meetingToolsDisplay())}</td></tr>
         <tr><th>打ち合わせの形式</th><td>${styleParts.map(esc).join("<br>")}</td></tr>
         <tr><th>現在の議事録の作り方</th><td>${list(S.minutesMethod)}</td></tr>
         ${competingRows.length ? `<tr><th>利用中の文字起こし/議事録ツール</th><td>${competingRows.join("、")}<div class="sh-hint">※ かっこ内は現在感じている評価</div></td></tr>` : ""}
         ${S.aiAgents.length ? `<tr><th>現在お使いのAIエージェント</th><td>${list(S.aiAgents)}</td></tr>` : ""}
         ${makesRows.length ? `<tr><th>議事録を作成している打ち合わせ</th><td>${makesRows.join("<br>")}</td></tr>` : ""}
-        ${noMakesRows.length ? `<tr><th>議事録を作成していない打ち合わせ</th><td>${noMakesRows.join("、")}</td></tr>` : ""}
+        ${noMakesRows.length ? `<tr><th>議事録を作成していない打ち合わせ</th><td>${noMakesRows.join("<br>")}</td></tr>` : ""}
         ${cur > 0 ? `<tr><th>議事録作成にかかっている時間</th><td><b>約 ${cur} 時間/月</b>（作成している打ち合わせの合計・概算）</td></tr>` : ""}
         <tr><th>作成した議事録の使われ方</th><td>${list(S.minutesUsage)}</td></tr>
         <tr><th>議事録の保管場所</th><td>${list(S.minutesStorage)}</td></tr>
-        ${S.minutesChallenges.length ? `<tr><th>議事録作成の課題</th><td>${list(S.minutesChallenges)}</td></tr>` : ""}
       </table>
     </div>
 
@@ -1537,8 +1549,8 @@ function buildProposalPrompt() {
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
   if (meetingMakes.length || meetingNotMakes.length) {
     lines.push("【打ち合わせ種類ごとの現状（この表だけを根拠に7を作成してください）】");
-    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・${timeLabel(m)}）`));
-    meetingNotMakes.forEach(name => lines.push(`- ${name}：現在は議事録を作成していない`));
+    meetingMakes.forEach(m => lines.push(`- ${m.name}：現在すでに議事録を作成している（${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}）`));
+    meetingNotMakes.forEach(m => lines.push(`- ${m.name}：現在は議事録を作成していない（${freqLabel(m)}・会議${m.duration}分）`));
     lines.push("");
   }
 
@@ -1587,8 +1599,8 @@ window.addEventListener("beforeprint", () => {
 /* ============================================================
    Init
 ============================================================ */
-buildChips("meetingTools", OPTIONS.meetingTools, "meetingTools");
-const TOOL_METHOD_TRIGGERS = ["文字起こし/議事録ツール活用中", "会議ツールの文字起こし＋生成AIで作成"];
+buildMeetingToolChips();
+const TOOL_METHOD_TRIGGERS = ["文字起こし/議事録ツール活用中"];
 buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
   if (TOOL_METHOD_TRIGGERS.includes(opt)) {
     const anyOn = TOOL_METHOD_TRIGGERS.some(m => S.minutesMethod.includes(m));
@@ -1605,22 +1617,12 @@ buildChips("minutesMethod", OPTIONS.minutesMethod, "minutesMethod", (opt) => {
 buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
-buildChips("minutesChallenges", OPTIONS.minutesChallenges, "minutesChallenges");
 buildChips("aiAgents", OPTIONS.aiAgents, "aiAgents");
 buildChips("axisPreset-quality", OPTIONS.qualityPoints, "axisPresetQuality");
 buildChips("axisPreset-usability", OPTIONS.usabilityPoints, "axisPresetUsability");
 buildChips("axisPreset-security", OPTIONS.securityPoints, "axisPresetSecurity");
 buildChips("announceMethods", OPTIONS.announceMethods, "announceMethods");
-buildChips("meetingPurposes", OPTIONS.meetingPurposes, "meetingPurposes", (opt) => {
-  if (S.meetingPurposes.includes(opt)) {
-    S.meetingDetail[opt] = { makes: "", freqUnit: "week", freqCount: 3, perDoc: 30 };
-  } else {
-    delete S.meetingDetail[opt];
-  }
-  renderMeetingDetailRows();
-  updateCalc();
-});
-buildChips("targetMeetings", OPTIONS.targetMeetings, "targetMeetings");
+buildChips("targetMeetings", OPTIONS.meetingTypes, "targetMeetings");
 buildChips("aiFeatures", OPTIONS.aiFeatures, "aiFeatures");
 buildChips("sharingScenes", OPTIONS.sharingScenes, "sharingScenes");
 buildChips("ragScenes", OPTIONS.ragScenes, "ragScenes");
@@ -1630,7 +1632,7 @@ buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内")
 buildSegmented();
 document.querySelectorAll(".nav-step").forEach(b => b.onclick = () => goStep(+b.dataset.step));
 goStep(0);
-renderMeetingDetailRows();
+renderMeetingMatrix();
 updateCalc();
 
 // スケジュールの初期値：開始日=当日、終了日・振り返りMTG=開始日の1週間後
