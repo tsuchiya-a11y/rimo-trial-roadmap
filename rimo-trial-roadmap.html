@@ -64,8 +64,9 @@
 
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 22px 24px; margin-bottom: 18px;
+    padding: 22px 24px; margin-bottom: 18px; max-width: 960px;
   }
+  .card.card-wide { max-width: none; }
   .card h2 {
     font-size: 15px; font-weight: 700; margin-bottom: 16px;
     display: flex; align-items: center; gap: 8px;
@@ -136,6 +137,18 @@
   .matrix-table tr:last-child td { border-bottom: none; }
   .matrix-table .mx-name { font-size: 13.5px; font-weight: 700; white-space: nowrap; }
   .matrix-table tr.mx-row-inactive .mx-name { color: var(--text-sub); font-weight: 500; }
+  .mx-name-wrap { display: flex; align-items: center; gap: 8px; }
+  .mx-arrows { display: flex; flex-direction: column; gap: 1px; }
+  .mx-arrow-btn {
+    width: 18px; height: 14px; border: 1px solid var(--border); background: #fff;
+    border-radius: 3px; font-size: 8px; line-height: 1; cursor: pointer; color: var(--text-sub);
+    display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .mx-arrow-btn:hover:not(:disabled) { background: var(--bg); color: var(--primary-dark); }
+  .mx-arrow-btn:disabled { opacity: .3; cursor: default; }
+  .mx-name-input {
+    font-size: 13.5px; font-weight: 700; padding: 5px 8px; width: 160px;
+  }
   .mx-cell { min-width: 190px; }
   .matrix-table td:nth-child(2) .mx-cell { min-width: 250px; }
   .matrix-table td:nth-child(2) .segmented.small { flex-wrap: nowrap; }
@@ -144,16 +157,36 @@
   .mx-cell .segmented.small { margin-bottom: 6px; }
   .mx-cell .segmented.small:last-child { margin-bottom: 0; }
   .mx-empty { color: #9ca3af; }
+  .mx-cell-toggle { min-width: 110px; }
+  .mx-toggle-btn {
+    padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; color: var(--text-sub); font-size: 13px; font-weight: 700;
+    cursor: pointer; white-space: nowrap;
+  }
+  .mx-toggle-btn.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
 
   /* ===== Slider ===== */
   .slider-wrap { display: flex; align-items: center; gap: 16px; }
   .slider-wrap input[type="range"] { flex: 1; accent-color: var(--primary); height: 6px; cursor: pointer; }
-  .ratio-value { min-width: 200px; }
   .slider-value {
     min-width: 96px; text-align: center; background: var(--primary-light);
     color: var(--primary-dark); font-weight: 700; font-size: 14px;
     padding: 6px 10px; border-radius: 8px; white-space: nowrap;
   }
+
+  /* ===== Ratio control (icon bar) ===== */
+  .ratio-control { max-width: 480px; }
+  .ratio-track {
+    display: flex; width: 100%; height: 40px; border-radius: 10px; overflow: hidden;
+    border: 1px solid var(--border); font-size: 13px; font-weight: 700;
+  }
+  .ratio-fill {
+    display: flex; align-items: center; white-space: nowrap; overflow: hidden;
+    padding: 0 10px; transition: width .15s ease;
+  }
+  .ratio-fill-left { background: var(--bg); color: var(--text-sub); justify-content: flex-start; }
+  .ratio-fill-right { background: var(--primary-light); color: var(--primary-dark); justify-content: flex-end; }
+  .ratio-range { width: 100%; accent-color: var(--primary); height: 6px; cursor: pointer; margin-top: 10px; }
 
   .checker-note { font-size: 12px; color: var(--text-sub); margin-top: 6px; }
 
@@ -224,9 +257,9 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card card-wide">
       <h2>打ち合わせごとの議事録作成状況</h2>
-      <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。</div>
+      <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。「▲▼」で並び替え、「その他」は自由入力できます。</div>
       <div class="matrix-scroll">
         <table class="matrix-table">
           <thead>
@@ -234,6 +267,7 @@
               <th>打ち合わせの種類</th>
               <th>頻度</th>
               <th>1回あたりの会議時間</th>
+              <th>参加者数</th>
               <th>議事録作成</th>
               <th>作成時間（1件あたり）</th>
             </tr>
@@ -268,6 +302,8 @@ const S = {
   competingTools: [], competingToolRatings: {}, competingToolIssues: {},
   meetingInternalPct: 50, meetingInternalWebPct: 50, meetingExternalWebPct: 50,
   meetingDetail: {},
+  meetingTypeOrder: [],
+  meetingTypeCustomName: "",
   minutesUsage: [], minutesStorage: [],
   aiAgents: []
 };
@@ -285,6 +321,7 @@ const OPTIONS = {
   aiAgents: ["ChatGPT", "Copilot", "Claude", "Gemini", "内製ツール", "その他", "使っていない"],
   meetingTypes: ["全社ミーティング", "部内ミーティング", "チーム内ミーティング", "役員・経営会議", "取引先との打ち合わせ（商談含む）", "その他"]
 };
+S.meetingTypeOrder = [...OPTIONS.meetingTypes];
 
 /* ============================================================
    UI builders
@@ -415,30 +452,61 @@ function renderCompetingRatings() {
   });
 }
 
-function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel) {
+function buildRatioSlider(containerId, stateKey, leftLabel, rightLabel, leftIcon, rightIcon) {
   const el = document.getElementById(containerId);
   el.innerHTML = "";
-  const sw = document.createElement("div");
-  sw.className = "slider-wrap";
+  const wrap = document.createElement("div");
+  wrap.className = "ratio-control";
+
+  const track = document.createElement("div");
+  track.className = "ratio-track";
+  const fillLeft = document.createElement("div");
+  fillLeft.className = "ratio-fill ratio-fill-left";
+  const fillRight = document.createElement("div");
+  fillRight.className = "ratio-fill ratio-fill-right";
+  track.appendChild(fillLeft);
+  track.appendChild(fillRight);
+
   const input = document.createElement("input");
   input.type = "range"; input.min = 0; input.max = 100; input.step = 5; input.value = S[stateKey];
-  const valDisplay = document.createElement("div");
-  valDisplay.className = "slider-value ratio-value";
-  const render = () => { valDisplay.textContent = `${rightLabel} ${S[stateKey]}%　／　${leftLabel} ${100 - S[stateKey]}%`; };
+  input.className = "ratio-range";
+
+  const render = () => {
+    const v = S[stateKey];
+    fillLeft.style.width = (100 - v) + "%";
+    fillRight.style.width = v + "%";
+    fillLeft.textContent = `${leftIcon} ${leftLabel} ${100 - v}%`;
+    fillRight.textContent = `${rightLabel} ${v}% ${rightIcon}`;
+  };
   render();
   input.oninput = () => {
     S[stateKey] = +input.value;
     render();
   };
-  sw.appendChild(input); sw.appendChild(valDisplay);
-  el.appendChild(sw);
+
+  wrap.appendChild(track);
+  wrap.appendChild(input);
+  el.appendChild(wrap);
 }
 
 function ensureMeetingDetail(type) {
   if (!S.meetingDetail[type]) {
-    S.meetingDetail[type] = { freqUnit: "week", freqCount: 0, duration: 30, makes: "", perDoc: 30, perDocVaries: false };
+    S.meetingDetail[type] = { freqUnit: "week", freqCount: 0, duration: 30, participants: 5, makes: "作成しない", perDoc: 30, perDocVaries: false };
   }
   return S.meetingDetail[type];
+}
+
+function meetingTypeLabel(type) {
+  if (type === "その他" && S.meetingTypeCustomName.trim()) return S.meetingTypeCustomName.trim();
+  return type;
+}
+
+function moveMeetingType(type, dir) {
+  const idx = S.meetingTypeOrder.indexOf(type);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= S.meetingTypeOrder.length) return;
+  [S.meetingTypeOrder[idx], S.meetingTypeOrder[newIdx]] = [S.meetingTypeOrder[newIdx], S.meetingTypeOrder[idx]];
+  renderMeetingMatrix();
 }
 
 function miniSlider(min, max, step, value, unit, onChange) {
@@ -482,26 +550,28 @@ function buildMxFreqCell(d) {
 function buildMxDurationCell(d) {
   const wrap = document.createElement("div");
   wrap.className = "mx-cell";
-  wrap.appendChild(miniSlider(15, 180, 15, d.duration, "分", v => { d.duration = v; }));
+  wrap.appendChild(miniSlider(30, 300, 30, d.duration, "分", v => { d.duration = v; }));
+  return wrap;
+}
+
+function buildMxParticipantsCell(d) {
+  const wrap = document.createElement("div");
+  wrap.className = "mx-cell";
+  wrap.appendChild(miniSlider(1, 50, 1, d.participants, "名", v => { d.participants = v; }));
   return wrap;
 }
 
 function buildMxMakesCell(d) {
   const wrap = document.createElement("div");
-  wrap.className = "mx-cell";
-  const seg = document.createElement("div");
-  seg.className = "segmented small";
-  ["作成する", "作成しない"].forEach(opt => {
-    const b = document.createElement("button");
-    b.textContent = opt;
-    if (d.makes === opt) b.classList.add("selected");
-    b.onclick = () => {
-      d.makes = (d.makes === opt) ? "" : opt;
-      renderMeetingMatrix();
-    };
-    seg.appendChild(b);
-  });
-  wrap.appendChild(seg);
+  wrap.className = "mx-cell mx-cell-toggle";
+  const btn = document.createElement("button");
+  btn.className = "mx-toggle-btn" + (d.makes === "作成する" ? " selected" : "");
+  btn.textContent = "作成する";
+  btn.onclick = () => {
+    d.makes = (d.makes === "作成する") ? "作成しない" : "作成する";
+    renderMeetingMatrix();
+  };
+  wrap.appendChild(btn);
   return wrap;
 }
 
@@ -530,7 +600,7 @@ function buildMxTimeCell(d) {
 function renderMeetingMatrix() {
   const tbody = document.getElementById("meetingMatrixBody");
   tbody.innerHTML = "";
-  OPTIONS.meetingTypes.forEach(type => {
+  S.meetingTypeOrder.forEach((type, i) => {
     const d = ensureMeetingDetail(type);
     const applicable = d.freqUnit !== "none";
     const tr = document.createElement("tr");
@@ -538,7 +608,34 @@ function renderMeetingMatrix() {
 
     const tdName = document.createElement("td");
     tdName.className = "mx-name";
-    tdName.textContent = type;
+    const nameWrap = document.createElement("div");
+    nameWrap.className = "mx-name-wrap";
+
+    const arrows = document.createElement("div");
+    arrows.className = "mx-arrows";
+    const up = document.createElement("button");
+    up.className = "mx-arrow-btn"; up.textContent = "▲"; up.disabled = i === 0;
+    up.onclick = () => moveMeetingType(type, -1);
+    const down = document.createElement("button");
+    down.className = "mx-arrow-btn"; down.textContent = "▼"; down.disabled = i === S.meetingTypeOrder.length - 1;
+    down.onclick = () => moveMeetingType(type, 1);
+    arrows.appendChild(up); arrows.appendChild(down);
+    nameWrap.appendChild(arrows);
+
+    if (type === "その他") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "mx-name-input";
+      input.placeholder = "その他（自由入力）";
+      input.value = S.meetingTypeCustomName;
+      input.oninput = () => { S.meetingTypeCustomName = input.value; };
+      nameWrap.appendChild(input);
+    } else {
+      const span = document.createElement("span");
+      span.textContent = type;
+      nameWrap.appendChild(span);
+    }
+    tdName.appendChild(nameWrap);
     tr.appendChild(tdName);
 
     const tdFreq = document.createElement("td");
@@ -549,6 +646,11 @@ function renderMeetingMatrix() {
     if (applicable) tdDur.appendChild(buildMxDurationCell(d));
     else tdDur.innerHTML = `<span class="mx-empty">―</span>`;
     tr.appendChild(tdDur);
+
+    const tdPart = document.createElement("td");
+    if (applicable) tdPart.appendChild(buildMxParticipantsCell(d));
+    else tdPart.innerHTML = `<span class="mx-empty">―</span>`;
+    tr.appendChild(tdPart);
 
     const tdMakes = document.createElement("td");
     if (applicable) tdMakes.appendChild(buildMxMakesCell(d));
@@ -569,7 +671,7 @@ function renderMeetingMatrix() {
 ============================================================ */
 function monthlyHours() {
   let totalMinutes = 0;
-  for (const type of OPTIONS.meetingTypes) {
+  for (const type of S.meetingTypeOrder) {
     const d = S.meetingDetail[type];
     if (d && d.freqUnit !== "none" && d.makes === "作成する" && d.freqUnit !== "irregular" && !d.perDocVaries) {
       const monthlyCount = d.freqUnit === "month" ? (d.freqCount || 0) : (d.freqCount || 0) * 4;
@@ -588,15 +690,16 @@ function timeLabel(d) {
   return d.perDocVaries ? "1件あたりの時間はばらばら" : `1件あたり約${d.perDoc}分`;
 }
 
-// OPTIONS.meetingTypes / S.meetingDetail から「作成する／しない」の実データ行を作る
+// S.meetingTypeOrder / S.meetingDetail から「作成する／しない」の実データ行を作る
 // 頻度が「なし」の種類（該当なし）は両方から除外する
 function getMeetingPurposeRows() {
   const makes = [], notMakes = [];
-  OPTIONS.meetingTypes.forEach(type => {
+  S.meetingTypeOrder.forEach(type => {
     const d = S.meetingDetail[type];
     if (!d || d.freqUnit === "none") return;
-    if (d.makes === "作成する") makes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
-    else if (d.makes === "作成しない") notMakes.push({ name: type, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration });
+    const name = meetingTypeLabel(type);
+    if (d.makes === "作成する") makes.push({ name, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, participants: d.participants, perDoc: d.perDoc, perDocVaries: d.perDocVaries });
+    else if (d.makes === "作成しない") notMakes.push({ name, freqUnit: d.freqUnit, freqCount: d.freqCount, duration: d.duration, participants: d.participants });
   });
   return { makes, notMakes };
 }
@@ -712,11 +815,11 @@ function buildHearingText() {
   lines.push("■ 打ち合わせごとの議事録作成状況");
   if (meetingMakes.length) {
     lines.push("［議事録を作成している］");
-    meetingMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・${timeLabel(m)}`));
+    meetingMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・参加${m.participants}名・${timeLabel(m)}`));
   }
   if (meetingNotMakes.length) {
     lines.push("［議事録を作成していない］");
-    meetingNotMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分`));
+    meetingNotMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・参加${m.participants}名`));
   }
   if (!meetingMakes.length && !meetingNotMakes.length) lines.push("―");
   if (cur > 0) lines.push(`議事録作成にかかっている時間：約${cur}時間/月（作成している打ち合わせの合計・概算）`);
@@ -774,9 +877,9 @@ buildCompetingChips();
 buildChips("minutesUsage", OPTIONS.minutesUsage, "minutesUsage");
 buildChips("minutesStorage", OPTIONS.minutesStorage, "minutesStorage");
 buildChips("aiAgents", OPTIONS.aiAgents, "aiAgents");
-buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内");
-buildRatioSlider("meetingInternalStyleSlider", "meetingInternalWebPct", "対面", "Web");
-buildRatioSlider("meetingExternalStyleSlider", "meetingExternalWebPct", "対面", "Web");
+buildRatioSlider("meetingScopeSlider", "meetingInternalPct", "社外", "社内", "🌐", "🏢");
+buildRatioSlider("meetingInternalStyleSlider", "meetingInternalWebPct", "対面", "Web", "🤝", "💻");
+buildRatioSlider("meetingExternalStyleSlider", "meetingExternalWebPct", "対面", "Web", "🤝", "💻");
 renderMeetingMatrix();
 </script>
 </body>
