@@ -72,6 +72,13 @@
     display: flex; align-items: center; gap: 8px;
   }
   .card h2::before { content: ""; width: 4px; height: 16px; background: var(--primary); border-radius: 2px; }
+  .card-header-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .card-header-row h2 { margin-bottom: 0; }
+  .btn-ghost-reset {
+    padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px;
+    background: #fff; color: var(--text-sub); font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+  .btn-ghost-reset:hover { background: var(--bg); color: var(--primary-dark); border-color: var(--primary); }
 
   .field { margin-bottom: 18px; }
   .field:last-child { margin-bottom: 0; }
@@ -149,6 +156,12 @@
   .mx-name-input {
     font-size: 13.5px; font-weight: 700; padding: 5px 8px; width: 160px;
   }
+  .mx-delete-btn {
+    width: 20px; height: 20px; border: 1px solid var(--border); background: #fff;
+    border-radius: 50%; font-size: 12px; line-height: 1; cursor: pointer; color: var(--text-sub);
+    display: flex; align-items: center; justify-content: center; padding: 0; margin-left: auto; flex-shrink: 0;
+  }
+  .mx-delete-btn:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
   .mx-cell { min-width: 190px; }
   .matrix-table td:nth-child(2) .mx-cell { min-width: 250px; }
   .matrix-table td:nth-child(2) .segmented.small { flex-wrap: nowrap; }
@@ -263,8 +276,11 @@
     </div>
 
     <div class="card card-wide">
-      <h2>打ち合わせごとの議事録作成状況</h2>
-      <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。「▲▼」で並び替え、「その他」は自由入力できます。</div>
+      <div class="card-header-row">
+        <h2>打ち合わせごとの議事録作成状況</h2>
+        <button class="btn-ghost-reset" onclick="resetMeetingMatrix()">表を初期状態に戻す</button>
+      </div>
+      <div class="checker-note">該当しない打ち合わせは「頻度」を「なし」のままにしてください。「▲▼」で並び替え、「×」で行を削除、「その他」は自由入力できます。</div>
       <div class="matrix-scroll">
         <table class="matrix-table">
           <thead>
@@ -525,6 +541,22 @@ function moveMeetingType(type, dir) {
   renderMeetingMatrix();
 }
 
+function deleteMeetingType(type) {
+  const idx = S.meetingTypeOrder.indexOf(type);
+  if (idx === -1) return;
+  S.meetingTypeOrder.splice(idx, 1);
+  delete S.meetingDetail[type];
+  if (type === "その他") S.meetingTypeCustomName = "";
+  renderMeetingMatrix();
+}
+
+function resetMeetingMatrix() {
+  S.meetingTypeOrder = [...OPTIONS.meetingTypes];
+  S.meetingTypeCustomName = "";
+  OPTIONS.meetingTypes.forEach(type => { delete S.meetingDetail[type]; });
+  renderMeetingMatrix();
+}
+
 function miniSlider(min, max, step, value, unit, onChange) {
   const sw = document.createElement("div");
   sw.className = "slider-wrap mx-slider";
@@ -677,6 +709,14 @@ function renderMeetingMatrix() {
       span.textContent = type;
       nameWrap.appendChild(span);
     }
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "mx-delete-btn";
+    delBtn.textContent = "×";
+    delBtn.title = "この行を削除";
+    delBtn.onclick = () => deleteMeetingType(type);
+    nameWrap.appendChild(delBtn);
+
     tdName.appendChild(nameWrap);
     tr.appendChild(tdName);
 
