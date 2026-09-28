@@ -210,6 +210,30 @@
     padding: 6px 12px; border-radius: 8px;
   }
 
+  /* ===== Print view (PDF出力用) ===== */
+  .print-view { display: none; color: #1a1a1a; }
+  .print-view h1 { font-size: 20px; margin-bottom: 4px; }
+  .print-view .print-date { font-size: 12px; color: #555; margin-bottom: 18px; }
+  .print-view h2 {
+    font-size: 14px; font-weight: 700; margin: 20px 0 8px; padding-bottom: 4px;
+    border-bottom: 2px solid var(--primary); color: var(--primary-dark);
+  }
+  .print-view h2:first-of-type { margin-top: 0; }
+  .print-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 12px; }
+  .print-table th, .print-table td {
+    border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top;
+  }
+  .print-table thead th { background: #f1f5f5; font-weight: 700; }
+  .print-table.kv th { width: 220px; background: #f8fafa; font-weight: 700; white-space: nowrap; }
+
+  @media print {
+    .app { display: none !important; }
+    .print-view { display: block !important; }
+    .print-table { page-break-inside: auto; }
+    .print-table tr { page-break-inside: avoid; }
+    @page { size: A4; margin: 16mm 14mm; }
+  }
+
   @media (max-width: 860px) {
     .app { flex-direction: column; }
     .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px; padding: 12px; }
@@ -229,7 +253,7 @@
       <div class="logo-text">Rimo Voice<small>ヒアリングシート</small></div>
     </div>
     <div class="sidebar-footer">
-      <button class="btn-print-side" onclick="downloadHearingText()">⬇ テキストファイルをダウンロード</button>
+      <button class="btn-print-side" onclick="exportPdf()">⬇ PDFとして出力</button>
     </div>
   </nav>
 
@@ -323,6 +347,9 @@
 
   </main>
 </div>
+
+<!-- ==================== PRINT VIEW (PDF出力時のみ表示) ==================== -->
+<div id="printView" class="print-view"></div>
 
 <script>
 /* ============================================================
@@ -897,36 +924,47 @@ function buildInsights(cur) {
 }
 
 /* ============================================================
-   テキストファイル出力
+   PDF出力
 ============================================================ */
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-function buildHearingText() {
+function escHtml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function kvTable(pairs) {
+  const rows = pairs.map(([k, v]) => `<tr><th>${escHtml(k)}</th><td>${escHtml(v)}</td></tr>`).join("");
+  return `<table class="print-table kv"><tbody>${rows}</tbody></table>`;
+}
+
+function buildPrintView() {
   const cur = monthlyHours();
   const insights = buildInsights(cur);
   const { makes: meetingMakes, notMakes: meetingNotMakes } = getMeetingPurposeRows();
-  const lines = [];
+  const aiAgentsDisplay = S.aiAgents.map(a => {
+    const scope = S.aiAgentScope[a];
+    return scope ? `${a}（${scope}）` : a;
+  });
 
-  lines.push("Rimo Voice ヒアリングシート");
-  lines.push(`作成日：${todayStr()}`);
-  lines.push("");
+  let html = "";
+  html += `<h1>Rimo Voice ヒアリングシート</h1>`;
+  html += `<p class="print-date">作成日：${escHtml(todayStr())}</p>`;
 
   if (insights.length) {
-    lines.push("■ 現状の課題とめざす姿");
-    insights.forEach(i => {
-      lines.push(`・課題：${i.issue}`);
-      lines.push(`　めざす姿：${i.ideal}`);
-      lines.push(`　Rimoでの試しかた：${i.howTo}`);
-    });
-    lines.push("");
+    html += `<h2>現状の課題とめざす姿</h2>`;
+    html += `<table class="print-table"><thead><tr><th>課題</th><th>めざす姿</th><th>Rimoでの試しかた</th></tr></thead><tbody>`;
+    html += insights.map(i => `<tr><td>${escHtml(i.issue)}</td><td>${escHtml(i.ideal)}</td><td>${escHtml(i.howTo)}</td></tr>`).join("");
+    html += `</tbody></table>`;
   }
 
-  lines.push("■ 会議環境");
-  lines.push(`利用中の会議ツール：${meetingToolsDisplay().join("、") || "―"}`);
-  lines.push(`現在の議事録作成方法：${S.minutesMethod.join("、") || "―"}`);
+  html += `<h2>会議環境</h2>`;
+  const envRows = [
+    ["利用中の会議ツール", meetingToolsDisplay().join("、") || "―"],
+    ["現在の議事録作成方法", S.minutesMethod.join("、") || "―"],
+  ];
   if (S.competingTools.length) {
     const toolLines = S.competingTools.map(t => {
       const rating = S.competingToolRatings[t] || "";
@@ -934,69 +972,55 @@ function buildHearingText() {
       const detail = rating && issues ? `${rating}：${issues}` : rating;
       return `${t}${detail ? `（${detail}）` : ""}`;
     });
-    lines.push(`利用中の文字起こし/議事録ツール：${toolLines.join("、")}`);
+    envRows.push(["利用中の文字起こし/議事録ツール", toolLines.join("、")]);
   }
-  const aiAgentsDisplay = S.aiAgents.map(a => {
-    const scope = S.aiAgentScope[a];
-    return scope ? `${a}（${scope}）` : a;
-  });
-  lines.push(`現在お使いのAIエージェント：${aiAgentsDisplay.join("、") || "―"}`);
-  lines.push("");
+  envRows.push(["現在お使いのAIエージェント", aiAgentsDisplay.join("、") || "―"]);
+  html += kvTable(envRows);
 
-  lines.push("■ 打ち合わせの実態");
-  lines.push(`社内 ${S.meetingInternalPct}%／社外 ${100 - S.meetingInternalPct}%`);
-  lines.push(`社内の打ち合わせ：Web ${S.meetingInternalWebPct}%／対面 ${100 - S.meetingInternalWebPct}%`);
-  lines.push(`社外の打ち合わせ：Web ${S.meetingExternalWebPct}%／対面 ${100 - S.meetingExternalWebPct}%`);
-  lines.push("");
+  html += `<h2>打ち合わせの実態</h2>`;
+  html += kvTable([
+    ["社内 / 社外の割合", `社内 ${S.meetingInternalPct}%／社外 ${100 - S.meetingInternalPct}%`],
+    ["社内の打ち合わせ：Web / 対面", `Web ${S.meetingInternalWebPct}%／対面 ${100 - S.meetingInternalWebPct}%`],
+    ["社外の打ち合わせ：Web / 対面", `Web ${S.meetingExternalWebPct}%／対面 ${100 - S.meetingExternalWebPct}%`],
+  ]);
 
-  lines.push("■ 打ち合わせごとの議事録作成状況");
-  if (meetingMakes.length) {
-    lines.push("［議事録を作成している］");
-    meetingMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・参加${m.participants}名・${timeLabel(m)}`));
+  html += `<h2>打ち合わせごとの議事録作成状況</h2>`;
+  html += `<table class="print-table"><thead><tr><th>種類</th><th>頻度</th><th>会議時間</th><th>参加者数</th><th>議事録作成</th><th>作成時間（1件あたり）</th></tr></thead><tbody>`;
+  if (meetingMakes.length || meetingNotMakes.length) {
+    html += meetingMakes.map(m =>
+      `<tr><td>${escHtml(m.name)}</td><td>${escHtml(freqLabel(m))}</td><td>${m.duration}分</td><td>${m.participants}名</td><td>作成する</td><td>${escHtml(timeLabel(m))}</td></tr>`
+    ).join("");
+    html += meetingNotMakes.map(m =>
+      `<tr><td>${escHtml(m.name)}</td><td>${escHtml(freqLabel(m))}</td><td>${m.duration}分</td><td>${m.participants}名</td><td>作成しない</td><td>―</td></tr>`
+    ).join("");
+  } else {
+    html += `<tr><td colspan="6">―</td></tr>`;
   }
-  if (meetingNotMakes.length) {
-    lines.push("［議事録を作成していない］");
-    meetingNotMakes.forEach(m => lines.push(`・${m.name}：${freqLabel(m)}・会議${m.duration}分・参加${m.participants}名`));
-  }
-  if (!meetingMakes.length && !meetingNotMakes.length) lines.push("―");
+  html += `</tbody></table>`;
   if (cur > 0) {
-    lines.push(`議事録作成にかかっている時間：約${cur}時間/月（作成している打ち合わせの合計・概算）`);
-    lines.push(`人件費換算：約${Math.round(cur * S.hourlyWage).toLocaleString()}円/月（時給${S.hourlyWage.toLocaleString()}円で計算）`);
+    html += kvTable([
+      ["議事録作成にかかっている時間", `約${cur}時間/月（作成している打ち合わせの合計・概算）`],
+      ["人件費換算", `約${Math.round(cur * S.hourlyWage).toLocaleString()}円/月（時給${S.hourlyWage.toLocaleString()}円で計算）`],
+    ]);
   }
-  lines.push("");
 
-  lines.push("■ 議事録の活用状況");
-  lines.push(`作成した議事録の使われ方：${S.minutesUsage.join("、") || "―"}`);
-  lines.push(`議事録の保管方法：${S.minutesStorage.join("、") || "―"}`);
-  lines.push("");
+  html += `<h2>議事録の活用状況</h2>`;
+  html += kvTable([
+    ["作成した議事録の使われ方", S.minutesUsage.join("、") || "―"],
+    ["議事録の保管方法", S.minutesStorage.join("、") || "―"],
+  ]);
 
-  lines.push("■ 費用対効果算出のための設定");
-  lines.push(`人件費（時給換算）：${S.hourlyWage.toLocaleString()}円/時（${monthlyWageLabel()}）`);
+  html += `<h2>費用対効果算出のための設定</h2>`;
+  html += kvTable([
+    ["人件費（時給換算）", `${S.hourlyWage.toLocaleString()}円/時（${monthlyWageLabel()}）`],
+  ]);
 
-  return lines.join("\n");
+  document.getElementById("printView").innerHTML = html;
 }
 
-function downloadHearingText() {
-  const text = buildHearingText();
-  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  const d = new Date();
-  const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
-  a.href = url;
-  a.download = `Rimo_Voice_ヒアリングシート_${stamp}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-
-  const btn = document.querySelector(".btn-print-side");
-  if (btn) {
-    const original = btn.textContent;
-    btn.textContent = "ダウンロードしました ✓";
-    btn.classList.add("copied");
-    setTimeout(() => { btn.textContent = original; btn.classList.remove("copied"); }, 1800);
-  }
+function exportPdf() {
+  buildPrintView();
+  window.print();
 }
 
 /* ============================================================
